@@ -1,14 +1,58 @@
 rules_version = '2';
 
-// Reglas de Firestore del proyecto «simulador-maes».
+// Reglas de Firestore del proyecto «simulador-maes» (Mercado Móvil).
 // Este archivo NO se aplica solo: hay que pegarlo en la consola de Firebase
-// (Firestore Database → Reglas → Publicar) para que tenga efecto.
-// Cualquier dispositivo con sesión (anónima) puede leer y escribir las partidas,
-// porque grupos y profesorado comparten los mismos datos.
+// (Firestore Database → Reglas → Publicar). Antes, cambia TU_CORREO@ejemplo.com
+// por el correo de la cuenta de profesor/a creada en Authentication.
+//
+// - Profesorado (correo y contraseña): puede hacer de todo.
+// - Alumnado (sesión anónima): puede leer, crear su empresa y guardar sus decisiones.
+//   No puede borrar nada, ni cambiar el nivel, las recomendaciones o los resultados pasados.
+//   Solo puede pasar de ronda y añadir resultados cuando ya ha llegado la hora de cierre.
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /mercado-movil/{document=**} {
-      allow read, write: if request.auth != null;
+    function signedIn() { return request.auth != null; }
+    function isTeacher() {
+      return signedIn()
+        && request.auth.token.firebase.sign_in_provider == 'password'
+        && request.auth.token.email in ['TU_CORREO@ejemplo.com'];
+    }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    match /mercado-movil/v1/{document=**} {
+      allow read: if signedIn();
+    }
+    match /mercado-movil/v1/ajustes/{doc} {
+      allow write: if isTeacher();
+    }
+    match /mercado-movil/v1/bloqueos/{doc} {
+      allow write: if signedIn();
+    }
+    match /mercado-movil/v1/partidas/{code} {
+      allow create, delete: if isTeacher();
+      // Cualquier dispositivo puede pasar a la ronda siguiente, pero solo cuando ha llegado la hora
+      allow update: if isTeacher() || (signedIn()
+        && changed().hasOnly(['week', 'openedAt', 'dueAt'])
+        && request.resource.data.week == resource.data.week + 1
+        && resource.data.dueAt != null
+        && request.time.toMillis() >= resource.data.dueAt);
+
+      match /equipos/{team} {
+        function game() { return get(/databases/$(database)/documents/mercado-movil/v1/partidas/$(code)).data; }
+        allow delete: if isTeacher();
+        allow create: if isTeacher() || (signedIn()
+          && request.resource.data.history.size() == 0
+          && request.resource.data.cash == 100000
+          && !request.resource.data.keys().hasAny(['feedback', 'level']));
+        allow update: if isTeacher() || (signedIn() && (
+          // Decisiones, diseño, logo, factura…: sin tocar resultados, nivel ni recomendaciones
+          !changed().hasAny(['feedback', 'level', 'history', 'cash', 'rep', 'id', 'name', 'model', 'members'])
+          // Cierre de semana: añadir exactamente un resultado, solo pasada la hora de cierre
+          || (changed().hasOnly(['history', 'cash', 'rep'])
+              && request.resource.data.history.size() == resource.data.history.size() + 1
+              && game().dueAt != null
+              && request.time.toMillis() >= game().dueAt)));
+      }
     }
   }
 }

@@ -703,6 +703,42 @@ html.tview,html.tview *{scrollbar-width:none}
 html.tview::-webkit-scrollbar,html.tview *::-webkit-scrollbar{display:none;width:0;height:0}
 .tfit.clip{overflow:hidden!important}
 @media (min-width:901px){html.tview,html.tview body{overflow:hidden}}
+
+.dnew{margin-inline-start:auto;background:var(--good);color:#fff;border-radius:999px;padding:1px 8px;font-size:.72rem;font-weight:800}
+.card.newblock{border-color:var(--good);background:var(--good-soft)}
+.lvsel{font:inherit;font-size:.85rem;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+
+.keys{border-color:var(--accent)}
+.keys-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.keyl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.keyl li{border-radius:10px;padding:10px 12px;background:var(--bg);display:flex;flex-direction:column;gap:2px;border-top:4px solid var(--muted)}
+.keyl li.good{background:var(--good-soft);border-top-color:var(--good)}
+.keyl li.bad{background:var(--bad-soft);border-top-color:var(--bad)}
+.keyl li.tip{background:var(--accent-soft);border-top-color:var(--accent)}
+.keyl li b{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}
+@media (max-width:900px){.keyl{grid-template-columns:minmax(0,1fr)}}
+details.allmsg>summary{cursor:pointer;font-weight:700;color:var(--accent);padding:6px 0}
+details.allmsg[open]>summary{margin-bottom:8px}
+.listen{white-space:nowrap}
+.tabnav .listen{margin-inline-end:auto}
+.step-n.seen{color:var(--good);font-weight:800}
+.good-t{color:var(--good)}
+
+/* Factura */
+.invoice{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:14px;max-width:760px;box-shadow:0 6px 20px -16px rgba(20,27,43,.5)}
+.inv-top{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border-bottom:2px solid var(--line);padding-bottom:10px}
+.inv-top>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.inv-t{width:100%;border-collapse:collapse}
+.inv-t th,.inv-t td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:start}
+.inv-t .num,.inv-t .rt{text-align:end}
+.inv-f{display:flex;flex-direction:column;gap:8px;align-self:flex-end;width:min(100%,420px)}
+.inv-r{display:grid;grid-template-columns:minmax(0,1fr) 150px 22px;gap:10px;align-items:center}
+.inv-r label{font-weight:600;font-size:.92rem}
+.inv-r .inwrap input{width:100%;text-align:end;font-size:1.05rem;padding:7px 10px}
+.inv-r:last-child label{font-weight:800}
+.card.loanbox{max-width:520px}
+.pend-t{color:var(--event);font-weight:600}
+@media (max-width:600px){.inv-top{grid-template-columns:minmax(0,1fr)}.inv-r{grid-template-columns:minmax(0,1fr) 120px 22px}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -713,6 +749,104 @@ html.tview::-webkit-scrollbar,html.tview *::-webkit-scrollbar{display:none;width
    Cada fila: [texto en español, inglés, árabe]. {0}, {1}… son huecos que se rellenan con datos.
    Si falta una traducción, se muestra el español. */
 const TR=[
+["Financiación", "Financing", "التمويل"],
+["Factura", "Invoice", "الفاتورة"],
+["Medidas sostenibles", "Sustainable measures", "إجراءات مستدامة"],
+["Cuestan algo más, pero muchos clientes las valoran y mejoran vuestra reputación.", "They cost a little more, but many customers value them and they improve your reputation.", "تكلّف أكثر قليلًا، لكن كثيرًا من الزبائن يقدّرونها وتحسّن سمعتكم."],
+["+{0} por móvil", "+{0} per phone", "+{0} لكل هاتف"],
+["{0} g de CO₂", "{0} g of CO₂", "{0} غ من ثاني أكسيد الكربون"],
+["Embalaje reciclado y sin plástico", "Recycled, plastic-free packaging", "تغليف معاد تدويره وبدون بلاستيك"],
+["Caja de cartón reciclado, sin plásticos de un solo uso.", "Recycled cardboard box, no single-use plastics.", "علبة من الكرتون المعاد تدويره، بلا بلاستيك للاستعمال الواحد."],
+["Recogida y reciclaje del móvil viejo", "Collecting and recycling the old phone", "جمع الهاتف القديم وإعادة تدويره"],
+["Recogéis el móvil antiguo del cliente y lo lleváis a reciclar.", "You collect the customer's old phone and take it for recycling.", "تجمعون الهاتف القديم للزبون وتأخذونه لإعادة التدوير."],
+["Compensar el CO₂ del transporte", "Offsetting transport CO₂", "تعويض ثاني أكسيد الكربون الناتج عن النقل"],
+["Pagáis proyectos que absorben el CO₂ que emite el transporte (unos 40 € por tonelada).", "You pay for projects that absorb the CO₂ from transport (about €40 per tonne).", "تدفعون لمشاريع تمتص ثاني أكسيد الكربون الناتج عن النقل (نحو 40 يورو للطن)."],
+["Sin pago a plazos", "No instalments", "بدون دفع بالتقسيط"],
+["Los clientes pagan el móvil entero al comprarlo.", "Customers pay for the whole phone when they buy it.", "يدفع الزبائن ثمن الهاتف كاملًا عند الشراء."],
+["Plazos sin intereses que financiáis vosotros", "Interest-free instalments that you finance", "تقسيط بدون فوائد تموّلونه أنتم"],
+["Atrae a muchos más clientes, pero una parte no termina de pagar (impagos: se pierde un 8 % de esas ventas).", "It attracts many more customers, but some never finish paying (bad debts: 8 % of those sales are lost).", "يجذب زبائن أكثر بكثير، لكن بعضهم لا يكمل الدفع (ديون غير مسددة: تضيع 8 % من تلك المبيعات)."],
+["Plazos con una financiera", "Instalments through a finance company", "تقسيط عبر شركة تمويل"],
+["El cliente paga intereses a la financiera (TAE 15 %). Atrae algo menos, la financiera asume los impagos y os cobra un 2 % de comisión.", "The customer pays interest to the finance company (APR 15 %). It attracts a little less, the company takes the bad-debt risk and charges you 2 %.", "يدفع الزبون فوائد لشركة التمويل (معدل سنوي 15 %). يجذب أقل قليلًا، وتتحمل الشركة الديون غير المسددة وتأخذ منكم عمولة 2 %."],
+["Medidas sostenibles: {0}. Los clientes lo valoran y vuestra reputación sube.", "Sustainable measures: {0}. Customers value it and your reputation rises.", "إجراءات مستدامة: {0}. يقدّر الزبائن ذلك وترتفع سمعتكم."],
+["El transporte de cada móvil emitió unos {0} g de CO₂ ({1}).", "Shipping each phone emitted about {0} g of CO₂ ({1}).", "أطلق نقل كل هاتف نحو {0} غ من ثاني أكسيد الكربون ({1})."],
+["El avión contamina unas 40 veces más que el barco.", "A plane pollutes about 40 times more than a ship.", "تلوّث الطائرة نحو 40 مرة أكثر من السفينة."],
+["Pago a plazos: atrajo a más clientes. {0}", "Instalments: they attracted more customers. {0}", "الدفع بالتقسيط: جذب زبائن أكثر. {0}"],
+["Algunos clientes no pagaron: perdisteis {0} en impagos.", "Some customers did not pay: you lost {0} in bad debts.", "لم يدفع بعض الزبائن: خسرتم {0} في الديون غير المسددة."],
+["La financiera os cobró {0} de comisión.", "The finance company charged you {0} in fees.", "أخذت شركة التمويل منكم {0} عمولة."],
+["El banco os prestó {0} al {1} % anual. Pagaréis {2} cada semana durante {3} semanas.", "The bank lent you {0} at {1} % a year. You will pay {2} every week for {3} weeks.", "أقرضكم البنك {0} بفائدة {1} % سنويًا. ستدفعون {2} كل أسبوع لمدة {3} أسابيع."],
+["Cuota del préstamo: {0} ({1} de intereses, que son un gasto, y {2} de devolución). Queda por devolver: {3}.", "Loan instalment: {0} ({1} interest, which is an expense, and {2} repayment). Still to repay: {3}.", "قسط القرض: {0} ({1} فوائد، وهي مصروف، و{2} سداد). المتبقي للسداد: {3}."],
+["Teníais la cuenta en negativo: el banco os cobró {0} de intereses por el descubierto.", "Your account was negative: the bank charged you {0} in overdraft interest.", "كان حسابكم بالسالب: أخذ منكم البنك {0} فوائد على السحب على المكشوف."],
+["La factura a {0} estaba bien hecha: el cliente confía más en vosotros (+{1} de reputación).", "The invoice to {0} was correct: the customer trusts you more (+{1} reputation).", "كانت الفاتورة إلى {0} صحيحة: يثق بكم الزبون أكثر (+{1} في السمعة)."],
+["No hicisteis bien la factura de esta semana ({0}).", "This week's invoice was not done correctly ({0}).", "لم تُنجزوا فاتورة هذا الأسبوع بشكل صحيح ({0})."],
+["Préstamo que recibís", "Loan you receive", "القرض الذي تحصلون عليه"],
+["Cuota del préstamo", "Loan instalment", "قسط القرض"],
+["Intereses por descubierto", "Overdraft interest", "فوائد السحب على المكشوف"],
+["Recibís ahora", "You receive now", "تحصلون الآن على"],
+["Cuota semanal (desde la semana que viene)", "Weekly instalment (from next week)", "القسط الأسبوعي (ابتداءً من الأسبوع القادم)"],
+["Total a devolver", "Total to repay", "المجموع الواجب سداده"],
+["Intereses (lo que os cuesta el préstamo)", "Interest (what the loan costs you)", "الفوائد (ما يكلّفكم القرض)"],
+["Cuenta en negativo", "Negative balance", "رصيد سالب"],
+["Tenéis {0} de presupuesto. El banco cobra un 0,5 % semanal por el descubierto y solo os ofrece un préstamo de rescate al {1} %.", "Your budget is {0}. The bank charges 0.5 % a week on the overdraft and only offers you a rescue loan at {1} %.", "ميزانيتكم {0}. يأخذ البنك 0,5 % أسبوعيًا على السحب على المكشوف ولا يعرض عليكم إلا قرض إنقاذ بفائدة {1} %."],
+["Estáis en quiebra técnica: debéis más de lo que podéis pagar.", "You are technically bankrupt: you owe more than you can pay.", "أنتم في حالة إفلاس فعلي: عليكم ديون أكثر مما تستطيعون دفعه."],
+["Préstamo bancario", "Bank loan", "قرض بنكي"],
+["Ya tenéis un préstamo: quedan {0} por devolver en {1} cuotas de {2}. Hasta que lo terminéis no podéis pedir otro.", "You already have a loan: {0} left to repay in {1} instalments of {2}. You cannot ask for another until it is paid off.", "لديكم قرض بالفعل: بقي {0} للسداد في {1} أقساط بقيمة {2}. لا يمكنكم طلب قرض آخر قبل إنهائه."],
+["El banco os presta dinero ahora y lo devolvéis en cuotas semanales con intereses. Los intereses son un gasto; devolver el dinero prestado no.", "The bank lends you money now and you repay it in weekly instalments with interest. Interest is an expense; repaying the borrowed money is not.", "يقرضكم البنك المال الآن وتعيدونه في أقساط أسبوعية مع فوائد. الفوائد مصروف، أما سداد المبلغ المقترض فلا."],
+["Sin préstamo", "No loan", "بدون قرض"],
+["¿En cuántas semanas lo devolvéis?", "How many weeks will you take to repay it?", "في كم أسبوعًا ستسدّدونه؟"],
+["{0} semanas", "{0} weeks", "{0} أسابيع"],
+["¿Ofrecéis pago a plazos a los clientes?", "Do you offer customers instalment payments?", "هل تعرضون على الزبائن الدفع بالتقسيط؟"],
+["Factura de la semana", "This week's invoice", "فاتورة هذا الأسبوع"],
+["Una tienda os ha hecho un pedido. Completad la factura. Si está bien a la primera, el cliente confía más en vosotros (+2 de reputación; +1 si la corregís).", "A shop has placed an order. Fill in the invoice. If it is right first time, the customer trusts you more (+2 reputation; +1 if you correct it).", "قدّم متجر طلبية. أكملوا الفاتورة. إذا كانت صحيحة من أول مرة يثق بكم الزبون أكثر (+2 في السمعة، و+1 إذا صحّحتموها)."],
+["Emisor", "Issuer", "المُصدِر"],
+["Andalucía · CIF ficticio", "Andalusia · fictitious tax ID", "الأندلس · رقم ضريبي وهمي"],
+["Cliente", "Customer", "الزبون"],
+["Concepto", "Item", "البيان"],
+["Cantidad", "Quantity", "الكمية"],
+["Precio unitario (sin IVA)", "Unit price (excl. VAT)", "سعر الوحدة (بدون ضريبة)"],
+["Móviles {0}", "{0} phones", "هواتف {0}"],
+["Importe (cantidad × precio)", "Amount (quantity × price)", "المبلغ (الكمية × السعر)"],
+["Descuento por pronto pago (5 %)", "Early-payment discount (5 %)", "خصم الدفع المبكر (5 %)"],
+["Base imponible", "Taxable base", "الوعاء الضريبي"],
+["IVA (21 %)", "VAT (21 %)", "ضريبة القيمة المضافة (21 %)"],
+["Total de la factura", "Invoice total", "مجموع الفاتورة"],
+["Base imponible (cantidad × precio)", "Taxable base (quantity × price)", "الوعاء الضريبي (الكمية × السعر)"],
+["Factura correcta.", "Invoice correct.", "الفاتورة صحيحة."],
+["La habéis corregido: +1 de reputación al publicar los resultados.", "You corrected it: +1 reputation when results are published.", "صحّحتموها: +1 في السمعة عند نشر النتائج."],
+["A la primera: +2 de reputación al publicar los resultados.", "First time: +2 reputation when results are published.", "من أول مرة: +2 في السمعة عند نشر النتائج."],
+["Comprobar factura", "Check invoice", "تحقّقوا من الفاتورة"],
+["Intentos: {0}.", "Attempts: {0}.", "المحاولات: {0}."],
+["Revisad lo marcado con ✗.", "Check what is marked with ✗.", "راجعوا ما عليه علامة ✗."],
+["Importe = cantidad × precio unitario.", "Amount = quantity × unit price.", "المبلغ = الكمية × سعر الوحدة."],
+["Descuento = importe × 5 %.", "Discount = amount × 5 %.", "الخصم = المبلغ × 5 %."],
+["Base imponible = importe − descuento.", "Taxable base = amount − discount.", "الوعاء الضريبي = المبلغ − الخصم."],
+["Base imponible = cantidad × precio unitario.", "Taxable base = quantity × unit price.", "الوعاء الضريبي = الكمية × سعر الوحدة."],
+["IVA = base imponible × 21 %.", "VAT = taxable base × 21 %.", "الضريبة = الوعاء الضريبي × 21 %."],
+["Total = base imponible + IVA.", "Total = taxable base + VAT.", "المجموع = الوعاء الضريبي + الضريبة."],
+["Préstamo", "Loan", "القرض"],
+["{0} en {1} semanas", "{0} over {1} weeks", "{0} على {1} أسابيع"],
+["Pendiente: {0}", "Outstanding: {0}", "المتبقي: {0}"],
+["Pago a plazos", "Instalments", "الدفع بالتقسيط"],
+["Ninguna", "None", "لا شيء"],
+["Sin hacer o con errores", "Not done or with errors", "غير منجزة أو فيها أخطاء"],
+["Escuchar","Listen","استمعوا"],["Las 3 claves de la semana","The 3 keys of the week","المفاتيح الثلاثة لهذا الأسبوع"],["Lo mejor","Best","الأفضل"],["A mejorar","To improve","للتحسين"],["Para la próxima semana","For next week","للأسبوع القادم"],
+["Ver todo lo que ha pasado ({0})","See everything that happened ({0})","عرض كل ما حدث ({0})"],
+["No enviasteis decisiones: no fabricasteis nada.","You did not send decisions: you made nothing.","لم ترسلوا قراراتكم: لم تصنعوا شيئًا."],
+["Repasad todas las secciones y enviad las decisiones a tiempo.","Check every section and send your decisions on time.","راجعوا كل الأقسام وأرسلوا قراراتكم في الوقت المحدد."],
+["Hubo huelga en la fábrica y se fabricó mucho menos.","There was a strike at the factory and far fewer phones were made.","حدث إضراب في المصنع وصُنع عدد أقل بكثير."],
+["Decidid una medida ante la huelga en «Plantilla».","Choose a response to the strike in “Staff”.","اختاروا إجراءً تجاه الإضراب في قسم «العمال»."],
+["Os quedasteis sin móviles: {0} clientes no pudieron comprar.","You ran out of phones: {0} customers could not buy.","نفدت هواتفكم: {0} زبونًا لم يتمكنوا من الشراء."],
+["Fabricad más móviles o subid un poco el precio.","Make more phones or raise the price a little.","اصنعوا هواتف أكثر أو ارفعوا السعر قليلًا."],
+["Sobraron {0} móviles y se malvendieron.","{0} phones were left over and sold cheaply.","بقي {0} هاتفًا وبيعت بسعر زهيد."],
+["Fabricad menos o bajad un poco el precio.","Make fewer phones or lower the price a little.","اصنعوا هواتف أقل أو اخفضوا السعر قليلًا."],
+["Perdisteis {0} esta semana.","You lost {0} this week.","خسرتم {0} هذا الأسبوع."],
+["Comparad lo que cuesta cada móvil con el precio de venta.","Compare what each phone costs with its selling price.","قارنوا تكلفة كل هاتف بسعر بيعه."],
+["Repetid lo que ha funcionado y cambiad solo una cosa cada vez.","Repeat what worked and change only one thing at a time.","كرّروا ما نجح وغيّروا شيئًا واحدًا فقط في كل مرة."],
+["Habéis ganado {0} y vendido {1} móviles.","You made {0} and sold {1} phones.","ربحتم {0} وبعتم {1} هاتفًا."],
+["Todavía no habéis revisado: {0}.","You have not checked yet: {0}.","لم تراجعوا بعد: {0}."],["Habéis revisado todas las secciones.","You have checked every section.","راجعتم كل الأقسام."],
+["Nuevo","New","جديد"],["Novedad de esta semana","New this week","جديد هذا الأسبوع"],
+["Ahora también decidís: {0}","Now you also decide: {0}","الآن تقرّرون أيضًا: {0}"],
+["Lo encontraréis en el menú (☰), marcado como «Nuevo».","You will find it in the menu (☰), marked as “New”.","ستجدونه في القائمة (☰) مع علامة «جديد»."],
+["Por privacidad, solo se guarda el nombre y la inicial del primer apellido (por ejemplo, Ana L.).","For privacy, only the first name and the initial of the surname are saved (for example, Ana L.).","للحفاظ على الخصوصية، يُحفظ الاسم الأول والحرف الأول من اللقب فقط (مثلًا: Ana L.)."],
 ["Código del curso","Course code","رمز الصف"],
 ["Escribid el código que os ha dado vuestro profesor o profesora para entrar en {0}.","Enter the code your teacher gave you to join {0}.","اكتبوا الرمز الذي أعطاكم إياه أستاذكم أو أستاذتكم للدخول إلى {0}."],
 ["Entrar en el curso","Join the class","الدخول إلى الصف"],
@@ -978,6 +1112,12 @@ const TR=[
 ];
 /* Glosario: término, definición y ejemplo en cada idioma */
 const GLOSS=[
+ {k:'prestamo',es:['Préstamo','Dinero que presta un banco y que hay que devolver en cuotas, con intereses.','El banco os presta 10.000 € y le devolvéis 2.511 € cada semana durante 4 semanas: pagáis unos 44 € de intereses.'],
+  en:['Loan','Money a bank lends you that must be repaid in instalments, with interest.','The bank lends you €10,000 and you pay back €2,511 a week for 4 weeks: you pay about €44 interest.'],
+  ar:['القرض','مال يقرضه البنك ويجب سداده على أقساط مع فوائد.','يقرضكم البنك 10000 يورو وتسدّدون 2511 يورو كل أسبوع لمدة 4 أسابيع: تدفعون نحو 44 يورو فوائد.']},
+ {k:'tae',es:['TIN y TAE','El TIN es el interés que cobra el banco al año. La TAE incluye además cómo se acumulan los intereses: sirve para comparar préstamos.','Un préstamo con TIN del 9 % pagado cada semana tiene una TAE algo mayor, del 9,4 %.'],
+  en:['Nominal rate and APR','The nominal rate is the interest the bank charges per year. The APR also includes how interest builds up: it is used to compare loans.','A loan at 9 % nominal paid weekly has a slightly higher APR, 9.4 %.'],
+  ar:['المعدل الاسمي والمعدل السنوي الفعلي','المعدل الاسمي هو الفائدة التي يأخذها البنك في السنة. المعدل الفعلي يضيف طريقة تراكم الفوائد، ويُستعمل لمقارنة القروض.','قرض بمعدل اسمي 9 % يُسدَّد أسبوعيًا له معدل فعلي أعلى قليلًا، 9,4 %.']},
  {k:'fijo',es:['Coste fijo','Gasto que se paga cada semana aunque no se fabrique nada: alquiler, sueldos, mantenimiento, publicidad.','Si alquiláis la nave por 3.000 € a la semana, los pagáis fabriquéis 0 o 500 móviles.'],
   en:['Fixed cost','A cost paid every week even if nothing is made: rent, wages, maintenance, advertising.','If the factory rent is €3,000 a week, you pay it whether you make 0 or 500 phones.'],
   ar:['التكلفة الثابتة','نفقة تُدفع كل أسبوع حتى لو لم يُصنع شيء: الإيجار والأجور والصيانة والإعلان.','إذا كان إيجار المصنع 3000 يورو أسبوعيًا فستدفعونه سواء صنعتم 0 أو 500 هاتف.']},
@@ -1209,6 +1349,7 @@ const Store={
     return lread().games[code]?.game||null;
   },
   async setGame(g){
+    g={...g}; {const d=dueAt(g); g.dueAt=isFinite(d)?d:null}
     if(this.db){await this.db.doc('partidas/'+g.code).set(g);return}
     const o=lread();o.games[g.code]=o.games[g.code]||{game:null,teams:{}};o.games[g.code].game=g;lwrite(o);this.localPush(g.code);
   },
@@ -1296,15 +1437,16 @@ function costs(dec,w,t){
   const ev=teamEvent(t,w), m=MODELS[dec.model], c=dec.cont, md=dec.mode;
   let unit=m.base; for(const k in ATTR) unit+=cOf(k,dec.comps[k]); for(const k in EXTRAS) if(dec.extras&&dec.extras[k]) unit+=EXTRAS[k].c;
   if(ev&&ev.costMul) unit*=ev.costMul;
+  unit+=ecoUnit(dec);
   let ship=(SHIP[c][md]||0)*(ev&&ev.transMul&&ev.transMul[md]||1);
   if(md==='barco'&&ev&&ev.shipCont&&ev.shipCont[c]) ship*=ev.shipCont[c];
   let onTime=ONTIME[c][md]||0; if(md==='barco'&&ev&&ev.delayCont&&ev.delayCont[c]) onTime-=ev.delayCont[c];
   const tariff=ev&&ev.tariff&&ev.target===c?ev.tariff:0;
-  if(isAdv()){
+  if(isAdv(t)){
     const A=advCalc(dec,w,t), Z=A.Z; unit+=AIF[+A.a.ai||0].c*(ev&&ev.costMul||1);
     if(md==='barco'&&Z.ship) ship*=Z.ship; if(md==='avion'&&Z.air) ship*=Z.air;
     const per=unit+ship+Z.v;
-    return {unit,ship,zoneV:Z.v,per,onTime,tariff:Math.max(tariff,TARIFF_BASE[c]||0),iva:c==='europa'?IVA:0,A,invest:Math.min(dec.prod,A.cap)*per+A.fixedTot};
+    return {unit,ship,zoneV:Z.v,per,onTime,tariff:A.f.tax?Math.max(tariff,TARIFF_BASE[c]||0):tariff,iva:A.f.tax&&c==='europa'?IVA:0,A,invest:Math.min(dec.prod,A.cap)*per+A.fixedTot};
   }
   return {unit,ship,per:unit+ship,onTime,tariff,iva:0,invest:dec.prod*(unit+ship)+dec.ad};
 }
@@ -1321,19 +1463,20 @@ function simulateAdv(dec,w,t){
   const noise=0.9+0.2*rnd(G.code+'|noise|'+t.id+'|'+w);
   const strike=rnd(G.code+'|str|'+t.id+'|'+w)<A.strikeRisk, broke=dec.prod>0&&rnd(G.code+'|brk|'+t.id+'|'+w)<A.breakRisk;
   const cap=Math.floor(A.capH*(strike?.3:1)*(broke?.6:1)+A.capR*(broke?.6:1)), produced=Math.max(0,Math.min(dec.prod,cap));
-  const demand=blocked?0:Math.round(m.dem*c.size*F.sat*pf*D.adf*repf*evf*L.m*noise*D.aiMul*D.imgMul);
+  const PZ=plazosFx(dec), EC=ecoFx(dec), FIN=finCalc(dec,w,t);
+  const demand=blocked?0:Math.round(m.dem*c.size*F.sat*pf*D.adf*repf*evf*L.m*noise*D.aiMul*D.imgMul*PZ.m*EC.m);
   const adClients=Math.round(demand-demand/D.adf);
   const avail=blocked?0:Math.round(produced*K.onTime), late=blocked?0:produced-avail;
   const sold=Math.min(demand,avail), lateSold=Math.min(demand-sold,late), lost=demand-sold-lateSold, left=produced-sold-lateSold;
   const revMul=dec.cont!=='europa'&&ev&&ev.revOut?ev.revOut:1;
   const gross=(sold*dec.price+lateSold*dec.price*0.5)*revMul, net=gross/(1+K.iva), iva=gross-net;
-  const tariffPaid=net*K.tariff, revenue=net-tariffPaid, outlet=left*K.unit*0.4;
+  const tariffPaid=net*K.tariff, pzLoss=net*PZ.loss, revenue=net-tariffPaid-pzLoss, outlet=left*K.unit*0.4;
   const varCost=produced*K.per, fixedTot=A.fixedTot+(broke?REPAIR:0);
-  const pbt=revenue+outlet-varCost-fixedTot, tax=taxOf(pbt,revenue,A.P.carry), profit=pbt-tax.tax;
-  let repDelta=produced>0&&!blocked?clamp((F.sat-0.8)*25+(dec.extras&&dec.extras.garantia?2:0),-12,8):0;
+  const pbt=revenue+outlet-varCost-fixedTot-FIN.interest-FIN.over, tax=A.f.tax?taxOf(pbt,revenue,A.P.carry):{tax:0,rate:0,kind:'micro',base:0,carryNew:A.P.carry}, profit=pbt-tax.tax;
+  let repDelta=produced>0&&!blocked?clamp((F.sat-0.8)*25+(dec.extras&&dec.extras.garantia?2:0)+EC.rep,-12,10):0;
   if(A.share>.4) repDelta-=3; if(strike) repDelta-=3; if(A.meas==='sustitutos') repDelta-=10;
   const X={strike,broke,cap,produced,iva,tariffPaid,tax,pbt,varCost,fixedTot};
-  return {week:w,dec,demand,adClients,sold,lateSold,lost,left,revenue,outlet,tariffPaid,profit,K:{...K,invest:varCost+fixedTot},F,ref,repDelta,blocked,L,hasImg,exf,N,hasLogo,A,D,X};
+  return {week:w,dec,demand,adClients,sold,lateSold,lost,left,revenue,outlet,tariffPaid,profit,K:{...K,invest:varCost+fixedTot},F,ref,repDelta,blocked,L,hasImg,exf,N,hasLogo,A,D,X,PZ,EC,FIN,pzLoss};
 }
 function advRecord(r){
   const A=r.A, X=r.X;
@@ -1342,7 +1485,7 @@ function advRecord(r){
     fixed:{...A.fixed,repair:X.broke?REPAIR:0},ai:+A.a.ai||0,focus:A.a.focus,media:A.media,measure:A.meas||null,revenue:Math.round(r.revenue),outlet:Math.round(r.outlet)};
 }
 function simulate(dec,w,t){
-  if(isAdv()) return simulateAdv(dec,w,t);
+  if(isAdv(t)) return simulateAdv(dec,w,t);
   const m=MODELS[dec.model], c=CONTS[dec.cont], F=fitOf(dec,w,t), ev=F.ev, K=costs(dec,w,t);
   const blocked=blockedCont(ev,dec.cont)||!modeOK(dec.cont,dec.mode,ev);
   const hasLogo=!!teamLogo(t);
@@ -1356,7 +1499,8 @@ function simulate(dec,w,t){
   const nf=N.size[dec.cont]*N.model[dec.model]*(hasLogo?1.05:1);
   const evf=(ev&&ev.demMul||1)*(ev&&ev.demConts&&ev.demConts[dec.cont]||1)*exf*nf;
   const noise=0.9+0.2*rnd(G.code+'|noise|'+t.id+'|'+w);
-  const demand=blocked?0:Math.round(m.dem*c.size*F.sat*pf*adf*repf*evf*L.m*noise);
+  const PZ=plazosFx(dec), EC=ecoFx(dec), FIN=finCalc(dec,w,t);
+  const demand=blocked?0:Math.round(m.dem*c.size*F.sat*pf*adf*repf*evf*L.m*noise*PZ.m*EC.m);
   const adClients=Math.round(demand-demand/adf);
   const avail=blocked?0:Math.round(dec.prod*K.onTime);
   const late=blocked?0:dec.prod-avail;
@@ -1364,10 +1508,10 @@ function simulate(dec,w,t){
   const lost=demand-sold-lateSold, left=dec.prod-sold-lateSold;
   const revMul=dec.cont!=='europa'&&ev&&ev.revOut?ev.revOut:1;
   const gross=(sold*dec.price+lateSold*dec.price*0.5)*revMul;
-  const tariffPaid=gross*K.tariff, revenue=gross-tariffPaid, outlet=left*K.unit*0.4;
-  const profit=revenue+outlet-K.invest-FIXED;
-  const repDelta=dec.prod>0&&!blocked?clamp((F.sat-0.8)*25+(dec.extras&&dec.extras.garantia?2:0),-12,8):0;
-  return {week:w,dec,demand,adClients,sold,lateSold,lost,left,revenue,outlet,tariffPaid,profit,K,F,ref,repDelta,blocked,L,hasImg,exf,N,hasLogo};
+  const tariffPaid=gross*K.tariff, pzLoss=gross*PZ.loss, revenue=gross-tariffPaid-pzLoss, outlet=left*K.unit*0.4;
+  const profit=revenue+outlet-K.invest-FIXED-FIN.interest-FIN.over;
+  const repDelta=dec.prod>0&&!blocked?clamp((F.sat-0.8)*25+(dec.extras&&dec.extras.garantia?2:0)+EC.rep,-12,10):0;
+  return {week:w,dec,demand,adClients,sold,lateSold,lost,left,revenue,outlet,tariffPaid,profit,K,F,ref,repDelta,blocked,L,hasImg,exf,N,hasLogo,PZ,EC,FIN,pzLoss};
 }
 function marketing(sat){
   if(sat<0.5) return {t:'Muy bajo: no es lo que buscan estos clientes',v:.12};
@@ -1397,10 +1541,11 @@ function messages(r){
   if(r.lost>0) out.push({c:'bad',t:T('Os quedasteis sin móviles: {0} clientes querían comprar y no pudieron.',int(r.lost))});
   if(r.left>0&&r.left>=0.15*d.prod) out.push({c:'bad',t:T('Sobraron {0} móviles. Se vendieron en un outlet por solo {1} en total.',int(r.left),eur(r.outlet))});
   if(r.lost===0&&r.left<0.15*d.prod&&d.prod>0) out.push({c:'good',t:T('Acertasteis bastante con la cantidad fabricada.')});
-  if(d.ad===0&&!r.A) out.push({c:'',t:T('No hicisteis publicidad: menos gente conoció vuestro móvil.')});
+  if(d.ad===0&&(!r.A||!r.A.f.ads)) out.push({c:'',t:T('No hicisteis publicidad: menos gente conoció vuestro móvil.')});
   if(r.repDelta<=-5) out.push({c:'bad',t:T('Las opiniones de los clientes fueron malas y vuestra reputación baja. Eso os quitará ventas las próximas semanas.')});
   if(r.repDelta>=4) out.push({c:'good',t:T('Los clientes quedaron contentos: vuestra reputación sube.')});
   if(r.A) out.push(...advMessages(r));
+  out.push(...extraMessages(r));
   return out;
 }
 /* Mensajes en los tres idiomas: el español se guarda como siempre (lo lee el profesorado) */
@@ -1411,6 +1556,7 @@ function messagesAll(r,sent){
   applyLang(cur);
   return {msgs:res.es,msgsI18n:{en:res.en,ar:res.ar},evEs};
 }
+/* Mensaje de cuando no se envían decisiones, con el descubierto si lo hay */
 const msgsOf=h=>(LANG!=='es'&&h.msgsI18n&&h.msgsI18n[LANG])||h.msgs;
 function evTitle(h){if(h.evId){const e=EVENTS.find(x=>x.id===h.evId);if(e)return e.t(h.evTarget)}return h.event||''}
 const glBtn=k=>`<button type="button" class="gl" data-gl="${k}" aria-label="${T('¿Qué significa?')}" title="${T('¿Qué significa?')}">?</button>`;
@@ -1465,10 +1611,10 @@ function bindFinal(t){
 }
 function defaultDec(model){const l=model==='A'?1:model==='C'?3:2;return {model,niche:model==='A'?'estudiantes':model==='B'?'creadores':'empresarios',comps:{cam:l,pan:l,bat:l,car:l,mem:l,cpu:l,bio:model==='C'?2:1},extras:{funda:false,cargador:true,auriculares:false,garantia:false,protector:false},cont:'europa',mode:'camion',price:habitual(model,'europa'),prod:model==='C'?120:300,ad:3000,adv:{...ADV_DEF,workers:model==='A'?8:model==='C'?6:11,media:[...ADV_DEF.media]}}}
 /* Ajusta una decisión a lo que permite el evento de esta semana */
-function fixDec(d,ev){
+function fixDec(d,ev,t){
   const df=defaultDec(d.model); if(!NICHES[d.niche]) d.niche=df.niche; d.comps={...df.comps,...(d.comps||{})}; d.extras={...df.extras,...(d.extras||{})};
   d.adv={...ADV_DEF,...(d.adv||{})}; d.adv.media=(d.adv.media||[]).filter(k=>MEDIA[k]); if(!ZONES[d.adv.zone]) d.adv.zone=ADV_DEF.zone;
-  if(isAdv()) d.ad=d.adv.media.reduce((s,k)=>s+MEDIA[k].c,0);
+  if(isAdv(t)&&feat('ads',t)) d.ad=d.adv.media.reduce((s,k)=>s+MEDIA[k].c,0);
   if(blockedCont(ev,d.cont)){d.cont=Object.keys(CONTS).find(c=>!blockedCont(ev,c));d.price=habitual(d.model,d.cont)}
   if(!d.mode||!modeOK(d.cont,d.mode,ev)) d.mode=Object.keys(MODES).find(m=>modeOK(d.cont,m,ev));
   return d;
@@ -1484,13 +1630,17 @@ async function closeWeek(){
     const jobs=[];
     for(const t of teams){
       if((t.history||[]).some(h=>h.week===w)) continue;
-      const sent=t.decWeek===w, ev=teamEvent(t,w), dec=fixDec(JSON.parse(JSON.stringify(sent?t.dec:{...t.dec,prod:0,ad:0,adv:{...((t.dec&&t.dec.adv)||{}),media:[],mach:1,measure:'nada'}})),ev);
+      const sent=t.decWeek===w, ev=teamEvent(t,w), dec=fixDec(JSON.parse(JSON.stringify(sent?t.dec:{...t.dec,prod:0,ad:0,adv:{...((t.dec&&t.dec.adv)||{}),media:[],mach:1,measure:'nada'}})),ev,t);
       const r=simulate(dec,w,t);
+      const iv=invOf(t,w), io=iv?invOrder(t,w):null, bonus=iv&&iv.ok?(iv.tries<=1?2:1):0;
+      if(sent) r.inv={ok:!!(iv&&iv.ok),client:io?io.client:invOrder(t,w).client,bonus};
       const MA=messagesAll(r,sent), msgs=MA.msgs;
-      const cash=t.cash+r.profit, rep=clamp(t.rep+r.repDelta,0,100);
+      const cash=t.cash+r.profit+r.FIN.taken-r.FIN.principal, rep=clamp(t.rep+r.repDelta+bonus,0,100);
       const h={week:w,sent,cont:dec.cont,niche:dec.niche,mode:dec.mode,lateSold:r.lateSold,tariffPaid:Math.round(r.tariffPaid),event:MA.evEs,evId:ev?ev.id:null,evTarget:ev?ev.target:null,price:dec.price,prod:r.X?r.X.produced:dec.prod,ad:dec.ad,demand:r.demand,adClients:r.adClients,sold:r.sold,lost:r.lost,
         revenue:Math.round(r.revenue+r.outlet),costs:Math.round(r.K.invest+(r.A?r.X.tax.tax:FIXED)),profit:Math.round(r.profit),cash:Math.round(cash),repDelta:Math.round(r.repDelta),msgs,msgsI18n:MA.msgsI18n};
       if(r.A) h.adv=advRecord(r);
+      h.fin={...r.FIN.state,taken:r.FIN.taken,interest:Math.round(r.FIN.interest),principal:Math.round(r.FIN.principal),over:Math.round(r.FIN.over),plazos:r.PZ.k,pzLoss:Math.round(r.pzLoss||0)};
+      h.eco=r.EC.on; h.inv=iv?{ok:!!iv.ok,tries:iv.tries||0}:null; if(cash<BANKRUPT) h.bankrupt=true;
       jobs.push(Store.patchTeam(CODE,t.id,{cash:Math.round(cash),rep,history:[...(t.history||[]),h]}));
     }
     await Promise.all(jobs);
@@ -1506,7 +1656,21 @@ async function closeWeek(){
    Impuesto de sociedades 2026: 25 % general; 23 % empresas de reducida dimensión (< 10 M€ de facturación);
    micropymes (< 1 M€) 19 % los primeros 50.000 € de base y 21 % el resto. IVA general 21 %.
    El resto de valores (alquileres, productividad, aranceles base, eficacia de los medios) son orientativos del juego. */
-const isAdv=g=>{g=g||G;return !!(g&&g.rules&&g.rules.level==='avanzado')};
+const LEVELS={basico:'Básico',progresivo:'Progresivo',avanzado:'Avanzado'};
+/* Nivel de una empresa: el suyo propio (lo fija el profesor/a) o el del curso */
+function levelOf(t){
+  if(t===undefined) t=(VIEW==='team'&&typeof ME!=='undefined'&&ME)?(TEAMS.find(x=>x.id===ME)||null):null;
+  if(t&&LEVELS[t.level]) return t.level;
+  return (G&&G.rules&&LEVELS[G.rules.level])?G.rules.level:'basico';
+}
+const isAdv=t=>levelOf(t)!=='basico';
+const gameLevel=g=>(g&&g.rules&&LEVELS[g.rules.level])?g.rules.level:'basico';
+/* Modo progresivo: cada bloque se desbloquea en una semana (sin pasar de la última ronda) */
+const UNLOCK={staff:2,mach:2,zone:3,ads:4,ai:4,tax:5};
+const UNLOCK_N={staff:'Plantilla',mach:'Maquinaria',zone:'Ubicación de la fábrica',ads:'Publicidad por enfoque y medios',ai:'Mejoras con IA',tax:'Impuestos (IVA, aranceles y sociedades)'};
+const unlockWeek=k=>Math.min(UNLOCK[k],WEEKS);
+function feat(k,t,w){const l=levelOf(t);if(l==='avanzado')return true;if(l!=='progresivo')return false;return (w||G.week)>=unlockWeek(k)}
+const featsOf=(t,w)=>({staff:feat('staff',t,w),mach:feat('mach',t,w),zone:feat('zone',t,w),ads:feat('ads',t,w),ai:feat('ai',t,w),tax:feat('tax',t,w)});
 const SMI=1221, SS_EMP=0.32, PER_WORKER=30, PER_ROBOT=45, ROBOT_WEEK=380, MOVE_COST=10000, DISMISS_COST=1200, REPAIR=2500, IVA=0.21;
 /* Un móvil de gama baja se monta más rápido que uno de gama alta */
 const MODEL_PROD={A:1.3,B:1,C:.75};
@@ -1562,31 +1726,34 @@ function advPrev(t,w){
 }
 /* Cálculos sin azar: costes fijos, capacidad y satisfacción previstas */
 function advCalc(dec,w,t){
-  const a={...ADV_DEF,...(dec.adv||{})}, P=advPrev(t,w), Z=ZONES[a.zone]||ZONES.granada;
-  const N=Math.max(0,Math.floor(+a.workers||0)), R=Math.max(0,Math.floor(+a.robots||0));
+  const f=featsOf(t,w), a={...ADV_DEF,...(dec.adv||{})}, P=advPrev(t,w);
+  if(!f.zone) a.zone=P.zone||ADV_DEF.zone; if(!f.ai) a.ai=0; if(!f.mach){a.mach=P.mach;a.maint='basico'}
+  const Z=ZONES[a.zone]||ZONES.granada, mach=Math.max(P.mach,+a.mach||1);
+  let N=Math.max(0,Math.floor(+a.workers||0)), R=Math.max(0,Math.floor(+a.robots||0));
   let sal=Math.max(SMI,Math.round(+a.salary||SMI));
-  const strikeNow=P.strike, meas=strikeNow?(MEASURES[a.measure]?a.measure:'nada'):null;
+  if(!f.staff){N=Math.ceil((dec.prod||0)/(PER_WORKER*(MODEL_PROD[dec.model]||1)*Z.p*MACH[mach].mul*1.02));R=0;sal=SMI;a.workers=N;a.robots=0;a.salary=SMI}
+  const strikeNow=f.staff&&P.strike, meas=strikeNow?(MEASURES[a.measure]?a.measure:'nada'):null;
   if(meas==='subir') sal=Math.max(sal,Math.ceil(P.salary*1.05));
-  const mach=Math.max(P.mach,+a.mach||1), buy=mach>P.mach?machPrice(mach,w):0;
-  const wage=N*sal*14/52*(1+SS_EMP), robotsC=R*ROBOT_WEEK, maint=MAINT[a.maint]?MAINT[a.maint].c:500;
-  const move=P.zone&&P.zone!==a.zone?MOVE_COST:0, dismissed=Math.max(0,P.workers-N), dismiss=dismissed*DISMISS_COST;
+  const buy=f.mach&&mach>P.mach?machPrice(mach,w):0;
+  const wage=N*sal*14/52*(1+SS_EMP), robotsC=R*ROBOT_WEEK, maint=!f.mach?0:MAINT[a.maint]?MAINT[a.maint].c:500;
+  const move=f.zone&&P.zone&&P.zone!==a.zone?MOVE_COST:0, dismissed=f.staff?Math.max(0,P.workers-N):0, dismiss=dismissed*DISMISS_COST;
   const measureC=meas?MEASURES[meas].c:0;
-  const media=(a.media||[]).filter(k=>MEDIA[k]), mediaC=media.reduce((s,k)=>s+MEDIA[k].c,0);
+  const media=f.ads?(a.media||[]).filter(k=>MEDIA[k]):[], mediaC=f.ads?media.reduce((s,k)=>s+MEDIA[k].c,0):Math.max(0,+dec.ad||0);
   const share=N+R?R/(N+R):0;
   let target=50+(sal/SMI-1)*200-30*share-(P.workers?40*dismissed/P.workers:0);
   if(meas) target+={subir:25,condiciones:15,sustitutos:-20,nada:-5}[meas];
-  const sat=clamp(Math.round(0.5*P.sat+0.5*clamp(target,0,100)),0,100), morale=0.9+0.2*sat/100;
+  const sat=f.staff?clamp(Math.round(0.5*P.sat+0.5*clamp(target,0,100)),0,100):60, morale=0.9+0.2*sat/100;
   const capH=N*PER_WORKER*(MODEL_PROD[dec.model]||1)*Z.p*MACH[mach].mul*morale, capR=R*PER_ROBOT*MACH[mach].mul;
   const fixed={rent:Z.fix,wage:Math.round(wage),robots:robotsC,maint,media:mediaC,machine:buy,move,dismiss,measure:measureC};
   const fixedTot=Object.values(fixed).reduce((x,y)=>x+y,0);
-  const breakRisk=Math.min(.6,MACH[mach].risk*(MAINT[a.maint]?MAINT[a.maint].m:1));
-  const strikeRisk=N?(strikeNow?{subir:.1,condiciones:.25,sustitutos:.8,nada:.7}[meas]:sat<40?.25+(40-sat)/40:0):0;
-  return {a:{...a,salary:sal,mach,media},P,Z,N,R,sal,mach,buy,move,dismissed,dismiss,meas,measureC,media,mediaC,wage,share,sat,morale,capH,capR,cap:Math.floor(capH+capR),fixed,fixedTot,breakRisk,strikeRisk,strikeNow};
+  const breakRisk=f.mach?Math.min(.6,MACH[mach].risk*(MAINT[a.maint]?MAINT[a.maint].m:1)):0;
+  const strikeRisk=N&&f.staff?(strikeNow?{subir:.1,condiciones:.25,sustitutos:.8,nada:.7}[meas]:sat<40?.25+(40-sat)/40:0):0;
+  return {a:{...a,salary:sal,mach,media},P,Z,N,R,sal,mach,buy,move,dismissed,dismiss,meas,measureC,media,mediaC,wage,share,sat,morale,capH,capR,cap:Math.floor(capH+capR),fixed,fixedTot,breakRisk,strikeRisk,strikeNow,f};
 }
 function advDemand(dec,t,A,ev,hasImg){
   const ni=dec.niche, a=A.a, lvl=+a.ai||0;
-  let aiMul=1; if(lvl){let e=(AI_NICHE[ni]||[0,0])[lvl-1];if(lvl===2&&dec.comps.cpu===1)e*=.5;aiMul=1+e+(dec.model==='C'&&lvl===2?.05:0)} else if(dec.model==='C') aiMul=.92;
-  const reach=A.media.reduce((s,k)=>s+MEDIA[k].c*mediaFit(k,ni),0), ff=focusFit(a.focus,ni,dec.model);
+  let aiMul=1; if(lvl){let e=(AI_NICHE[ni]||[0,0])[lvl-1];if(lvl===2&&dec.comps.cpu===1)e*=.5;aiMul=1+e+(dec.model==='C'&&lvl===2?.05:0)} else if(dec.model==='C'&&A.f.ai) aiMul=.92;
+  const reach=A.f.ads?A.media.reduce((s,k)=>s+MEDIA[k].c*mediaFit(k,ni),0):A.mediaC, ff=A.f.ads?focusFit(a.focus,ni,dec.model):1;
   const adf=1+0.35*Math.log(1+reach/1000)*ff*(ev&&ev.adMul||1)*(hasImg?1:0.8);
   const imgMul=1-A.share*0.25*(dec.cont==='europa'?1.3:1);
   return {aiMul,adf,reach,ff,imgMul};
@@ -1601,9 +1768,25 @@ function taxOf(pbt,rev,carry){
   return {tax:Math.round(tax),rate,kind,base,carryNew:Math.round(carryNew)};
 }
 const TAXK={micro:'micropyme (factura menos de 1 millón al año)',erd:'empresa de reducida dimensión (menos de 10 millones al año)',general:'gran empresa (10 millones o más al año)'};
+function extraMessages(r){
+  const out=[], d=r.dec, F=r.FIN;
+  if(r.EC&&r.EC.on.length) out.push({c:'good',t:T('Medidas sostenibles: {0}. Los clientes lo valoran y vuestra reputación sube.',r.EC.on.map(k=>T(ECO[k].n)).join(SEP()))});
+  if(d.prod>0) out.push({c:'',t:T('El transporte de cada móvil emitió unos {0} g de CO₂ ({1}).',int(co2g(d.cont,d.mode)),MODES[d.mode].n.toLowerCase())+(d.mode==='avion'?' '+T('El avión contamina unas 40 veces más que el barco.'):'')});
+  if(r.PZ&&r.PZ.k!=='no') out.push({c:'',t:T('Pago a plazos: atrajo a más clientes. {0}',r.PZ.k==='propia'?T('Algunos clientes no pagaron: perdisteis {0} en impagos.',eur(r.pzLoss)):T('La financiera os cobró {0} de comisión.',eur(r.pzLoss)))});
+  if(F){
+    if(F.taken) out.push({c:'',t:T('El banco os prestó {0} al {1} % anual. Pagaréis {2} cada semana durante {3} semanas.',eur(F.taken),Math.round(F.tin*100),eur(F.state.cuota),F.state.left)});
+    if(F.interest) out.push({c:'',t:T('Cuota del préstamo: {0} ({1} de intereses, que son un gasto, y {2} de devolución). Queda por devolver: {3}.',eur(F.interest+F.principal),eur(F.interest),eur(F.principal),eur(F.state.balance))});
+    if(F.over) out.push({c:'bad',t:T('Teníais la cuenta en negativo: el banco os cobró {0} de intereses por el descubierto.',eur(F.over))});
+  }
+  if(r.inv) out.push(r.inv.ok?{c:'good',t:T('La factura a {0} estaba bien hecha: el cliente confía más en vosotros (+{1} de reputación).',r.inv.client,r.inv.bonus)}:{c:'bad',t:T('No hicisteis bien la factura de esta semana ({0}).',r.inv.client)});
+  return out;
+}
 function advMessages(r){
-  const A=r.A, X=r.X, out=[], d=r.dec;
-  out.push({c:'',t:`Fábrica en ${A.Z.n}: alquiler y suministros de ${eur(A.Z.fix)} a la semana y ${eurd(A.Z.v)} por móvil para llevarlo al puerto o al aeropuerto.`});
+  const A=r.A, X=r.X, out=[], d=r.dec, f=A.f;
+  if(!f.staff){out.push({c:'',t:`La fábrica contrató automáticamente a ${A.N} ${A.N===1?'persona':'personas'} con el salario mínimo: ${eur(A.wage)} a la semana con la Seguridad Social.`});
+    if(f.tax) out.push({c:'',t:`Impuestos: IVA ${eur(X.iva)}${X.tariffPaid?` · aranceles ${eur(X.tariffPaid)}`:''} · impuesto de sociedades ${eur(X.tax.tax)}.`});
+    return out}
+  if(f.zone) out.push({c:'',t:`Fábrica en ${A.Z.n}: alquiler y suministros de ${eur(A.Z.fix)} a la semana y ${eurd(A.Z.v)} por móvil para llevarlo al puerto o al aeropuerto.`});
   if(A.move) out.push({c:'bad',t:`Mudanza de la fábrica: ${eur(A.move)}.`});
   out.push({c:'',t:`Plantilla: ${A.N} ${A.N===1?'persona':'personas'} con ${eur(A.sal)} brutos al mes. A la empresa le cuesta ${eur(A.wage)} a la semana con la Seguridad Social.`});
   if(A.dismissed) out.push({c:'bad',t:`Despedisteis a ${A.dismissed} ${A.dismissed===1?'persona':'personas'}: indemnización de ${eur(A.dismiss)} y la plantilla está más preocupada.`});
@@ -1619,38 +1802,47 @@ function advMessages(r){
   if(d.prod>X.produced) out.push({c:'bad',t:`Queríais fabricar ${int(d.prod)} móviles, pero vuestra fábrica solo pudo hacer ${int(X.produced)}. Contratad más personas, comprad mejor maquinaria o fabricad menos.`});
   const lvl=+A.a.ai||0;
   if(lvl) out.push({c:r.D.aiMul>1.05?'good':r.D.aiMul<1?'bad':'',t:`${AIF[lvl].n} en el móvil: ${r.D.aiMul>=1?'+':''}${Math.round((r.D.aiMul-1)*100)} % de demanda entre ${r.N.n.toLowerCase()}.${lvl===2&&d.comps.cpu===1?' Con un procesador normal, la IA avanzada va lenta y convence poco.':''}`});
-  else if(d.model==='C') out.push({c:'bad',t:'Los clientes de gama alta esperan funciones de IA: sin ellas vendéis algo menos.'});
-  if(A.media.length){const ff=r.D.ff;out.push({c:ff>=1.15?'good':ff<.9?'bad':'',t:`Publicidad (${eur(A.mediaC)}) en ${A.media.map(k=>MEDIA[k].n.toLowerCase()).join(', ')} con enfoque «${FOCUS[A.a.focus].n.toLowerCase()}». ${ff>=1.15?'El enfoque encajó muy bien con vuestro nicho.':ff<.9?'Ese enfoque no convence mucho a vuestro nicho.':'Encaje normal con vuestro nicho.'}`})}
-  else out.push({c:'',t:'No hicisteis publicidad: menos gente conoció vuestro móvil.'});
-  out.push({c:'',t:`Impuestos: IVA cobrado a los clientes y entregado a Hacienda ${eur(X.iva)}${X.tariffPaid?` · aranceles ${eur(X.tariffPaid)}`:''} · impuesto de sociedades ${eur(X.tax.tax)}${X.tax.base?` (${pctS(X.tax.rate)}, ${TAXK[X.tax.kind]})`:''}.`});
-  if(X.pbt<0) out.push({c:'',t:`Con pérdidas no se paga impuesto de sociedades. Esas pérdidas (${eur(X.tax.carryNew)} pendientes) se restarán de los beneficios de las próximas semanas.`});
+  else if(d.model==='C'&&f.ai) out.push({c:'bad',t:'Los clientes de gama alta esperan funciones de IA: sin ellas vendéis algo menos.'});
+  if(f.ads&&A.media.length){const ff=r.D.ff;out.push({c:ff>=1.15?'good':ff<.9?'bad':'',t:`Publicidad (${eur(A.mediaC)}) en ${A.media.map(k=>MEDIA[k].n.toLowerCase()).join(', ')} con enfoque «${FOCUS[A.a.focus].n.toLowerCase()}». ${ff>=1.15?'El enfoque encajó muy bien con vuestro nicho.':ff<.9?'Ese enfoque no convence mucho a vuestro nicho.':'Encaje normal con vuestro nicho.'}`})}
+  else if(f.ads) out.push({c:'',t:'No hicisteis publicidad: menos gente conoció vuestro móvil.'});
+  if(f.tax) out.push({c:'',t:`Impuestos: IVA cobrado a los clientes y entregado a Hacienda ${eur(X.iva)}${X.tariffPaid?` · aranceles ${eur(X.tariffPaid)}`:''} · impuesto de sociedades ${eur(X.tax.tax)}${X.tax.base?` (${pctS(X.tax.rate)}, ${TAXK[X.tax.kind]})`:''}.`});
+  if(f.tax&&X.pbt<0) out.push({c:'',t:`Con pérdidas no se paga impuesto de sociedades. Esas pérdidas (${eur(X.tax.carryNew)} pendientes) se restarán de los beneficios de las próximas semanas.`});
   return out;
 }
 
 
 /* ================= Modo avanzado: secciones, menú lateral y resúmenes ================= */
-const BASIC_SECS=[['news','Noticias'],['design','Diseño'],['comps','Componentes'],['box','Caja'],['cont','Continente'],['niche','Nicho'],['mode','Transporte'],['price','Precio']];
+const BASIC_SECS=[['news','Noticias'],['design','Diseño'],['comps','Componentes'],['box','Caja'],['cont','Continente'],['niche','Nicho'],['mode','Transporte'],['price','Precio'],['finance','Financiación'],['invoice','Factura']];
 const ADV_SECS=[['news','Noticias','Semana'],['design','Diseño','Producto'],['comps','Componentes','Producto'],['ai','Mejoras con IA','Producto'],['box','Caja','Producto'],
   ['zone','Ubicación en Andalucía','Empresa'],['staff','Plantilla','Empresa'],['mach','Maquinaria','Empresa'],
   ['cont','Continente','Mercado'],['niche','Nicho','Mercado'],['mode','Transporte','Mercado'],['ads','Publicidad','Mercado'],
-  ['price','Precio y producción','Números'],['tax','Impuestos','Números']];
-const secList=()=>isAdv()?ADV_SECS:BASIC_SECS;
+  ['price','Precio y producción','Números'],['finance','Financiación','Números'],['tax','Impuestos','Números'],['invoice','Factura','Números']];
+const SEC_FEAT={ai:'ai',zone:'zone',staff:'staff',mach:'mach',ads:'ads',tax:'tax'};
+const secList=()=>isAdv()?ADV_SECS.filter(([k])=>!SEC_FEAT[k]||feat(SEC_FEAT[k])):BASIC_SECS;
+const isNewSec=k=>levelOf()==='progresivo'&&SEC_FEAT[k]&&G.week===unlockWeek(SEC_FEAT[k])&&G.week>1;
 let MENU=false;
 const BURGER='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+/* Secciones que el grupo ya ha abierto esta semana (se recuerda en el dispositivo) */
+const seenKey=t=>'mm-seen|'+(G&&G.code)+'|'+(t&&t.id)+'|'+(G&&G.week);
+function seenOf(t){try{return JSON.parse(localStorage.getItem(seenKey(t)))||[]}catch(e){return []}}
+function markSeen(t,k){if(PREVIEW)return;const s=seenOf(t);if(!s.includes(k)){s.push(k);try{localStorage.setItem(seenKey(t),JSON.stringify(s))}catch(e){}}}
+const missingSecs=t=>{const s=seenOf(t);return secList().filter(([k])=>!s.includes(k)).map(([,l])=>T(l))};
 function advNavHTML(S,t){
   const cur=S[TAB-1]||S[0], A=advCalc(draft,G.week,t), groups=[];
   S.forEach(([k,l,g],i)=>{let gr=groups.find(x=>x.n===g);if(!gr)groups.push(gr={n:g,items:[]});gr.items.push(i+1)});
-  const warn=k=>(k==='staff'&&A.strikeNow)||(k==='price'&&draft.prod>A.cap);
+  const warn=k=>(k==='staff'&&A.strikeNow)||(k==='price'&&A.f.staff&&draft.prod>A.cap);
   return `<div class="mnav"><button class="burger" id="burger" aria-expanded="${MENU}" aria-controls="drawer">${BURGER}<span>${T('Menú')}</span></button>
     <div class="mnav-t"><span class="label">${T('Sección {0} de {1}',TAB,S.length)} · ${esc(T(cur[2]))}</span><b>${esc(T(cur[1]))}</b></div></div>
     <div class="drawer-ov ${MENU?'open':''}" id="drawerOv"></div>
     <nav class="drawer ${MENU?'open':''}" id="drawer" aria-label="${T('Secciones')}" ${MENU?'':'inert'}>
       <div class="drawer-head"><b>${T('Decisiones de la semana {0}',G.week)}</b><button class="mini" id="drawerX">${T('Cerrar')}</button></div>
-      ${groups.map(g=>`<div class="dgroup"><span class="label">${esc(T(g.n))}</span>${g.items.map(i=>`<button data-tab="${i}" aria-current="${TAB===i}"><span class="step-n">${i}</span><span>${esc(T(S[i-1][1]))}</span>${warn(S[i-1][0])?'<span class="dwarn" aria-label="Atención">!</span>':''}</button>`).join('')}</div>`).join('')}
+      ${groups.map(g=>`<div class="dgroup"><span class="label">${esc(T(g.n))}</span>${g.items.map(i=>`<button data-tab="${i}" aria-current="${TAB===i}"><span class="step-n ${seenOf(t).includes(S[i-1][0])?'seen':''}">${seenOf(t).includes(S[i-1][0])?'✓':i}</span><span>${esc(T(S[i-1][1]))}</span>${warn(S[i-1][0])?'<span class="dwarn" aria-label="Atención">!</span>':isNewSec(S[i-1][0])?`<span class="dnew">${T('Nuevo')}</span>`:''}</button>`).join('')}</div>`).join('')}
     </nav>`;
 }
 function advAlerts(t){
   const A=advCalc(draft,G.week,t), P=A.P; let s='';
+  if(levelOf(t)==='progresivo'){const nw=Object.keys(UNLOCK).filter(k=>G.week>1&&unlockWeek(k)===G.week);
+    if(nw.length) s+=`<div class="card newblock"><span class="label">${T('Novedad de esta semana')}</span><h3>${T('Ahora también decidís: {0}',nw.map(k=>T(UNLOCK_N[k])).join(', '))}</h3><p>${T('Lo encontraréis en el menú (☰), marcado como «Nuevo».')}</p></div>`}
   if(P.strike) s+=`<div class="card event"><span class="label">${T('Huelga en curso')}</span><h3>${T('La plantilla está en huelga')}</h3><p>${T('Tenéis que decidir qué medida tomar en la sección «Plantilla». Si no hacéis nada, la huelga puede seguir y fabricaréis mucho menos.')}</p></div>`;
   const last=(t.history||[]).slice().sort((a,b)=>b.week-a.week)[0];
   if(last&&last.adv&&last.adv.broke) s+=`<div class="card"><span class="label">${T('Maquinaria')}</span><p>${T('La semana pasada se averió la maquinaria. Más mantenimiento reduce el riesgo de avería.')}</p></div>`;
@@ -1718,9 +1910,50 @@ function advSection(k,d,t,ev,w){
   }
   return '';
 }
+
+function financeHTML(d,t,w){
+  const F=finCalc(d,w,t), f=F.f, tin=t.cash<0?RESCUE_TIN:LOAN_TIN, i=tin/52, P=F.P;
+  const opt=(v,lab,on,attr)=>`<button class="opt" ${attr}="${v}" aria-pressed="${on}"><span class="t">${lab}</span></button>`;
+  const prev=+f.loan>0?(()=>{const n=+f.term||8,c=cuotaOf(+f.loan,i,n),tot=c*n;return `<div class="card loanbox"><div class="rows">
+      <div class="r"><span>${T('Recibís ahora')}</span><b class="pos">${eur(+f.loan)}</b></div>
+      <div class="r"><span>${T('Cuota semanal (desde la semana que viene)')}</span><b>${eur(c)}</b></div>
+      <div class="r"><span>${T('Total a devolver')}</span><b>${eur(tot)}</b></div>
+      <div class="r"><span>${T('Intereses (lo que os cuesta el préstamo)')}</span><b class="neg">${eur(tot-(+f.loan))}</b></div>
+      <div class="r"><span>TIN · TAE ${glBtn('tae')}</span><b>${Math.round(tin*100)} % · ${(Math.round((Math.pow(1+i,52)-1)*1000)/10).toLocaleString(LOCALE())} %</b></div></div></div>`})():'';
+  return `<h2>${T('Financiación')} ${glBtn('prestamo')}</h2>
+    ${t.cash<0?`<div class="card event"><span class="label">${T('Cuenta en negativo')}</span><p>${T('Tenéis {0} de presupuesto. El banco cobra un 0,5 % semanal por el descubierto y solo os ofrece un préstamo de rescate al {1} %.',eur(t.cash),Math.round(RESCUE_TIN*100))}${t.cash<BANKRUPT?' <b>'+T('Estáis en quiebra técnica: debéis más de lo que podéis pagar.')+'</b>':''}</p></div>`:''}
+    <h3>${T('Préstamo bancario')}</h3>
+    ${P.balance>0.5?`<div class="card"><p>${T('Ya tenéis un préstamo: quedan {0} por devolver en {1} cuotas de {2}. Hasta que lo terminéis no podéis pedir otro.',eur(P.balance),P.left,eur(P.cuota))}</p></div>`
+    :`<p class="hint">${T('El banco os presta dinero ahora y lo devolvéis en cuotas semanales con intereses. Los intereses son un gasto; devolver el dinero prestado no.')}</p>
+      <div class="grid4">${LOAN_OPTS.map(v=>opt(v,v?eur(v):T('Sin préstamo'),+f.loan===v,'data-loan')).join('')}</div>
+      ${+f.loan>0?`<h3>${T('¿En cuántas semanas lo devolvéis?')}</h3><div class="grid4">${LOAN_TERMS.map(n=>opt(n,T('{0} semanas',n),(+f.term||8)===n,'data-term')).join('')}</div>`:''}${prev}`}
+    <h3>${T('¿Ofrecéis pago a plazos a los clientes?')}</h3>
+    <div class="grid3">${Object.entries(PLAZOS).map(([k,x])=>`<button class="opt" data-plazos="${k}" aria-pressed="${(f.plazos||'no')===k}"><span class="t">${T(x.n)}</span><span class="s">${T(x.d)}</span></button>`).join('')}</div>`;
+}
+function invoiceHTML(t,w){
+  const o=invOrder(t,w), st=invOf(t,w)||{}, done=!!st.ok, v=INVTRY[w]||{}, chk=INVCHK[w]||{};
+  const fields=o.adv?[['imp','Importe (cantidad × precio)'],['disc','Descuento por pronto pago (5 %)'],['base','Base imponible'],['iva','IVA (21 %)'],['total','Total de la factura']]:[['base','Base imponible (cantidad × precio)'],['iva','IVA (21 %)'],['total','Total de la factura']];
+  const inp=([k,l])=>`<div class="inv-r"><label for="inv-${k}">${T(l)}</label><span class="inwrap"><input id="inv-${k}" data-inv="${k}" inputmode="decimal" autocomplete="off" value="${esc(done?String(o[k]).replace('.',','):(v[k]||''))}" ${done?'disabled':''}><span>€</span></span>${chk[k]===true||done?'<span class="pos">✓</span>':chk[k]===false?'<span class="neg">✗</span>':''}</div>`;
+  return `<h2>${T('Factura de la semana')} ${glBtn('iva')}</h2>
+    <p class="hint">${T('Una tienda os ha hecho un pedido. Completad la factura. Si está bien a la primera, el cliente confía más en vosotros (+2 de reputación; +1 si la corregís).')}</p>
+    <div class="invoice">
+      <div class="inv-top"><div><span class="label">${T('Factura')}</span><b>${o.num}</b><span class="hint">${new Date().toLocaleDateString(LOCALE())}</span></div>
+        <div><span class="label">${T('Emisor')}</span><b>${esc(t.name)}</b><span class="hint">${T('Andalucía · CIF ficticio')}</span></div>
+        <div><span class="label">${T('Cliente')}</span><b>${esc(o.client)}</b></div></div>
+      <table class="inv-t"><thead><tr><th>${T('Concepto')}</th><th class="rt">${T('Cantidad')}</th><th class="rt">${T('Precio unitario (sin IVA)')}</th></tr></thead>
+        <tbody><tr><td>${T('Móviles {0}',MODELS[t.model].n)}</td><td class="num">${o.qty}</td><td class="num">${eurd(o.price)}</td></tr></tbody></table>
+      <div class="inv-f">${fields.map(inp).join('')}</div>
+    </div>
+    ${done?`<p class="good-t"><b>✓ ${T('Factura correcta.')}</b> ${st.tries>1?T('La habéis corregido: +1 de reputación al publicar los resultados.'):T('A la primera: +2 de reputación al publicar los resultados.')}</p>`
+      :`<div class="btns"><button class="go small" id="invchk" ${PREVIEW?'disabled':''}>${T('Comprobar factura')}</button></div><p class="hint" id="invmsg">${INVMSG[w]||(st.tries?T('Intentos: {0}.',st.tries):'')}</p>`}`;
+}
+let INVTRY={}, INVCHK={}, INVMSG={};
+
+function finRows(F){const row=(l,v,c='')=>`<div class="r"><span>${l}</span><b class="${c}">${v}</b></div>`;
+  return (F.taken?row(T('Préstamo que recibís'),'+'+eur(F.taken),'pos'):'')+(F.pay?row(T('Cuota del préstamo'),'−'+eur(F.pay),'neg'):'')+(F.over?row(T('Intereses por descubierto'),'−'+eur(F.over),'neg'):'')}
 function advSummaryHTML(t){
   const d=draft, w=G.week, K=costs(d,w,t), A=K.A, ev=teamEvent(t,w), m=MODELS[d.model];
-  const net=d.price/(1+K.iva), keep=net*(1-K.tariff), margin=keep-K.per, prodOk=Math.min(d.prod,A.cap), invest=prodOk*K.per+A.fixedTot, after=t.cash-invest;
+  const FN=finCalc(d,w,t), net=d.price/(1+K.iva), keep=net*(1-K.tariff), margin=keep-K.per, prodOk=Math.min(d.prod,A.cap), invest=prodOk*K.per+A.fixedTot, after=t.cash+FN.taken-invest-FN.pay-FN.over;
   const low=A.sal<SMI, ok=after>=0&&!low&&modeOK(d.cont,d.mode,ev)&&!blockedCont(ev,d.cont);
   const F=A.fixed, row=(l,v,c='')=>`<div class="r"><span>${l}</span><b class="${c}">${v}</b></div>`;
   return `<div class="fit"><div class="card"><span class="label">${T('Resumen')}</span><h3>${m.n} · ${T('{0} de {1}',NICHES[d.niche].n.toLowerCase(),CONTS[d.cont].n)}</h3>
@@ -1732,15 +1965,17 @@ function advSummaryHTML(t){
       <span class="label sub">${T('Costes fijos de la semana')} ${glBtn('fijo')}</span>
       ${row(T('Alquiler y suministros ({0})',A.Z.n),eur(F.rent))}${row(T('Sueldos y Seguridad Social'),eur(F.wage))}${F.robots?row(T('Puestos con IA'),eur(F.robots)):''}${F.maint?row(T('Mantenimiento'),eur(F.maint)):''}${row(T('Publicidad'),eur(F.media))}
       ${F.machine?row(T('Compra de maquinaria'),eur(F.machine)):''}${F.move?row(T('Mudanza'),eur(F.move)):''}${F.dismiss?row(T('Despidos'),eur(F.dismiss)):''}${F.measure?row(T('Medida ante la huelga'),eur(F.measure)):''}
-      ${row(T('Capacidad de la fábrica'),T('{0} móviles',int(A.cap)),d.prod>A.cap?'neg':'')}
+      ${A.f.staff?row(T('Capacidad de la fábrica'),T('{0} móviles',int(A.cap)),d.prod>A.cap?'neg':''):''}
       <div class="r total"><span>${T('Inversión total')} ${glBtn('inversion')}</span><b>${eur(invest)}</b></div>
+      ${finRows(FN)}
       ${row(T('Presupuesto que os queda'),eur(after),after<0?'neg':'')}
     </div>
-    ${d.prod>A.cap?`<p class="warn">${T('Solo podéis fabricar {0} móviles: contratad más personas o mejorad la maquinaria.',int(A.cap))}</p>`:''}
+    ${A.f.staff&&d.prod>A.cap?`<p class="warn">${T('Solo podéis fabricar {0} móviles: contratad más personas o mejorad la maquinaria.',int(A.cap))}</p>`:''}
     ${low?`<p class="warn">${T('El sueldo no puede ser menor que el salario mínimo ({0}).',eur(SMI))}</p>`:''}
     ${after<0?`<p class="warn">${T('No tenéis presupuesto suficiente.')}</p>`:''}
     ${blockedCont(ev,d.cont)?`<p class="warn">${T('Ese continente está cerrado esta semana.')}</p>`:''}
     <button class="go ${sendArmed?'armed':''}" id="send" ${ok?'':'disabled'}>${T(sendArmed?'Confirmar y enviar':'Enviar decisiones')}</button>
+    ${missingSecs(t).length?`<p class="hint pend-t">${T('Todavía no habéis revisado: {0}.',missingSecs(t).join(', '))}</p>`:`<p class="hint good-t">✓ ${T('Habéis revisado todas las secciones.')}</p>`}
     <p class="hint" id="sendmsg">${T(sendArmed?'<b>¿Seguro?</b> Después de enviar no podréis cambiar nada esta semana.':'Revisad todas las secciones del menú: una vez enviadas, no se pueden cambiar.')}</p></div></div>`;
 }
 function plHTML(h){
@@ -1752,11 +1987,55 @@ function plHTML(h){
     <div class="r total"><span>${T('Beneficio antes de impuestos')}</span><b class="${x.pbt<0?'neg':'pos'}">${eur(x.pbt)}</b></div>
     ${row(T('− Impuesto de sociedades{0}',x.tax?' ('+pctS(x.taxRate)+')':''),x.tax?'−'+eur(x.tax):eur(0),x.tax?'neg':'')}
     <div class="r total"><span>${T('Beneficio después de impuestos')}</span><b class="${h.profit<0?'neg':'pos'}">${eur(h.profit)}</b></div>
-    ${row(T('IVA entregado a Hacienda (no era vuestro)'),eur(x.iva))}
+    ${x.iva?row(T('IVA entregado a Hacienda (no era vuestro)'),eur(x.iva)):''}
     ${row(T('Plantilla'),T('{0} personas · satisfacción {1}/100',x.workers,x.sat)+(x.strike?' · '+T('huelga'):''),x.strike?'neg':'')}
     ${x.broke?row(T('Maquinaria'),T('avería'),'neg'):''}
   </div></div>`;
 }
+
+
+/* ================= Financiación, sostenibilidad y factura =================
+   Préstamo con cuota constante (sistema francés); el interés es un gasto y la devolución del capital solo mueve caja.
+   Descubierto: si la caja queda en negativo, el banco cobra un 0,5 % semanal. Valores orientativos del juego. */
+const LOAN_OPTS=[0,10000,25000,50000], LOAN_TERMS=[4,8], LOAN_TIN=.09, RESCUE_TIN=.15, OVERDRAFT_W=.005, BANKRUPT=-30000;
+const PLAZOS={no:{n:'Sin pago a plazos',d:'Los clientes pagan el móvil entero al comprarlo.'},
+  propia:{n:'Plazos sin intereses que financiáis vosotros',d:'Atrae a muchos más clientes, pero una parte no termina de pagar (impagos: se pierde un 8 % de esas ventas).'},
+  financiera:{n:'Plazos con una financiera',d:'El cliente paga intereses a la financiera (TAE 15 %). Atrae algo menos, la financiera asume los impagos y os cobra un 2 % de comisión.'}};
+const ECO={reciclado:{n:'Embalaje reciclado y sin plástico',d:'Caja de cartón reciclado, sin plásticos de un solo uso.',c:1,rep:.5},
+  recogida:{n:'Recogida y reciclaje del móvil viejo',d:'Recogéis el móvil antiguo del cliente y lo lleváis a reciclar.',c:3,rep:1},
+  co2:{n:'Compensar el CO₂ del transporte',d:'Pagáis proyectos que absorben el CO₂ que emite el transporte (unos 40 € por tonelada).',c:0,rep:.5}};
+const DIST={europa:2000,america:8000,asia:10000,africa:5000,oceania:17000}, EF={camion:.1,barco:.015,avion:.6};
+/* Gramos de CO₂ por móvil (0,4 kg con caja) según distancia y medio: valores orientativos */
+const co2g=(c,m)=>Math.round(0.0004*(DIST[c]||5000)*(EF[m]||.1)*1000);
+const ecoOf=d=>({reciclado:false,recogida:false,co2:false,...(d.eco||{})});
+function ecoUnit(d){const e=ecoOf(d);return (e.reciclado?ECO.reciclado.c:0)+(e.recogida?ECO.recogida.c:0)+(e.co2?co2g(d.cont,d.mode)/1000*0.04:0)}
+function ecoFx(d){const e=ecoOf(d), eu=d.cont==='europa', fam=d.niche==='mayores'||d.niche==='familias';let m=1,rep=0;
+  if(e.reciclado){m*=eu?1.03:1.01;rep+=.5} if(e.recogida){m*=fam?1.04:eu?1.02:1.01;rep+=1} if(e.co2){m*=eu?1.03:1.01;rep+=.5}
+  return {m,rep,on:Object.keys(ECO).filter(k=>e[k])}}
+function finPrev(t,w){const h=((t&&t.history)||[]).filter(x=>x.week<w&&x.fin).sort((a,b)=>b.week-a.week)[0];return h?{balance:h.fin.balance||0,cuota:h.fin.cuota||0,left:h.fin.left||0,i:h.fin.i||0}:{balance:0,cuota:0,left:0,i:0}}
+const cuotaOf=(P,i,n)=>P*i/(1-Math.pow(1+i,-n));
+function finCalc(dec,w,t){
+  const f={loan:0,term:8,plazos:'no',...(dec.fin||{})}, P=finPrev(t,w), cash=t?t.cash:START_CASH;
+  let interest=0, principal=0, bal=P.balance, left=P.left, cuota=P.cuota, i=P.i, taken=0, tin=0;
+  if(bal>0&&left>0){interest=bal*i;principal=Math.min(bal,cuota-interest);bal-=principal;left--;if(left<=0){principal+=bal;bal=0}}
+  const active=bal>0.5;
+  if(!active&&LOAN_OPTS.includes(+f.loan)&&+f.loan>0){tin=cash<0?RESCUE_TIN:LOAN_TIN;i=tin/52;const n=LOAN_TERMS.includes(+f.term)?+f.term:8;taken=+f.loan;cuota=cuotaOf(taken,i,n);bal=taken;left=n}
+  const over=cash<0?-cash*OVERDRAFT_W:0;
+  return {taken,tin,interest,principal,over,active,pay:interest+principal,state:{balance:Math.round(bal*100)/100,cuota:Math.round(cuota*100)/100,left,i},plazos:PLAZOS[f.plazos]?f.plazos:'no',f,P};
+}
+function plazosFx(dec){const k=(dec.fin&&dec.fin.plazos)||'no', N=NICHES[dec.niche]||NICHES.estudiantes, e=N.el>=.3?.15:N.el>=0?.08:.03;
+  return k==='propia'?{m:1+e,loss:.4*.08,k}:k==='financiera'?{m:1+e*.6,loss:.4*.02,k}:{m:1,loss:0,k}}
+const INV_CLIENTS=['Electrónica Montefrío S.L.','Telefonía Loja S.L.','Móviles Alcalá S.L.','Tecnosierra Íllora S.L.','Digital Priego S.L.','Comunicaciones Algarinejo S.L.'];
+const r2=x=>Math.round(x*100)/100;
+function invOrder(t,w){
+  const a=rnd(G.code+'|inv|'+t.id+'|'+w), b=rnd(G.code+'|invq|'+t.id+'|'+w), adv=isAdv(t);
+  const qty=5+Math.floor(b*26), price=Math.round(habitual(t.model,'europa')*0.75/5)*5, imp=qty*price, disc=adv?r2(imp*.05):0, base=r2(imp-disc), iva=r2(base*.21), total=r2(base+iva);
+  return {client:INV_CLIENTS[Math.floor(a*INV_CLIENTS.length)],qty,price,imp,disc,base,iva,total,adv,num:'F-2026-'+String(w).padStart(2,'0')+'-'+String(Math.floor(a*900)+100)};
+}
+/* Acepta 1234,56 · 1.234,56 · 1234.56 */
+function parseNum(x){let v=String(x||'').replace(/[\s€]/g,'');if(!v)return NaN;
+  if(v.includes(',')&&v.includes('.'))v=v.replace(/\./g,'').replace(',','.');else if(v.includes(','))v=v.replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(v))v=v.replace(/\./g,'');return Number(v)}
+const invOf=(t,w)=>((t&&t.inv)||{})[w]||null;
 
 /* ================= Navegación ================= */
 const app=document.getElementById('app');
@@ -1834,6 +2113,7 @@ function renderHome(){
         <div class="members">${joinMembers.map((m,i)=>`<div class="mem-row"><label class="sr-label" for="mem${i}">${T('Integrante {0}',i+1)}</label><span class="step-n">${i+1}</span>
           <input id="mem${i}" data-mem="${i}" maxlength="60" autocomplete="off" placeholder="${T('Nombre y apellidos')}" value="${esc(m)}">
           ${joinMembers.length>1?`<button type="button" class="linkbtn" data-rm="${i}" aria-label="${T('Quitar integrante {0}',i+1)}">${T('Quitar')}</button>`:''}</div>`).join('')}</div>
+        <p class="hint">${T('Por privacidad, solo se guarda el nombre y la inicial del primer apellido (por ejemplo, Ana L.).')}</p>
         ${joinMembers.length<6?`<button type="button" class="ghost" id="addmem" style="align-self:flex-start">${T('+ Añadir integrante')}</button>`:''}
         <h2>${T('Vuestra clase')}</h2>
         <div class="coursesel"><label for="nivel">${T('Curso')}${sel('nivel',NIVELES,joinNivel,T('Elegid curso'))}</label><label for="letra">${T('Letra')}${sel('letra',LETRAS,joinLetra,T('Letra'))}</label></div>
@@ -1873,6 +2153,8 @@ function renderHome(){
 /* Código de acceso que el profesor/a fija al crear el curso */
 let accessTyped='';
 const normPass=x=>String(x||'').trim().toUpperCase().replace(/\s+/g,'');
+/* Por privacidad solo se guarda el nombre y la inicial del primer apellido: «Ana López» → «Ana L.» */
+const shortName=m=>{const w=String(m||'').trim().replace(/\s+/g,' ').split(' ').filter(Boolean);return w.length?w[0]+(w[1]?' '+w[1][0].toUpperCase()+'.':''):''};
 function renderAccess(){
   if(!G||!joinMembers.some(m=>m.trim())){VIEW='home';return renderHome()}
   if(!G.pass){VIEW='company';return renderCompany()}
@@ -1933,7 +2215,7 @@ function renderCompany(){
     if(!id){homeMsg=T('Escribid un nombre con letras o números.');return renderCompany()}
     if(TEAMS.some(t=>t.id===id)){homeMsg=T('Ya existe una empresa llamada «{0}». Elegid otro nombre.',name);return renderCompany()}
     const t={id,name,model:joinPick,cash:START_CASH,rep:50,dec:defaultDec(joinPick),decWeek:0,history:[],joinedWeek:G.week,logo:joinLogo||null,
-      members:joinMembers.map(m=>m.trim().replace(/\s+/g,' ')).filter(Boolean),curso:G.curso||''};
+      members:joinMembers.map(m=>shortName(m)).filter(Boolean),curso:G.curso||''};
     try{await Store.setTeam(CODE,t)}catch(err){homeMsg=T('No se pudo guardar la empresa. Comprobad la conexión e intentadlo otra vez.');return renderCompany()}
     if(!TEAMS.some(x=>x.id===id)) TEAMS.push(t);
     homeMsg=''; joinLogo=null; joinName=''; joinPick='B'; joinMembers=['','','']; joinNivel=''; joinLetra=''; openTeam(id);
@@ -1972,6 +2254,35 @@ function renderTeam(){
   if(!sent) bindDecide();
 }
 let RTAB='empresa', finalShown=false;
+/* Lectura en voz alta con la voz del navegador (ayuda a quien lee con dificultad) */
+const canSay=()=>'speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;
+const sayBtn=sel=>canSay()?`<button type="button" class="mini listen" data-say="${sel}" aria-label="${T('Escuchar')}">🔊 ${T('Escuchar')}</button>`:'';
+let SAYING=null;
+document.addEventListener('click',e=>{
+  const b=e.target.closest&&e.target.closest('[data-say]'); if(!b||!canSay()) return;
+  e.preventDefault(); const ss=window.speechSynthesis;
+  if(SAYING===b.dataset.say&&ss.speaking){ss.cancel();SAYING=null;return}
+  const el=document.querySelector(b.dataset.say); if(!el) return;
+  const txt=[...el.querySelectorAll('h2,h3,p,li,.r,.t,.s,b')].length?el.innerText:el.textContent;
+  ss.cancel(); const u=new SpeechSynthesisUtterance(txt.replace(/🔊.*?\n/g,'').replace(/\?\s*$/gm,''));
+  u.lang=LANG==='en'?'en-GB':LANG==='ar'?'ar-SA':'es-ES'; u.rate=.95; u.onend=()=>{SAYING=null};
+  SAYING=b.dataset.say; ss.speak(u);
+});
+/* Las 3 claves de la semana: lo mejor, lo peor y una cosa que probar (calculadas con los números de la semana) */
+function keysHTML(h){
+  const M=msgsOf(h), good=M.find(m=>m.c==='good'), A=h.adv||{};
+  const left=h.prod-h.sold-(h.lateSold||0);
+  let bad,tip;
+  if(!h.sent){bad=T('No enviasteis decisiones: no fabricasteis nada.');tip=T('Repasad todas las secciones y enviad las decisiones a tiempo.')}
+  else if(A.strike){bad=T('Hubo huelga en la fábrica y se fabricó mucho menos.');tip=T('Decidid una medida ante la huelga en «Plantilla».')}
+  else if(h.lost>0.1*h.demand){bad=T('Os quedasteis sin móviles: {0} clientes no pudieron comprar.',int(h.lost));tip=T('Fabricad más móviles o subid un poco el precio.')}
+  else if(left>0.15*h.prod&&h.prod>0){bad=T('Sobraron {0} móviles y se malvendieron.',int(left));tip=T('Fabricad menos o bajad un poco el precio.')}
+  else if(h.profit<0){bad=T('Perdisteis {0} esta semana.',eur(-h.profit));tip=T('Comparad lo que cuesta cada móvil con el precio de venta.')}
+  else {const b=M.find(m=>m.c==='bad');bad=b?b.t:null;tip=T('Repetid lo que ha funcionado y cambiad solo una cosa cada vez.')}
+  const g=h.profit>0?T('Habéis ganado {0} y vendido {1} móviles.',eur(h.profit),int(h.sold)):good?good.t:null;
+  return `<div class="card keys" id="keys"><div class="keys-head"><span class="label">${T('Las 3 claves de la semana')}</span>${sayBtn('#keys')}</div>
+    <ul class="keyl">${g?`<li class="good"><b>${T('Lo mejor')}</b><span>${esc(g)}</span></li>`:''}${bad?`<li class="bad"><b>${T('A mejorar')}</b><span>${esc(bad)}</span></li>`:''}<li class="tip"><b>${T('Para la próxima semana')}</b><span>${esc(tip)}</span></li></ul></div>`;
+}
 function latestFb(t){const f=(t.feedback||[]).filter(x=>x.week<=G.week&&x.text).sort((a,b)=>a.week-b.week);return f[f.length-1]||null}
 function resultsScreen(t,ended){
   const H=t.history, h=H[H.length-1], total=H.reduce((a,x)=>a+x.profit,0);
@@ -1991,7 +2302,8 @@ function resultsScreen(t,ended){
     ${sdHTML(h)}
     ${h.adv?plHTML(h):''}
     ${latestFb(t)?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(latestFb(t).text)}</p></div>`:''}
-    <h3>${T('¿Qué ha pasado?')}</h3><ul class="msgs">${msgsOf(h).map(m=>`<li class="${m.c}">${esc(m.t)}</li>`).join('')}</ul>`
+    ${keysHTML(h)}
+    <details class="allmsg"><summary>${T('Ver todo lo que ha pasado ({0})',msgsOf(h).length)}</summary><ul class="msgs">${msgsOf(h).map(m=>`<li class="${m.c}">${esc(m.t)}</li>`).join('')}</ul></details>`
     :`<section class="panel flat" id="board"></section>`;
   const nav=ended?`<p class="hint">${T('La partida ha terminado.')}</p>`:`<button class="go small" id="toDecide">${T('Ir a las decisiones de la semana {0} →',G.week)}</button>`;
   return `<section class="panel tabpanel">${tabs}<div class="tabbody fitbox ${RTAB==='final'?'noshrink':''}"><div class="fit">${body}</div></div><div class="tabnav"><span></span>${nav}</div></section>`;
@@ -2094,8 +2406,8 @@ const TABS=[[1,'Noticias'],[2,'Diseño'],[3,'Componentes'],[4,'Caja'],[5,'Contin
 let editing=false, sendArmed=false;
 function decideHTML(t){
   const w=G.week, ev=teamEvent(t,w), d=fixDec(draft,ev), m=MODELS[d.model], SECS=secList(); if(TAB>SECS.length) TAB=1;
-  const KEY=SECS[TAB-1][0];
-  const tabs=isAdv()?advNavHTML(SECS,t):`<div class="tabs" role="tablist">${SECS.map(([k,l],i)=>`<button role="tab" data-tab="${i+1}" aria-selected="${TAB===i+1}"><span class="step-n">${i+1}</span>${T(l)}</button>`).join('')}</div>`;
+  const KEY=SECS[TAB-1][0]; markSeen(t,KEY);
+  const tabs=isAdv()?advNavHTML(SECS,t):`<div class="tabs" role="tablist">${SECS.map(([k,l],i)=>`<button role="tab" data-tab="${i+1}" aria-selected="${TAB===i+1}"><span class="step-n ${seenOf(t).includes(k)?'seen':''}">${seenOf(t).includes(k)?'✓':i+1}</span>${T(l)}</button>`).join('')}</div>`;
   let body='';
   if(KEY==='news') body=newsHTML(t);
   if(KEY==='design') body=designHTML(t);
@@ -2105,7 +2417,11 @@ function decideHTML(t){
   if(KEY==='box') body=`<h2>${T('¿Qué incluís en la caja?')}</h2><p class="hint">${T('Cada extra sube el coste de cada móvil.')}</p>
       <div class="llist">${Object.entries(EXTRAS).map(([k,x])=>{const on=!!d.extras[k];
       return `<button class="opt xopt lrow" data-extra="${k}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="t">${x.n}</span>
-        <span class="s">${x.why}</span><span class="meta">${T('+{0} € por móvil',x.c)}</span></button>`}).join('')}</div>`;
+        <span class="s">${x.why}</span><span class="meta">${T('+{0} € por móvil',x.c)}</span></button>`}).join('')}</div>
+      <h3>${T('Medidas sostenibles')}</h3><p class="hint">${T('Cuestan algo más, pero muchos clientes las valoran y mejoran vuestra reputación.')}</p>
+      <div class="llist">${Object.entries(ECO).map(([k,x])=>{const on=!!ecoOf(d)[k], c=k==='co2'?co2g(d.cont,d.mode)/1000*.04:x.c;
+      return `<button class="opt xopt lrow" data-eco="${k}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="t">${T(x.n)}</span>
+        <span class="s">${T(x.d)}</span><span class="meta">${T('+{0} por móvil',eurd(c))}</span></button>`}).join('')}</div>`;
   if(KEY==='cont') body=`<h2>${T('¿En qué continente vendéis?')}</h2>
       <div class="llist">${Object.entries(CONTS).map(([k,c])=>{
         const top=Object.entries(c.w).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([a])=>`<span class="chip">${ATTR[a]}</span>`).join(''), bl=blockedCont(ev,k);
@@ -2122,19 +2438,21 @@ function decideHTML(t){
         const ok=modeOK(d.cont,k,ev), K=ok?costs({...d,mode:k},w,t):null;
         const why=SHIP[d.cont][k]===undefined?T('No llega a {0}',CONTS[d.cont].n):ev&&ev.blockMode===k?T('Bloqueado por el evento'):'';
         return `<button class="opt" data-mode="${k}" aria-pressed="${d.mode===k}" ${ok?'':'disabled'}><span class="label">${md.via}</span><span class="t">${md.n}</span>
-          <span class="s">${md.d}</span><span class="meta">${ok?T('{0} por móvil · llega a tiempo el {1} %',eur(K.ship),Math.round(K.onTime*100)):why}</span></button>`}).join('')}</div>
+          <span class="s">${md.d}</span><span class="meta">${ok?T('{0} por móvil · llega a tiempo el {1} %',eur(K.ship),Math.round(K.onTime*100))+' · '+T('{0} g de CO₂',int(co2g(d.cont,k))):why}</span></button>`}).join('')}</div>
       <p class="hint">${T('Los móviles que llegan tarde solo se venden a mitad de precio.')}</p>`;
-  if(KEY==='price') body=`<h2>${T(isAdv()?'Precio y producción':'Precio, cantidad y publicidad')}</h2><p class="hint">${T('Escribid la cifra exacta.')}</p>
+  if(KEY==='price') body=`<h2>${T(isAdv()&&feat('ads')?'Precio y producción':'Precio, cantidad y publicidad')}</h2><p class="hint">${T('Escribid la cifra exacta.')}</p>
       <div class="grid3">
         <label class="numf" for="price"><b>${T('Precio de cada móvil')} ${glBtn('precio')}</b><span class="inwrap"><input type="number" id="price" min="1" step="1" inputmode="numeric" value="${d.price}"><span>€</span></span>
           <span class="hint">${T('Precio habitual de un {0} en {1}: {2}',m.n,CONTS[d.cont].n,eur(habitual(d.model,d.cont)))}</span></label>
         <label class="numf" for="prod"><b>${T('Móviles a fabricar')} ${glBtn('oferta')}</b><span class="inwrap"><input type="number" id="prod" min="0" step="1" inputmode="numeric" value="${d.prod}"><span>${T('uds')}</span></span>
           <span class="hint">${T('Pocos: os quedáis sin stock. Muchos: los que sobran se malvenden.')}</span></label>
-        ${isAdv()?`<div class="numf"><b>${T('Capacidad de vuestra fábrica')}</b><span class="big num">${T('{0} móviles',int(advCalc(d,w,t).cap))}</span><span class="hint">${T('Depende de la plantilla, la maquinaria y la satisfacción. La publicidad se decide en «Publicidad».')}</span></div>`:`<label class="numf" for="ad"><b>${T('Publicidad esta semana')} ${glBtn('publicidad')}</b><span class="inwrap"><input type="number" id="ad" min="0" step="1" inputmode="numeric" value="${d.ad}"><span>€</span></span>
+        ${isAdv()&&feat('staff')?`<div class="numf"><b>${T('Capacidad de vuestra fábrica')}</b><span class="big num">${T('{0} móviles',int(advCalc(d,w,t).cap))}</span><span class="hint">${T('Depende de la plantilla, la maquinaria y la satisfacción.')}</span></div>`:''}${isAdv()&&feat('ads')?'':`<label class="numf" for="ad"><b>${T('Publicidad esta semana')} ${glBtn('publicidad')}</b><span class="inwrap"><input type="number" id="ad" min="0" step="1" inputmode="numeric" value="${d.ad}"><span>€</span></span>
           <span class="hint">${T('Cada euro extra rinde un poco menos que el anterior.')}</span></label>`}
       </div><p class="err" id="numerr"></p>`;
+  if(KEY==='finance') body=financeHTML(d,t,w);
+  if(KEY==='invoice') body=invoiceHTML(t,w);
   if(!body&&isAdv()) body=advSection(KEY,d,t,ev,w);
-  const nav=`<div class="tabnav">${TAB>1?`<button class="ghost" data-go="${TAB-1}">${T('← {0}',T(SECS[TAB-2][1]))}</button>`:'<span></span>'}${TAB<SECS.length?`<button class="go small" data-go="${TAB+1}">${T('Siguiente: {0} →',T(SECS[TAB][1]))}</button>`:''}</div>`;
+  const nav=`<div class="tabnav">${sayBtn('#design>.fit')}${TAB>1?`<button class="ghost" data-go="${TAB-1}">${T('← {0}',T(SECS[TAB-2][1]))}</button>`:'<span></span>'}${TAB<SECS.length?`<button class="go small" data-go="${TAB+1}">${T('Siguiente: {0} →',T(SECS[TAB][1]))}</button>`:''}</div>`;
   return `<div class="work"><section class="panel tabpanel">${tabs}<div class="tabbody fitbox" id="design"><div class="fit">${body}</div></div>${nav}</section>
     <aside class="side fitbox" id="summary">${summaryHTML(t)}</aside></div>`;
 }
@@ -2167,7 +2485,7 @@ function designHTML(t){
 function summaryHTML(t){
   if(isAdv()) return advSummaryHTML(t);
   const d=draft, w=G.week, K=costs(d,w,t), ev=teamEvent(t,w), m=MODELS[d.model];
-  const keep=d.price*(1-K.tariff), margin=keep-K.per, after=t.cash-K.invest, ok=after>=0&&modeOK(d.cont,d.mode,ev)&&!blockedCont(ev,d.cont);
+  const FN=finCalc(d,w,t), keep=d.price*(1-K.tariff), margin=keep-K.per, after=t.cash+FN.taken-K.invest-FN.pay-FN.over, ok=after>=0&&modeOK(d.cont,d.mode,ev)&&!blockedCont(ev,d.cont);
   return `<div class="fit"><div class="card"><span class="label">${T('Resumen')}</span><h3>${m.n} · ${T('{0} de {1}',NICHES[d.niche].n.toLowerCase(),CONTS[d.cont].n)}</h3>
     <div class="rows">
       <div class="r"><span>${T('Fabricar un móvil')}</span><b>${eur(K.unit)}</b></div>
@@ -2177,11 +2495,13 @@ function summaryHTML(t){
       <div class="r"><span>${T('Precio de venta')}</span><b>${eur(d.price)}</b></div>
       <div class="r"><span>${T('Ganancia por móvil')} ${glBtn('margen')}</span><b class="${margin<0?'neg':'pos'}">${eur(margin)}</b></div>
       <div class="r total"><span>${T('Inversión total')} ${glBtn('inversion')}</span><b>${eur(K.invest)}</b></div>
+      ${finRows(FN)}
       <div class="r"><span>${T('Presupuesto que os queda')} ${glBtn('presupuesto')}</span><b class="${after<0?'neg':''}">${eur(after)}</b></div>
     </div>
     ${after<0?`<p class="warn">${T('No tenéis presupuesto suficiente.')}</p>`:''}
     ${blockedCont(ev,d.cont)?`<p class="warn">${T('Ese continente está cerrado esta semana.')}</p>`:''}
     <button class="go ${sendArmed?'armed':''}" id="send" ${ok?'':'disabled'}>${T(sendArmed?'Confirmar y enviar':'Enviar decisiones')}</button>
+    ${missingSecs(t).length?`<p class="hint pend-t">${T('Todavía no habéis revisado: {0}.',missingSecs(t).join(', '))}</p>`:`<p class="hint good-t">✓ ${T('Habéis revisado todas las secciones.')}</p>`}
     <p class="hint" id="sendmsg">${T(sendArmed?'<b>¿Seguro?</b> Después de enviar no podréis cambiar nada esta semana.':'Revisad todas las pestañas: una vez enviadas, no se pueden cambiar.')}</p></div></div>`;
 }
 function sentHTML(t){
@@ -2197,6 +2517,7 @@ function sentHTML(t){
       ${Object.keys(COMPS).map(k=>`<div class="sitem"><span class="label">${COMPS[k].n}</span><b>${oName(k,d.comps[k])}</b></div>`).join('')}
       ${item('Extras en la caja',inc)}${item('Continente',CONTS[d.cont].n)}${item('Nicho',NICHES[d.niche].n)}${item('Transporte',MODES[d.mode].n)}
       ${item('Precio',eur(d.price))}${item('Móviles a fabricar',int(d.prod))}${item('Publicidad',eur(d.ad))}${item('Inversión total',eur(K.invest))}
+      ${(()=>{const F=finCalc(d,G.week,t), e=ecoFx(d), iv=invOf(t,G.week);return item('Préstamo',F.taken?T('{0} en {1} semanas',eur(F.taken),F.state.left):F.P.balance>0.5?T('Pendiente: {0}',eur(F.P.balance)):T('No'))+item('Pago a plazos',T(PLAZOS[F.plazos].n))+item('Medidas sostenibles',e.on.map(k=>T(ECO[k].n)).join(SEP())||T('Ninguna'))+item('Factura',iv&&iv.ok?'✓':T('Sin hacer o con errores'))})()}
       ${isAdv()?(()=>{const A=K.A;return item('Fábrica',A.Z.n)+item('Plantilla',T('{0} personas · {1}/mes',A.N,eur(A.sal)))+item('Puestos con IA',String(A.R))+item('Maquinaria',MACH[A.mach].n+' · '+MAINT[A.a.maint].n.toLowerCase())+item('IA en el móvil',AIF[+A.a.ai||0].n)+item('Enfoque de la publicidad',FOCUS[A.a.focus].n)+item('Medios',A.media.map(k=>MEDIA[k].n).join(SEP())||T('Ninguno'))+(A.meas?item('Medida ante la huelga',MEASURES[A.meas].n):'')})():''}
     </div>
     <p class="hint">${T('Las decisiones ya no se pueden cambiar.')}</p></section>`;
@@ -2221,7 +2542,27 @@ function bindDecide(){
   });
   if(KEY_OF()==='design') bindDesign();
   if(isAdv()) bindAdv2(d,refresh);
+  bindExtra(d,refresh);
   bindSend();
+}
+function bindExtra(d,refresh){
+  const t=myTeam(), w=G.week, fin=()=>{d.fin={loan:0,term:8,plazos:'no',...(d.fin||{})};return d.fin};
+  app.querySelectorAll('[data-loan]').forEach(b=>b.addEventListener('click',()=>{fin().loan=+b.dataset.loan;rerenderKeep()}));
+  app.querySelectorAll('[data-term]').forEach(b=>b.addEventListener('click',()=>{fin().term=+b.dataset.term;rerenderKeep()}));
+  app.querySelectorAll('[data-plazos]').forEach(b=>b.addEventListener('click',()=>{fin().plazos=b.dataset.plazos;rerenderKeep()}));
+  app.querySelectorAll('[data-eco]').forEach(b=>b.addEventListener('click',()=>{d.eco=ecoOf(d);d.eco[b.dataset.eco]=!d.eco[b.dataset.eco];rerenderKeep()}));
+  app.querySelectorAll('[data-inv]').forEach(el=>el.addEventListener('input',()=>{INVTRY[w]={...(INVTRY[w]||{}),[el.dataset.inv]:el.value}}));
+  const ck=document.getElementById('invchk');
+  ck&&ck.addEventListener('click',async()=>{
+    const o=invOrder(t,w), keys=o.adv?['imp','disc','base','iva','total']:['base','iva','total'], res={};
+    keys.forEach(k=>{const v=parseNum((document.getElementById('inv-'+k)||{}).value);res[k]=isFinite(v)&&Math.abs(v-o[k])<=0.011});
+    INVCHK[w]=res; const ok=keys.every(k=>res[k]), prev=invOf(t,w)||{}, tries=(prev.tries||0)+1;
+    const tips={imp:T('Importe = cantidad × precio unitario.'),disc:T('Descuento = importe × 5 %.'),base:o.adv?T('Base imponible = importe − descuento.'):T('Base imponible = cantidad × precio unitario.'),iva:T('IVA = base imponible × 21 %.'),total:T('Total = base imponible + IVA.')};
+    INVMSG[w]=ok?'':T('Revisad lo marcado con ✗.')+' '+keys.filter(k=>!res[k]).map(k=>tips[k]).join(' ');
+    const inv={...(t.inv||{}),[w]:{ok,tries,at:Date.now()}};
+    try{await teamWrite(CODE,t.id,{inv});const i=TEAMS.findIndex(x=>x.id===t.id);if(i>=0)TEAMS[i]={...TEAMS[i],inv}}catch(e){INVMSG[w]=T('No se pudo guardar. Inténtalo otra vez.')}
+    rerenderKeep();
+  });
 }
 const KEY_OF=()=>(secList()[TAB-1]||secList()[0])[0];
 function bindAdv2(d,refresh){
@@ -2340,6 +2681,7 @@ function bindAdv(run){
 }
 async function advance(btn){btn.disabled=true;btn.textContent='Calculando resultados…';await closeWeek();if(!Store.db)Store.localPush(CODE);lastSig='';render();window.scrollTo({top:0})}
 function renderTLogin(){
+  if(FBAUTH) return renderTLoginFB();
   app.innerHTML=`${topBar()}<div class="setup"><div class="panel"><h2>${T('Código de profesor')}</h2>
     <form class="form" id="fprof"><label for="pcode">${T('Código')}<input id="pcode" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label>
     <button class="go small" type="submit">${T('Entrar')}</button><p class="err" id="perr"></p></form>
@@ -2351,6 +2693,27 @@ function renderTLogin(){
   document.getElementById('back').addEventListener('click',()=>{VIEW=tReturn==='team'?'team':'home';render()});
   bindTop();
 }
+function renderTLoginFB(){
+  const u=FBAUTH.currentUser, signed=fbTeacher();
+  app.innerHTML=`${topBar()}<div class="setup"><div class="panel"><h2>Acceso del profesorado</h2>
+    ${signed?`<p>Has iniciado sesión como <b>${esc(u.email||'')}</b>.</p>
+      <div class="btns"><button class="go small" id="tgo">Entrar al panel</button><button class="ghost" id="tout">Cerrar sesión</button></div>`
+    :`<form class="form" id="fprof"><label for="pmail">Correo<input id="pmail" type="email" autocomplete="username" required></label>
+      <label for="ppass">Contraseña<input id="ppass" type="password" autocomplete="current-password" required></label>
+      <button class="go small" type="submit">Entrar</button><p class="err" id="perr"></p></form>`}
+    <button class="ghost" id="back" style="align-self:flex-start">Volver</button></div></div>`;
+  const enter=async()=>{teacherOK=true;VIEW='teacher';await loadGames();if(!G&&GAMES[0])await selectGame(GAMES[0].code);TTAB=GAMES.length?3:1;render()};
+  if(signed){document.getElementById('tgo').addEventListener('click',enter);document.getElementById('tout').addEventListener('click',async()=>{await fbTeacherOut();renderTLoginFB()})}
+  else{
+    document.getElementById('pmail').focus();
+    document.getElementById('fprof').addEventListener('submit',async e=>{e.preventDefault();const er=document.getElementById('perr');er.textContent='Comprobando…';
+      try{await FBAUTH.signInWithEmailAndPassword(document.getElementById('pmail').value.trim(),document.getElementById('ppass').value);
+        if(CODE){try{await enterCode(CODE,true)}catch(x){}} await enter()}
+      catch(x){er.textContent=/user-not-found|wrong-password|invalid-credential|invalid-email|invalid-login/.test(x&&x.code||'')?'Correo o contraseña incorrectos.':/too-many-requests/.test(x&&x.code||'')?'Demasiados intentos. Espera unos minutos.':'No se pudo iniciar sesión. Comprueba la conexión.'}});
+  }
+  document.getElementById('back').addEventListener('click',()=>{VIEW=tReturn==='team'?'team':'home';render()});
+  bindTop();
+}
 let resetArmed=false;
 const TTABS=[[1,'Crear curso'],[2,'Pantalla de inicio'],[3,'Cursos'],[4,'Recomendaciones'],[5,'Resultados']];
 let GAMES=[], FBTEAM=null;
@@ -2358,7 +2721,7 @@ async function loadGames(){try{GAMES=(await Store.listGames()).sort((a,b)=>Strin
 async function selectGame(code){Store.stop();G=null;TEAMS=[];await enterCode(code,true)}
 function courseBar(){
   if(!GAMES.length) return '<p class="muted">Todavía no hay cursos.</p>';
-  return `<div class="coursebar"><span class="label">Curso</span>${GAMES.map(g=>`<button class="opt pick" data-game="${esc(g.code)}" aria-pressed="${!!G&&G.code===g.code}"><b>${esc(g.curso||'Sin curso')}</b><span class="hint">${esc(g.code)} · ${g.week>gW(g)?'terminada':'semana '+g.week+' de '+gW(g)}${isAdv(g)?' · avanzado':''}</span></button>`).join('')}</div>`;
+  return `<div class="coursebar"><span class="label">Curso</span>${GAMES.map(g=>`<button class="opt pick" data-game="${esc(g.code)}" aria-pressed="${!!G&&G.code===g.code}"><b>${esc(g.curso||'Sin curso')}</b><span class="hint">${esc(g.code)} · ${g.week>gW(g)?'terminada':'semana '+g.week+' de '+gW(g)}${gameLevel(g)!=='basico'?' · '+LEVELS[gameLevel(g)].toLowerCase():''}</span></button>`).join('')}</div>`;
 }
 function bindCourseBar(){app.querySelectorAll('[data-game]').forEach(b=>b.addEventListener('click',async()=>{await selectGame(b.dataset.game);FBTEAM=null;TMODAL=null;TFLASH='';renderTeacher()}))}
 function renderTeacher(){
@@ -2432,9 +2795,10 @@ function tCursos(){
   const ended=G.week>WEEKS, sentN=TEAMS.filter(t=>t.decWeek===G.week).length, pend=TEAMS.filter(t=>t.decWeek!==G.week);
   const ranked=[...TEAMS].sort((a,b)=>profitOf(b)-profitOf(a));
   const rows=ranked.map((t,i)=>`<tr class="${!ended&&t.decWeek!==G.week?'pend':''}"><td class="num">${i+1}º</td><td><b title="${esc((t.members||[]).join(', '))}">${esc(t.name)}</b></td><td>${MODELS[t.model].n}</td>
+    <td><select class="lvsel" data-tlevel="${esc(t.id)}" aria-label="Nivel de ${esc(t.name)}"><option value="">Del curso (${LEVELS[gameLevel(G)].toLowerCase()})</option>${Object.entries(LEVELS).map(([k,n])=>`<option value="${k}" ${t.level===k?'selected':''}>${n}</option>`).join('')}</select></td>
     <td>${ended?'—':t.decWeek===G.week?'<span class="pos">Enviado</span>':'<span class="neg">Pendiente</span>'}</td>
     <td>${ended?'—':esc((teamEvent(t,G.week)||{}).title||'Ninguno')}</td>
-    <td class="num">${int((t.history||[]).reduce((a,h)=>a+h.sold,0))}</td><td class="num ${profitOf(t)<0?'neg':''}">${eur(profitOf(t))}</td><td class="num">${eur(t.cash)}</td>
+    <td class="num">${int((t.history||[]).reduce((a,h)=>a+h.sold,0))}</td><td class="num ${profitOf(t)<0?'neg':''}">${eur(profitOf(t))}</td><td class="num ${t.cash<0?'neg':''}">${eur(t.cash)}${t.cash<BANKRUPT?' <span class="chip neg">quiebra</span>':''}</td>
     <td><button class="linkbtn" data-see="${esc(t.id)}">Ver pantalla</button></td></tr>`).join('');
   const pct=TEAMS.length?Math.round(sentN/TEAMS.length*100):0;
   const due=dueAt(G)===Infinity?'Los resultados solo se publican cuando tú pulses el botón.':`Si no publicas antes, se publican solos el ${fmtDate(dueAt(G))}.`;
@@ -2448,8 +2812,8 @@ function tCursos(){
       <span class="prog"><i style="width:${pct}%"></i></span>
       <p class="hint">${pend.length?`Faltan: <b>${pend.map(t=>esc(t.name)).join(', ')}</b>. Las que no envíen no fabrican nada esta semana y pagan los gastos fijos.`:'Ya han enviado todas. Puedes publicar los resultados.'}</p></div>`}
     <div class="course-grid one">
-      <div class="tbl-wrap"><table class="stack"><thead><tr><th class="rt">Pos.</th><th>Empresa</th><th>Móvil</th><th>Semana ${Math.min(G.week,WEEKS)}</th><th>Evento</th><th class="rt">Vendidos</th><th class="rt">Beneficio</th><th class="rt">Presupuesto</th><th></th></tr></thead>
-      <tbody>${rows||`<tr><td colspan="9" class="muted">Todavía no hay empresas. Los grupos entran eligiendo ${esc(G.curso||G.code)} en la pantalla de inicio${G.pass?' y escribiendo el código <b>'+esc(G.pass)+'</b>':''}.</td></tr>`}</tbody></table></div>
+      <div class="tbl-wrap"><table class="stack"><thead><tr><th class="rt">Pos.</th><th>Empresa</th><th>Móvil</th><th>Nivel</th><th>Semana ${Math.min(G.week,WEEKS)}</th><th>Evento</th><th class="rt">Vendidos</th><th class="rt">Beneficio</th><th class="rt">Presupuesto</th><th></th></tr></thead>
+      <tbody>${rows||`<tr><td colspan="10" class="muted">Todavía no hay empresas. Los grupos entran eligiendo ${esc(G.curso||G.code)} en la pantalla de inicio${G.pass?' y escribiendo el código <b>'+esc(G.pass)+'</b>':''}.</td></tr>`}</tbody></table></div>
     </div>
     <div class="btns"><button class="go small" id="pdfbtn" ${TEAMS.length?'':'disabled'}>Exportar resultados en PDF</button><span class="hint" id="pdfmsg">Incluye la clasificación, el beneficio por semana y una página por empresa con sus decisiones y su reflexión final.</span></div>
 `;
@@ -2460,6 +2824,10 @@ function bindCursos(){
   paintBoard();
   bindAdv(async a=>{a.disabled=true;a.textContent='Calculando resultados…';await closeWeek();if(!Store.db)Store.localPush(CODE);await loadGames();renderTeacher()});
   app.querySelectorAll('[data-see]').forEach(b=>b.addEventListener('click',()=>openPreview(b.dataset.see)));
+  app.querySelectorAll('[data-tlevel]').forEach(sel=>sel.addEventListener('change',async()=>{
+    const id=sel.dataset.tlevel, v=sel.value||null, t=TEAMS.find(x=>x.id===id);
+    try{await Store.patchTeam(CODE,id,{level:v});if(t)t.level=v;TFLASH=`${t?t.name:'Empresa'}: nivel ${v?LEVELS[v].toLowerCase():'del curso ('+LEVELS[gameLevel(G)].toLowerCase()+')'}. Se aplica desde la semana ${G.week}.`;renderTeacher()}
+    catch(e){TFLASH='No se pudo cambiar el nivel. Inténtalo otra vez.';renderTeacher()}}));
   const pb=document.getElementById('pdfbtn'); pb&&pb.addEventListener('click',()=>exportPDF(pb));
   const pj=document.getElementById('projBtn'); pj&&pj.addEventListener('click',()=>{VIEW='proj';render();try{const r=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();r&&r.catch&&r.catch(()=>{})}catch(e){}});
 }
@@ -2477,12 +2845,12 @@ function bindReset(){
 /* ================= Panel del profesor/a (v2): crear curso, cursos y resultados ================= */
 let TFLASH='', RVIEW='general', RMETRIC='profit', ALLT=null, ALLT_BUSY=false;
 const DAY_OPTS=[[1,'1 día'],[2,'2 días'],[3,'3 días'],[7,'1 semana'],[14,'2 semanas']];
-const rulesTxt=r=>{r={...RULE_DEF,...(r||{})};return `${r.level==='avanzado'?'Avanzado':'Básico'} · ${r.rounds} rondas · `+(r.roundMs?`cada ${(DAY_OPTS.find(o=>o[0]===Math.round(r.roundMs/864e5))||[0,Math.round(r.roundMs/864e5)+' días'])[1]}${r.endTime?' a las '+r.endTime:''}`:'publicación manual')};
+const rulesTxt=r=>{r={...RULE_DEF,...(r||{})};return `${LEVELS[r.level]||'Básico'} · ${r.rounds} rondas · `+(r.roundMs?`cada ${(DAY_OPTS.find(o=>o[0]===Math.round(r.roundMs/864e5))||[0,Math.round(r.roundMs/864e5)+' días'])[1]}${r.endTime?' a las '+r.endTime:''}`:'publicación manual')};
 /* Campos de reglas (los usan «Crear curso» y «Cursos») */
 function rulesFields(p,r,minR,lock){
   r={...RULE_DEF,...(r||{})}; const manual=!r.roundMs, days=r.roundMs?Math.round(r.roundMs/864e5):1, tm=r.endTime||'09:00';
   return `<div class="rules-grid">
-    <label for="${p}-level"><b>Dificultad</b><select id="${p}-level" ${lock?'disabled':''}><option value="basico" ${r.level!=='avanzado'?'selected':''}>Básico</option><option value="avanzado" ${r.level==='avanzado'?'selected':''}>Avanzado</option></select></label>
+    <label for="${p}-level"><b>Dificultad</b><select id="${p}-level" ${lock?'disabled':''}>${Object.entries(LEVELS).map(([k,n])=>`<option value="${k}" ${(r.level||'basico')===k?'selected':''}>${n}</option>`).join('')}</select></label>
     <label for="${p}-rounds"><b>Duración de la partida</b><select id="${p}-rounds">${[3,4,5,6,7,8,9,10].map(n=>`<option value="${n}" ${n===r.rounds?'selected':''} ${n<(minR||3)?'disabled':''}>${n} rondas</option>`).join('')}</select></label>
     <label for="${p}-days"><b>Cada cuánto cambia de ronda</b><select id="${p}-days" ${manual?'disabled':''}>${DAY_OPTS.map(([v,l])=>`<option value="${v}" ${v===days?'selected':''}>${l}</option>`).join('')}</select></label>
     <label for="${p}-time"><b>Hora de cierre y publicación</b><input type="time" id="${p}-time" value="${esc(tm)}" ${manual?'disabled':''}></label>
@@ -2491,7 +2859,7 @@ function rulesFields(p,r,minR,lock){
   <p class="hint" id="${p}-lvhint">${LEVEL_HINT}${lock?' La dificultad ya no se puede cambiar porque hay resultados publicados.':''}</p>
   <p class="hint" id="${p}-prev"></p>`;
 }
-const LEVEL_HINT='Básico: diseño, componentes, mercado, transporte, precio y publicidad. Avanzado: añade plantilla y sueldos (con huelgas y automatización con IA), maquinaria y averías, IA en el móvil, ubicación de la fábrica en Andalucía con costes fijos y variables, IVA, aranceles e impuesto de sociedades, y publicidad por enfoque y medios. Las secciones aparecen en un menú lateral (☰).';
+const LEVEL_HINT='Básico: diseño, componentes, mercado, transporte, precio y publicidad. Progresivo: empieza como el básico y cada semana añade un bloque del avanzado (semana 2 plantilla y maquinaria, 3 ubicación, 4 publicidad por medios e IA, 5 impuestos). Avanzado: añade plantilla y sueldos (con huelgas y automatización con IA), maquinaria y averías, IA en el móvil, ubicación de la fábrica en Andalucía con costes fijos y variables, IVA, aranceles e impuesto de sociedades, y publicidad por enfoque y medios. Las secciones aparecen en un menú lateral (☰).';
 function readRules(p){
   const manual=document.getElementById(p+'-manual').checked;
   const lv=document.getElementById(p+'-level');
@@ -2649,9 +3017,9 @@ function tRes(){
       <section class="card"><h3>Dinero de cada semana</h3><div class="chart">${lineChart(S1,{minW:1,maxW:mx,money:true,fmt:eur,key:'re1|'+t.id,h:300})}</div>${legendHTML(S1)}</section>
       <section class="card"><h3>Oferta, demanda y ventas</h3><div class="chart">${lineChart(S2,{minW:1,maxW:mx,fmt:v=>int(v)+' uds',key:'re2|'+t.id,h:300})}</div>${legendHTML(S2)}</section>
       <section class="card"><h3>Beneficio acumulado y presupuesto</h3><div class="chart">${lineChart(S3,{maxW:mx,money:true,fmt:eur,key:'re3|'+t.id,h:300})}</div>${legendHTML(S3)}</section></div>
-    <div class="tbl-wrap"><table class="stack dense"><thead><tr><th>Sem.</th><th>Continente</th><th>Nicho</th><th>Transporte</th><th class="rt">Precio</th><th class="rt">Fabricados</th><th class="rt">Vendidos</th><th class="rt">Publicidad</th><th class="rt">Ingresos</th><th class="rt">Beneficio</th><th>Evento</th></tr></thead>
+    <div class="tbl-wrap"><table class="stack dense"><thead><tr><th>Sem.</th><th>Continente</th><th>Nicho</th><th>Transporte</th><th class="rt">Precio</th><th class="rt">Fabricados</th><th class="rt">Vendidos</th><th class="rt">Publicidad</th><th class="rt">Ingresos</th><th class="rt">Beneficio</th><th>Factura</th><th>Evento</th></tr></thead>
     <tbody>${H.map(h=>`<tr><td>${h.week}</td><td>${h.sent?CONTS[h.cont].n:'No envió'}</td><td>${h.sent&&h.niche&&NICHES[h.niche]?NICHES[h.niche].n:'—'}</td><td>${h.sent&&h.mode?MODES[h.mode].n:'—'}</td>
-      <td class="num">${eur(h.price)}</td><td class="num">${int(h.prod)}</td><td class="num">${int(h.sold)}</td><td class="num">${eur(h.ad)}</td><td class="num">${eur(h.revenue)}</td><td class="num ${h.profit<0?'neg':'pos'}">${eur(h.profit)}</td><td>${esc(evTitle(h)||'—')}</td></tr>`).join('')}</tbody></table></div>`
+      <td class="num">${eur(h.price)}</td><td class="num">${int(h.prod)}</td><td class="num">${int(h.sold)}</td><td class="num">${eur(h.ad)}</td><td class="num">${eur(h.revenue)}</td><td class="num ${h.profit<0?'neg':'pos'}">${eur(h.profit)}</td><td>${h.inv?(h.inv.ok?'✓'+(h.inv.tries>1?' ('+h.inv.tries+')':''):'✗'):'—'}</td><td>${esc(evTitle(h)||'—')}</td></tr>`).join('')}</tbody></table></div>`
     :'<p class="muted">Esta empresa todavía no tiene resultados publicados.</p>'}`;
 }
 function bindRes(){
@@ -2972,7 +3340,7 @@ function exitPreview(silent){
 }
 async function goBack(){
   if(PREVIEW) exitPreview(true);
-  teacherOK=false; const s=sess();
+  teacherOK=false; await fbTeacherOut(); const s=sess();
   if(s.code&&s.code!==CODE){Store.stop();G=null;TEAMS=[];await enterCode(s.code,true);ME=s.team&&TEAMS.some(t=>t.id===s.team)?s.team:null}
   else if(!s.code){ME=null}
   else ME=s.team&&TEAMS.some(t=>t.id===s.team)?s.team:ME;
@@ -3038,6 +3406,14 @@ function fireDB(fs){
     collection(p){const r=fs.collection(FB_ROOT+p);return {get:()=>r.get().then(wrapQ),onSnapshot:(cb,err)=>r.onSnapshot(q=>cb(wrapQ(q)),err)}}
   };
 }
+let FBAUTH=null;
+/* Profesorado con cuenta de correo y contraseña (las reglas de Firestore comprueban el correo) */
+const fbTeacher=()=>!!(FBAUTH&&FBAUTH.currentUser&&!FBAUTH.currentUser.isAnonymous);
+async function fbTeacherOut(){
+  if(!fbTeacher()) return;
+  try{await FBAUTH.signOut();await FBAUTH.signInAnonymously()}catch(e){console.error(e)}
+  if(CODE){try{await enterCode(CODE,true)}catch(e){}}
+}
 async function initFirebase(){
   if(window.claude&&window.claude.use) return;
   if(!/^https?:$/.test(location.protocol)) return;
@@ -3047,11 +3423,13 @@ async function initFirebase(){
     await Promise.all([loadScript(V+'firebase-firestore-compat.js'),loadScript(V+'firebase-auth-compat.js')]);
     const fapp=firebase.apps.find(a=>a.name==='mercado-movil')||firebase.initializeApp(FIREBASE_CONFIG,'mercado-movil');
     const fs=fapp.firestore(); try{fs.settings({ignoreUndefinedProperties:true,merge:true})}catch(e){}
-    await fapp.auth().signInAnonymously();
+    FBAUTH=fapp.auth();
+    const cur=await new Promise(ok=>{const u=FBAUTH.onAuthStateChanged(x=>{u();ok(x)})});
+    if(!cur) await FBAUTH.signInAnonymously();
     await fs.doc(FB_ROOT+'ajustes/centro').get();
     DBERR=''; await useDB(fireDB(fs));
   }catch(e){
-    console.error(e); Store.db=null;
+    console.error(e); Store.db=null; FBAUTH=null;
     DBERR='Sin conexión con el servidor: los datos solo se guardan en este dispositivo y el profesor/a no los verá. Revisad la conexión a internet y recargad la página.';
     if(VIEW==='splash') render();
   }
@@ -3138,8 +3516,8 @@ const FX=(()=>{
       sd.querySelectorAll('.sd-row b[data-n]').forEach((x,i)=>count(x,d+200+i*150,1000));
       play(sd.querySelector('.sd-txt'),'fx-fade',600,d+750)}
     let d=b+1350; const fb=box.querySelector('.fbcard'); if(fb){play(fb,'fx-rise',600,d);d+=150}
-    play([...box.children].find(x=>x.tagName==='H3'),'fx-rise',500,d);
-    stagger(box.querySelectorAll('.msgs li'),'fx-rise-s',480,d+80,60,12);
+    play(box.querySelector('.keys'),'fx-rise',550,d);
+    stagger(box.querySelectorAll('.keyl li'),'fx-rise-s',480,d+120,110,3);
   }
   function final(head,b){
     play(head.querySelector('.label'),'fx-rise',500,b);
