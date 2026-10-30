@@ -369,6 +369,7 @@ th{white-space:nowrap}
 .course-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(240px,1fr);gap:16px;align-items:start}
 .course-grid td:nth-child(2){min-width:170px}
 .course-grid th,.course-grid td{padding:7px 8px}
+.course-grid.one{grid-template-columns:minmax(0,1fr)}
 .panel.compact{padding:12px;gap:8px}
 .panel.compact .chart svg{min-width:0}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.84rem}
@@ -672,6 +673,29 @@ details.fold[open]{gap:12px}
 .pass-row .code-in{font-size:1.05rem;padding:9px 12px}
 .pass-l .code-in{font-size:1.05rem;max-width:320px}
 .passchip{font-family:var(--f-data);letter-spacing:.1em;background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:6px}
+
+/* Panel del profesor/a: todo cabe en pantalla, sin barra de desplazamiento */
+.nc-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:16px 32px;align-items:start}
+.nc-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.newcourse{max-width:1100px}
+.tfit .card .chart svg{max-height:300px}
+@media (min-width:901px){
+  .tfit{scrollbar-width:none}
+  .tfit::-webkit-scrollbar{display:none}
+  .tfit .res-charts{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .tfit .res-charts .card .chart svg{max-height:240px}
+}
+@media (max-width:900px){.nc-cols{grid-template-columns:minmax(0,1fr)}}
+
+.tactions{align-items:center}
+.tactions .hint{flex:1;min-width:160px}
+.tmodal .gloss-box{max-width:760px}
+@media (min-width:901px){
+  .tfit .res-split{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px;align-items:start}
+  .tfit .res-charts .card .chart svg{max-height:170px}
+  .tfit .res-charts .card{gap:6px;padding:12px}
+  .tfit .res-split table{font-size:.85rem}
+}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -1395,7 +1419,7 @@ function openGloss(k){
   const hit=k&&document.getElementById('gl-'+k); hit&&hit.scrollIntoView({block:'center'});
 }
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-gl]');if(b){e.preventDefault();openGloss(b.dataset.gl)}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGloss()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeGloss();if(VIEW==='teacher'&&TMODAL){TMODAL=null;resetArmed=false;DELARM=null;renderTeacher()}}});
 /* Oferta y demanda de una semana */
 function sdHTML(h){
   if(!h.sent) return '';
@@ -2328,7 +2352,7 @@ function courseBar(){
   if(!GAMES.length) return '<p class="muted">Todavía no hay cursos.</p>';
   return `<div class="coursebar"><span class="label">Curso</span>${GAMES.map(g=>`<button class="opt pick" data-game="${esc(g.code)}" aria-pressed="${!!G&&G.code===g.code}"><b>${esc(g.curso||'Sin curso')}</b><span class="hint">${esc(g.code)} · ${g.week>gW(g)?'terminada':'semana '+g.week+' de '+gW(g)}${isAdv(g)?' · avanzado':''}</span></button>`).join('')}</div>`;
 }
-function bindCourseBar(){app.querySelectorAll('[data-game]').forEach(b=>b.addEventListener('click',async()=>{await selectGame(b.dataset.game);FBTEAM=null;renderTeacher()}))}
+function bindCourseBar(){app.querySelectorAll('[data-game]').forEach(b=>b.addEventListener('click',async()=>{await selectGame(b.dataset.game);FBTEAM=null;TMODAL=null;TFLASH='';renderTeacher()}))}
 function renderTeacher(){
   if(!teacherOK) return renderTLogin();
   if(LANG!=='es') applyLang('es');
@@ -2341,9 +2365,10 @@ function renderTeacher(){
   if(TTAB===5) body=tRes();
   app.innerHTML=`<div class="app"><header class="top"><div class="brand"><h1>Panel del profesor/a</h1><span class="team">${GAMES.length} ${GAMES.length===1?'curso':'cursos'}</span></div>
     <div class="btns"><button class="mini" id="logout">Salir del modo profesor</button><button class="mini" id="homeBtn">Inicio</button></div></header>
-    <div class="main"><section class="panel tabpanel">${tabs}<div class="tabbody fitbox noshrink"><div class="fit">${body}</div></div></section></div></div>`;
+    <div class="main"><section class="panel tabpanel">${tabs}<div class="tabbody fitbox tfit" data-minz=".5"><div class="fit">${body}</div></div></section></div></div>`;
+  {const m=document.getElementById('tmodal'); if(m) app.appendChild(m);} // la ventana emergente no se reduce con el ajuste
   bindTop();
-  app.querySelectorAll('[data-ttab]').forEach(b=>b.addEventListener('click',()=>{TTAB=+b.dataset.ttab;resetArmed=false;ADVARM=false;FBMSG='';TFLASH='';renderTeacher()}));
+  app.querySelectorAll('[data-ttab]').forEach(b=>b.addEventListener('click',()=>{TTAB=+b.dataset.ttab;resetArmed=false;ADVARM=false;FBMSG='';TFLASH='';TMODAL=null;renderTeacher()}));
   document.getElementById('logout').addEventListener('click',goBack);
   bindCourseBar();
   if(TTAB===1) bindCrear();
@@ -2398,7 +2423,7 @@ function tCursos(){
   if(!G) return courseBar()+addCourseForm();
   const ended=G.week>WEEKS, sentN=TEAMS.filter(t=>t.decWeek===G.week).length, pend=TEAMS.filter(t=>t.decWeek!==G.week);
   const ranked=[...TEAMS].sort((a,b)=>profitOf(b)-profitOf(a));
-  const rows=ranked.map((t,i)=>`<tr class="${!ended&&t.decWeek!==G.week?'pend':''}"><td class="num">${i+1}º</td><td><b>${esc(t.name)}</b>${(t.members||[]).length?`<span class="memline">${(t.members||[]).map(esc).join(', ')}</span>`:''}</td><td>${MODELS[t.model].n}</td>
+  const rows=ranked.map((t,i)=>`<tr class="${!ended&&t.decWeek!==G.week?'pend':''}"><td class="num">${i+1}º</td><td><b title="${esc((t.members||[]).join(', '))}">${esc(t.name)}</b></td><td>${MODELS[t.model].n}</td>
     <td>${ended?'—':t.decWeek===G.week?'<span class="pos">Enviado</span>':'<span class="neg">Pendiente</span>'}</td>
     <td>${ended?'—':esc((teamEvent(t,G.week)||{}).title||'Ninguno')}</td>
     <td class="num">${int((t.history||[]).reduce((a,h)=>a+h.sold,0))}</td><td class="num ${profitOf(t)<0?'neg':''}">${eur(profitOf(t))}</td><td class="num">${eur(t.cash)}</td>
@@ -2414,10 +2439,9 @@ function tCursos(){
     ${ended||!TEAMS.length?'':`<div class="card progress-card"><div class="prog-row"><b>${sentN} de ${TEAMS.length} empresas han enviado sus decisiones</b><span class="hint">${due}</span></div>
       <span class="prog"><i style="width:${pct}%"></i></span>
       <p class="hint">${pend.length?`Faltan: <b>${pend.map(t=>esc(t.name)).join(', ')}</b>. Las que no envíen no fabrican nada esta semana y pagan los gastos fijos.`:'Ya han enviado todas. Puedes publicar los resultados.'}</p></div>`}
-    <div class="course-grid">
+    <div class="course-grid one">
       <div class="tbl-wrap"><table class="stack"><thead><tr><th class="rt">Pos.</th><th>Empresa</th><th>Móvil</th><th>Semana ${Math.min(G.week,WEEKS)}</th><th>Evento</th><th class="rt">Vendidos</th><th class="rt">Beneficio</th><th class="rt">Presupuesto</th><th></th></tr></thead>
       <tbody>${rows||`<tr><td colspan="9" class="muted">Todavía no hay empresas. Los grupos entran eligiendo ${esc(G.curso||G.code)} en la pantalla de inicio${G.pass?' y escribiendo el código <b>'+esc(G.pass)+'</b>':''}.</td></tr>`}</tbody></table></div>
-      <section class="panel compact" id="board"></section>
     </div>
     <div class="btns"><button class="go small" id="pdfbtn" ${TEAMS.length?'':'disabled'}>Exportar resultados en PDF</button><span class="hint" id="pdfmsg">Incluye la clasificación, el beneficio por semana y una página por empresa con sus decisiones y su reflexión final.</span></div>
 `;
@@ -2482,18 +2506,18 @@ function bindRulesFields(p,g){
 /* 1. Crear curso */
 function tCrear(){
   return `<h2>Crear curso</h2>
-    <form class="form newcourse" id="fnew">
+    <form class="form newcourse" id="fnew"><div class="nc-cols"><section class="nc-col"><h3>Curso</h3>
       <div class="rules-grid">
         <label for="n-nivel"><b>Curso</b><select id="n-nivel">${NIVELES.map(n=>`<option>${n}</option>`).join('')}</select></label>
         <label for="n-letra"><b>Letra</b><select id="n-letra">${LETRAS.map(l=>`<option>${l}</option>`).join('')}</select></label>
         <label for="n-pass"><b>Código para que entre el alumnado</b><span class="pass-row"><input id="n-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Ej.: OLIVO24" value="${esc(newPass())}"><button type="button" class="ghost" id="n-gen">Otro</button></span></label>
       </div>
       <p class="hint">Los grupos tendrán que escribir este código después de elegir su curso. Usa de 4 a 20 letras o números; no distingue mayúsculas de minúsculas.</p>
-      <h3>Reglas de la partida</h3>
-      ${rulesFields('n',{rounds:5,roundMs:864e5,endTime:'09:00',level:'basico'})}
       <div class="btns"><button class="go small" type="submit">Crear curso</button></div><p class="hint" id="nmsg"></p>
-    </form>
-    ${GAMES.length?`<p class="hint">Cursos creados: ${GAMES.map(g=>esc(g.curso||g.code)).join(', ')}.</p>`:''}`;
+      ${GAMES.length?`<p class="hint">Cursos creados: ${GAMES.map(g=>esc(g.curso||g.code)).join(', ')}.</p>`:''}</section>
+      <section class="nc-col"><h3>Reglas de la partida</h3>
+      ${rulesFields('n',{rounds:5,roundMs:864e5,endTime:'09:00',level:'basico'})}</section></div>
+    </form>`;
 }
 function bindCrear(){
   bindRulesFields('n',null);
@@ -2517,20 +2541,27 @@ function tCursos2(){
   const ended=G.week>WEEKS, r={...RULE_DEF,...(G.rules||{})};
   const minR=Math.max(3,G.week-(ended?1:0));
   return `${TFLASH?`<p class="flash" role="status">${esc(TFLASH)}</p>`:''}${tCursos()}
-    <details class="card fold"><summary><b>Reglas y código del curso</b><span class="hint">${esc(rulesTxt(r))}</span></summary>
+    <div class="btns tactions"><button class="ghost" id="openRules">Reglas y código del curso</button><span class="hint">${esc(rulesTxt(r))}</span><button class="ghost danger" id="openDanger">Reiniciar o borrar el curso</button></div>`
+    +(TMODAL?`<div class="gloss-ov tmodal" id="tmodal"><div class="gloss-box" role="dialog" aria-modal="true" aria-label="${TMODAL==='rules'?'Reglas y código del curso':'Reiniciar o borrar el curso'}">
+      <div class="gloss-head"><h2>${TMODAL==='rules'?'Reglas y código del curso':'Reiniciar o borrar el curso'}</h2><button class="mini" id="tmodalX">Cerrar</button></div>`+(TMODAL==='rules'?`
       <form class="form" id="frules2">
         <label for="e-pass" class="pass-l"><b>Código para que entre el alumnado</b><input id="e-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" value="${esc(G.pass||'')}" placeholder="Sin código: cualquiera puede entrar"></label>
         ${rulesFields('e',r,minR,TEAMS.some(x=>(x.history||[]).length))}
-        <div class="btns"><button class="go small" type="submit">Guardar reglas</button></div><p class="hint" id="emsg"></p></form></details>
-    <details class="card fold danger-card"><summary><b>Reiniciar o borrar el curso</b><span class="hint">Acciones que no se pueden deshacer</span></summary>
+        <div class="btns"><button class="go small" type="submit">Guardar reglas</button></div><p class="hint" id="emsg"></p></form>`:`
       <p class="hint">Reiniciar borra sus empresas y resultados y vuelve a la semana 1 (se mantienen las reglas). Borrar elimina el curso entero.</p>
       <div class="btns"><button class="ghost danger" id="reset">${resetArmed?'¿Seguro? Se borrarán todas las empresas de este curso. Pulsa otra vez':'Reiniciar este curso'}</button>
-      <button class="ghost danger delg" data-delg="${esc(G.code)}" ${DELBUSY?'disabled':''}>${DELARM===G.code?'¿Seguro? Se borrará el curso entero. Pulsa otra vez':'Borrar este curso'}</button></div><p class="hint" id="delmsg"></p></details>`;
+      <button class="ghost danger delg" data-delg="${esc(G.code)}" ${DELBUSY?'disabled':''}>${DELARM===G.code?'¿Seguro? Se borrará el curso entero. Pulsa otra vez':'Borrar este curso'}</button></div><p class="hint" id="delmsg"></p>`)+`</div></div>`:'');
 }
+let TMODAL=null;
 function bindCursos2(){
   if(!G) return;
   bindCursos(); bindReset(); bindDelete(); bindRulesFields('e',G);
-  if(resetArmed||DELARM) {const d=document.querySelector('.danger-card');d&&(d.open=true)}
+  const om=(m)=>()=>{TMODAL=m;renderTeacher();const f=document.querySelector('#tmodal input,#tmodal select,#tmodal button');f&&f.focus()};
+  const orl=document.getElementById('openRules'); orl&&orl.addEventListener('click',om('rules'));
+  const odg=document.getElementById('openDanger'); odg&&odg.addEventListener('click',om('danger'));
+  const cm=()=>{TMODAL=null;resetArmed=false;DELARM=null;renderTeacher()};
+  const mx=document.getElementById('tmodalX'); mx&&mx.addEventListener('click',cm);
+  const mo=document.getElementById('tmodal'); mo&&mo.addEventListener('click',e=>{if(e.target===mo)cm()});
   const f=document.getElementById('frules2'); if(!f) return;
   f.addEventListener('submit',async e=>{
     e.preventDefault(); const rules=readRules('e'); if(TEAMS.some(x=>(x.history||[]).length)) rules.level=(G.rules&&G.rules.level)||'basico'; const ng={...G,rules};
@@ -2538,7 +2569,7 @@ function bindCursos2(){
     if(pass&&!PASS_OK(pass)){document.getElementById('emsg').textContent='El código debe tener de 4 a 20 letras o números, sin espacios ni símbolos.';return}
     if(pass) ng.pass=pass; else delete ng.pass;
     if(dueAt(ng)<=Date.now()+60000||(G.week>gW(G)&&G.week<=rules.rounds)) ng.openedAt=Date.now();
-    try{await Store.setGame(ng);G=ng;syncRules(G);await loadGames();TFLASH=`Reglas guardadas: ${rulesTxt(rules)}.${pass?' Código para entrar: '+pass+'.':' El curso no tiene código.'}`;renderTeacher()}
+    try{await Store.setGame(ng);G=ng;syncRules(G);await loadGames();TMODAL=null;TFLASH=`Reglas guardadas: ${rulesTxt(rules)}.${pass?' Código para entrar: '+pass+'.':' El curso no tiene código.'}`;renderTeacher()}
     catch(err){document.getElementById('emsg').textContent='No se pudieron guardar. Inténtalo otra vez.'}
   });
 }
@@ -2592,10 +2623,10 @@ function tRes(){
   if(RVIEW==='curso'){
     metric=RMETRIC; const ser=series(), S=ser.map(x=>({name:x.t.name,color:x.color,pts:x.pts}));
     const ranked=[...ser].sort((a,b)=>b.total-a.total);
-    return `${sel}${courseBar()}<section class="card"><h3>${mname} por empresa · ${esc(G.curso||G.code)}</h3>
+    return `${sel}${courseBar()}<div class="res-split"><section class="card"><h3>${mname} por empresa · ${esc(G.curso||G.code)}</h3>
       <div class="chart">${TEAMS.length?lineChart(S,{maxW:closed,money,fmt,key:'rc|'+G.code+'|'+RMETRIC,title:mname}):'<div class="empty">Este curso todavía no tiene empresas.</div>'}</div>${legendHTML(S)}</section>
       ${TEAMS.length?`<div class="tbl-wrap"><table class="stack"><thead><tr><th class="rt">Pos.</th><th>Empresa</th><th>Móvil</th>${[...Array(closed)].map((_,i)=>`<th class="rt">S${i+1}</th>`).join('')}<th class="rt">Total</th></tr></thead><tbody>
-      ${ranked.map((x,i)=>`<tr><td class="num">${i+1}º</td><td><span class="sw-in" style="background:${x.color}"></span><b>${esc(x.t.name)}</b></td><td>${MODELS[x.t.model].n}</td>${[...Array(closed)].map((_,k)=>{const h=(x.t.history||[]).find(y=>y.week===k+1);return `<td class="num ${h&&money&&h.profit<0?'neg':''}">${h?(money?eur(h.profit):int(h.sold)):'—'}</td>`}).join('')}<td class="num"><b>${fmt(x.total)}</b></td></tr>`).join('')}</tbody></table></div>`:''}`;
+      ${ranked.map((x,i)=>`<tr><td class="num">${i+1}º</td><td><span class="sw-in" style="background:${x.color}"></span><b>${esc(x.t.name)}</b></td><td>${MODELS[x.t.model].n}</td>${[...Array(closed)].map((_,k)=>{const h=(x.t.history||[]).find(y=>y.week===k+1);return `<td class="num ${h&&money&&h.profit<0?'neg':''}">${h?(money?eur(h.profit):int(h.sold)):'—'}</td>`}).join('')}<td class="num"><b>${fmt(x.total)}</b></td></tr>`).join('')}</tbody></table></div>`:''}</div>`;
   }
   if(!TEAMS.length) return sel+courseBar()+'<p class="muted">Este curso todavía no tiene empresas.</p>';
   if(!RGROUP||!TEAMS.some(t=>t.id===RGROUP)) RGROUP=TEAMS[0].id;
@@ -2607,9 +2638,9 @@ function tRes(){
   return `${sel}${courseBar()}<div class="coursebar"><span class="label">Empresa</span>${TEAMS.map(x=>`<button class="opt pick" data-rg="${esc(x.id)}" aria-pressed="${x.id===RGROUP}"><b>${esc(x.name)}</b><span class="hint">${MODELS[x.model].n}</span></button>`).join('')}</div>
     <p class="hint">${(t.members||[]).length?'<b>Integrantes:</b> '+(t.members||[]).map(esc).join(', ')+' · ':''}${MODELS[t.model].n} (${MODELS[t.model].g.toLowerCase()}) · presupuesto ${eur(t.cash)} · reputación ${Math.round(t.rep)}/100</p>
     ${H.length?`<div class="res-charts">
-      <section class="card"><h3>Dinero de cada semana</h3><div class="chart">${lineChart(S1,{minW:1,maxW:mx,money:true,fmt:eur,key:'re1|'+t.id,h:240})}</div>${legendHTML(S1)}</section>
-      <section class="card"><h3>Oferta, demanda y ventas</h3><div class="chart">${lineChart(S2,{minW:1,maxW:mx,fmt:v=>int(v)+' uds',key:'re2|'+t.id,h:240})}</div>${legendHTML(S2)}</section>
-      <section class="card"><h3>Beneficio acumulado y presupuesto</h3><div class="chart">${lineChart(S3,{maxW:mx,money:true,fmt:eur,key:'re3|'+t.id,h:240})}</div>${legendHTML(S3)}</section></div>
+      <section class="card"><h3>Dinero de cada semana</h3><div class="chart">${lineChart(S1,{minW:1,maxW:mx,money:true,fmt:eur,key:'re1|'+t.id,h:300})}</div>${legendHTML(S1)}</section>
+      <section class="card"><h3>Oferta, demanda y ventas</h3><div class="chart">${lineChart(S2,{minW:1,maxW:mx,fmt:v=>int(v)+' uds',key:'re2|'+t.id,h:300})}</div>${legendHTML(S2)}</section>
+      <section class="card"><h3>Beneficio acumulado y presupuesto</h3><div class="chart">${lineChart(S3,{maxW:mx,money:true,fmt:eur,key:'re3|'+t.id,h:300})}</div>${legendHTML(S3)}</section></div>
     <div class="tbl-wrap"><table class="stack dense"><thead><tr><th>Sem.</th><th>Continente</th><th>Nicho</th><th>Transporte</th><th class="rt">Precio</th><th class="rt">Fabricados</th><th class="rt">Vendidos</th><th class="rt">Publicidad</th><th class="rt">Ingresos</th><th class="rt">Beneficio</th><th>Evento</th></tr></thead>
     <tbody>${H.map(h=>`<tr><td>${h.week}</td><td>${h.sent?CONTS[h.cont].n:'No envió'}</td><td>${h.sent&&h.niche&&NICHES[h.niche]?NICHES[h.niche].n:'—'}</td><td>${h.sent&&h.mode?MODES[h.mode].n:'—'}</td>
       <td class="num">${eur(h.price)}</td><td class="num">${int(h.prod)}</td><td class="num">${int(h.sold)}</td><td class="num">${eur(h.ad)}</td><td class="num">${eur(h.revenue)}</td><td class="num ${h.profit<0?'neg':'pos'}">${eur(h.profit)}</td><td>${esc(evTitle(h)||'—')}</td></tr>`).join('')}</tbody></table></div>`
@@ -2907,7 +2938,7 @@ function bindDelete(){
     if(DELARM!==code){DELARM=code;renderTeacher();setTimeout(()=>{if(DELARM===code){DELARM=null;if(VIEW==='teacher')renderTeacher()}},6000);return}
     DELARM=null;DELBUSY=true;const name=(GAMES.find(g=>g.code===code)||{}).curso||code;renderTeacher();
     const m=document.getElementById('delmsg');if(m)m.textContent='Borrando…';
-    try{await deleteCourse(code);DELBUSY=false;renderTeacher();const m2=document.getElementById('delmsg');if(m2)m2.textContent=`Curso ${name} borrado.`}
+    try{await deleteCourse(code);DELBUSY=false;TMODAL=null;renderTeacher();const m2=document.getElementById('delmsg');if(m2)m2.textContent=`Curso ${name} borrado.`}
     catch(e){console.error(e);DELBUSY=false;renderTeacher();const m2=document.getElementById('delmsg');if(m2)m2.textContent='No se pudo borrar el curso. Inténtalo otra vez.'}
   }));
 }
@@ -3192,7 +3223,7 @@ function fitAll(){
     if(small||box.classList.contains('noshrink')||box.querySelector('.fitbox')) return;
     const fits=()=>box.scrollHeight<=box.clientHeight+1;
     if(fits()) return;
-    let lo=.72, hi=1;
+    let lo=+(box.dataset.minz||.72), hi=1;
     for(let i=0;i<7;i++){const z=(lo+hi)/2; f.style.zoom=String(z); if(fits()) lo=z; else hi=z}
     f.style.zoom=String(lo);
   });
@@ -3202,6 +3233,7 @@ function fitAll(){
 let fitRaf=0; const fitSoon=()=>{cancelAnimationFrame(fitRaf);fitRaf=requestAnimationFrame(fitAll)};
 try{new MutationObserver(r=>{if(r.every(m=>m.target.closest&&m.target.closest('.fx-amt')))return;fitSoon()}).observe(app,{childList:true,subtree:true})}catch(e){}
 window.addEventListener('resize',fitSoon);
+document.addEventListener('toggle',e=>{if(e.target&&e.target.tagName==='DETAILS')fitSoon()},true);
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitSoon);
 setInterval(()=>{try{if(G&&G.week<=WEEKS&&Date.now()>=dueAt(G))closeWeek()}catch(e){}},30000);
 applyLang(LANG); FX.intro(); boot(); initShared(); initFirebase();
