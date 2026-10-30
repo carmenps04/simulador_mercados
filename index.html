@@ -765,6 +765,7 @@ td .eye{margin-inline-start:6px;vertical-align:middle}
    Cada fila: [texto en español, inglés, árabe]. {0}, {1}… son huecos que se rellenan con datos.
    Si falta una traducción, se muestra el español. */
 const TR=[
+["Decidid cuánto dinero invertís en publicidad esta semana.","Decide how much money you will spend on advertising this week.","قرّروا كم من المال ستنفقون على الإعلان هذا الأسبوع."],["Precio y producción","Price and production","السعر والإنتاج"],
 ["Financiación", "Financing", "التمويل"],
 ["Factura", "Invoice", "الفاتورة"],
 ["Medidas sostenibles", "Sustainable measures", "إجراءات مستدامة"],
@@ -1631,6 +1632,7 @@ function fixDec(d,ev,t){
   const df=defaultDec(d.model); if(!NICHES[d.niche]) d.niche=df.niche; d.comps={...df.comps,...(d.comps||{})}; d.extras={...df.extras,...(d.extras||{})};
   {const off=offFor(t);if(off.includes('box'))d.eco={};if(off.includes('finance'))d.fin={loan:0,term:8,plazos:'no'};
    if(off.includes('cont')){d.cont='europa';d.price=d.price||habitual(d.model,'europa')}if(off.includes('mode'))d.mode='camion';
+   if(off.includes('ads')){d.ad=0;d.adv={...(d.adv||{}),media:[]}}
    if(off.includes('niche'))d.niche=df.niche;if(off.includes('comps'))d.comps={...df.comps};if(off.includes('box'))d.extras={...df.extras}}
   d.adv={...ADV_DEF,...(d.adv||{})}; d.adv.media=(d.adv.media||[]).filter(k=>MEDIA[k]); if(!ZONES[d.adv.zone]) d.adv.zone=ADV_DEF.zone;
   if(isAdv(t)&&feat('ads',t)) d.ad=d.adv.media.reduce((s,k)=>s+MEDIA[k].c,0);
@@ -1685,7 +1687,7 @@ function levelOf(t){
 const isAdv=t=>levelOf(t)!=='basico';
 const gameLevel=g=>(g&&g.rules&&LEVELS[g.rules.level])?g.rules.level:'basico';
 /* Modo progresivo: cada bloque se desbloquea en una semana (sin pasar de la última ronda) */
-const UNLOCK={staff:2,mach:2,zone:3,ads:4,ai:99,tax:99};
+const UNLOCK={staff:2,mach:2,zone:3,ads:1,ai:99,tax:99};
 const UNLOCK_N={staff:'Plantilla',mach:'Maquinaria',zone:'Ubicación de la fábrica',ads:'Publicidad por enfoque y medios',ai:'Mejoras con IA',tax:'Impuestos (IVA, aranceles y sociedades)'};
 const unlockWeek=k=>Math.min(UNLOCK[k],WEEKS);
 /* Apartados desactivados: los del grupo (si el profesor/a los ha ajustado) o los del curso */
@@ -1700,7 +1702,7 @@ function offFor(t){
 }
 const secsOfLevel=l=>(l==='basico'?BASIC_SECS:ADV_SECS).filter(([k])=>!(LEVEL_EXCL[l]||[]).includes(k));
 function feat(k,t,w){if(offFor(t).includes(k))return false;const l=levelOf(t);if(l==='avanzado')return true;if(l!=='progresivo')return false;return (w||G.week)>=unlockWeek(k)}
-const featsOf=(t,w)=>({staff:feat('staff',t,w),mach:feat('mach',t,w),zone:feat('zone',t,w),ads:feat('ads',t,w),ai:feat('ai',t,w),tax:feat('tax',t,w)});
+const featsOf=(t,w)=>({staff:feat('staff',t,w),mach:feat('mach',t,w),zone:feat('zone',t,w),ads:feat('ads',t,w),focus:feat('ads',t,w)&&levelOf(t)==='avanzado',ai:feat('ai',t,w),tax:feat('tax',t,w)});
 const SMI=1221, SS_EMP=0.32, PER_WORKER=30, PER_ROBOT=45, ROBOT_WEEK=380, MOVE_COST=10000, DISMISS_COST=1200, REPAIR=2500, IVA=0.21;
 /* Un móvil de gama baja se monta más rápido que uno de gama alta */
 const MODEL_PROD={A:1.3,B:1,C:.75};
@@ -1783,7 +1785,7 @@ function advCalc(dec,w,t){
 function advDemand(dec,t,A,ev,hasImg){
   const ni=dec.niche, a=A.a, lvl=+a.ai||0;
   let aiMul=1; if(lvl){let e=(AI_NICHE[ni]||[0,0])[lvl-1];if(lvl===2&&dec.comps.cpu===1)e*=.5;aiMul=1+e+(dec.model==='C'&&lvl===2?.05:0)} else if(dec.model==='C'&&A.f.ai) aiMul=.92;
-  const reach=A.f.ads?A.media.reduce((s,k)=>s+MEDIA[k].c*mediaFit(k,ni),0):A.mediaC, ff=A.f.ads?focusFit(a.focus,ni,dec.model):1;
+  const reach=A.f.ads?A.media.reduce((s,k)=>s+MEDIA[k].c*mediaFit(k,ni),0):A.mediaC, ff=A.f.focus?focusFit(a.focus,ni,dec.model):1;
   const adf=1+0.35*Math.log(1+reach/1000)*ff*(ev&&ev.adMul||1)*(hasImg?1:0.8);
   const imgMul=1-A.share*0.25*(dec.cont==='europa'?1.3:1);
   return {aiMul,adf,reach,ff,imgMul};
@@ -1842,7 +1844,7 @@ function advMessages(r){
 
 
 /* ================= Modo avanzado: secciones, menú lateral y resúmenes ================= */
-const BASIC_SECS=[['news','Noticias'],['design','Diseño'],['comps','Componentes'],['box','Caja'],['cont','Continente'],['niche','Nicho'],['mode','Transporte'],['price','Precio'],['finance','Financiación'],['invoice','Factura']];
+const BASIC_SECS=[['news','Noticias'],['design','Diseño'],['comps','Componentes'],['box','Caja'],['cont','Continente'],['niche','Nicho'],['mode','Transporte'],['ads','Publicidad'],['price','Precio'],['finance','Financiación'],['invoice','Factura']];
 const ADV_SECS=[['news','Noticias','Semana'],['design','Diseño','Producto'],['comps','Componentes','Producto'],['ai','Mejoras con IA','Producto'],['box','Caja','Producto'],
   ['zone','Ubicación en Andalucía','Empresa'],['staff','Plantilla','Empresa'],['mach','Maquinaria','Empresa'],
   ['cont','Continente','Mercado'],['niche','Nicho','Mercado'],['mode','Transporte','Mercado'],['ads','Publicidad','Mercado'],
@@ -1918,10 +1920,12 @@ function advSection(k,d,t,ev,w){
     ${(+a.ai===2&&d.comps.cpu===1)?`<p class="warn">${T('Con un procesador normal, la IA avanzada va lenta y convence la mitad. Mejorad el procesador en «Componentes».')}</p>`:''}
     ${d.model==='C'&&!+a.ai?`<p class="warn">${T('Los clientes de gama alta esperan funciones de IA: sin ellas venderéis algo menos.')}</p>`:''}`;
   if(k==='ads'){
+    const fo=levelOf()==='avanzado';
     return `<h2>${T('Publicidad')} ${glBtn('publicidad')}</h2>
-    <h3>${T('¿En qué se centra vuestro anuncio?')}</h3>
+    ${fo?`<h3>${T('¿En qué se centra vuestro anuncio?')}</h3>
     <div class="grid3">${Object.entries(FOCUS).map(([f,F])=>{const v=focusFit(f,d.niche,d.model);return `<button class="opt" data-focus="${f}" aria-pressed="${a.focus===f}"><span class="t">${F.n}</span><span class="s">${F.d}</span>
-      <span class="meta">${T('Para {0}: {1}',N.n.toLowerCase(),T(v>=1.15?'encaja muy bien':v<.9?'encaja poco':'encaje normal'))}</span></button>`}).join('')}</div>
+      <span class="meta">${T('Para {0}: {1}',N.n.toLowerCase(),T(v>=1.15?'encaja muy bien':v<.9?'encaja poco':'encaje normal'))}</span></button>`}).join('')}</div>`:''}
+    
     <h3>${T('¿En qué medios os anunciáis?')}</h3><p class="hint">${T('Podéis elegir varios. Cada medio tiene un precio por semana y llega mejor a unos clientes que a otros.')}</p>
     <div class="llist">${Object.entries(MEDIA).map(([m,M])=>{const on=A.media.includes(m), v=mediaFit(m,d.niche);return `<button class="opt xopt lrow" data-media="${m}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="t">${M.n}</span>
       <span class="s">${T('Llega a {0}: {1}',N.n.toLowerCase(),T(v>=1.3?'muy bien':v>=1?'bien':v>=.7?'regular':'mal'))}</span><span class="meta">${T('{0} a la semana',eur(M.c))}</span></button>`}).join('')}</div>
@@ -2470,15 +2474,17 @@ function decideHTML(t){
         return `<button class="opt" data-mode="${k}" aria-pressed="${d.mode===k}" ${ok?'':'disabled'}><span class="label">${md.via}</span><span class="t">${md.n}</span>
           <span class="s">${md.d}</span><span class="meta">${ok?T('{0} por móvil · llega a tiempo el {1} %',eur(K.ship),Math.round(K.onTime*100))+' · '+T('{0} g de CO₂',int(co2g(d.cont,k))):why}</span></button>`}).join('')}</div>
       <p class="hint">${T('Los móviles que llegan tarde solo se venden a mitad de precio.')}</p>`;
-  if(KEY==='price') body=`<h2>${T(isAdv()&&feat('ads')?'Precio y producción':'Precio, cantidad y publicidad')}</h2><p class="hint">${T('Escribid la cifra exacta.')}</p>
+  if(KEY==='price') body=`<h2>${T('Precio y producción')}</h2><p class="hint">${T('Escribid la cifra exacta.')}</p>
       <div class="grid3">
         <label class="numf" for="price"><b>${T('Precio de cada móvil')} ${glBtn('precio')}</b><span class="inwrap"><input type="number" id="price" min="1" step="1" inputmode="numeric" value="${d.price}"><span>€</span></span>
           <span class="hint">${T('Precio habitual de un {0} en {1}: {2}',m.n,CONTS[d.cont].n,eur(habitual(d.model,d.cont)))}</span></label>
         <label class="numf" for="prod"><b>${T('Móviles a fabricar')} ${glBtn('oferta')}</b><span class="inwrap"><input type="number" id="prod" min="0" step="1" inputmode="numeric" value="${d.prod}"><span>${T('uds')}</span></span>
           <span class="hint">${T('Pocos: os quedáis sin stock. Muchos: los que sobran se malvenden.')}</span></label>
-        ${isAdv()&&feat('staff')?`<div class="numf"><b>${T('Capacidad de vuestra fábrica')}</b><span class="big num">${T('{0} móviles',int(advCalc(d,w,t).cap))}</span><span class="hint">${T('Depende de la plantilla, la maquinaria y la satisfacción.')}</span></div>`:''}${isAdv()&&feat('ads')?'':`<label class="numf" for="ad"><b>${T('Publicidad esta semana')} ${glBtn('publicidad')}</b><span class="inwrap"><input type="number" id="ad" min="0" step="1" inputmode="numeric" value="${d.ad}"><span>€</span></span>
-          <span class="hint">${T('Cada euro extra rinde un poco menos que el anterior.')}</span></label>`}
+        ${isAdv()&&feat('staff')?`<div class="numf"><b>${T('Capacidad de vuestra fábrica')}</b><span class="big num">${T('{0} móviles',int(advCalc(d,w,t).cap))}</span><span class="hint">${T('Depende de la plantilla, la maquinaria y la satisfacción.')}</span></div>`:''}
       </div><p class="err" id="numerr"></p>`;
+  if(KEY==='ads'&&!(isAdv()&&feat('ads'))) body=`<h2>${T('Publicidad')} ${glBtn('publicidad')}</h2><p class="hint">${T('Decidid cuánto dinero invertís en publicidad esta semana.')}</p>
+      <div class="grid3"><label class="numf" for="ad"><b>${T('Publicidad esta semana')} ${glBtn('publicidad')}</b><span class="inwrap"><input type="number" id="ad" min="0" step="1" inputmode="numeric" value="${d.ad}"><span>€</span></span>
+          <span class="hint">${T('Cada euro extra rinde un poco menos que el anterior.')}</span></label></div><p class="err" id="numerr"></p>`;
   if(KEY==='finance') body=financeHTML(d,t,w);
   if(KEY==='invoice') body=invoiceHTML(t,w);
   if(!body&&isAdv()) body=advSection(KEY,d,t,ev,w);
@@ -2908,7 +2914,7 @@ function rulesFields(p,r,minR,lock){
   <p class="hint" id="${p}-lvhint">${LEVEL_HINT}${lock?' La dificultad ya no se puede cambiar porque hay resultados publicados.':''}</p>
   <p class="hint" id="${p}-prev"></p>`;
 }
-const LEVEL_HINT='Básico: diseño, componentes, mercado, transporte, precio y publicidad. Progresivo: empieza como el básico, sin financiación ni factura, y añade bloques del avanzado (semana 2 plantilla y maquinaria, 3 ubicación de la fábrica, 4 publicidad por enfoque y medios). No incluye mejoras con IA ni impuestos. Avanzado: añade plantilla y sueldos (con huelgas y automatización con IA), maquinaria y averías, IA en el móvil, ubicación de la fábrica en Andalucía con costes fijos y variables, IVA, aranceles e impuesto de sociedades, y publicidad por enfoque y medios. Las secciones aparecen en un menú lateral (☰).';
+const LEVEL_HINT='Básico: diseño, componentes, mercado, transporte, publicidad (cuánto invertir), precio, financiación y factura. Progresivo: empieza como el básico, sin financiación ni factura; en publicidad eligen los medios, y añade bloques del avanzado (semana 2 plantilla y maquinaria, semana 3 ubicación de la fábrica). No incluye mejoras con IA ni impuestos. En publicidad: básico, solo cuánto invertir; progresivo, en qué medios; avanzado, medios y enfoque del anuncio. Avanzado: añade plantilla y sueldos (con huelgas y automatización con IA), maquinaria y averías, IA en el móvil, ubicación de la fábrica en Andalucía con costes fijos y variables, IVA, aranceles e impuesto de sociedades, y publicidad por enfoque y medios. Las secciones aparecen en un menú lateral (☰).';
 function readRules(p){
   const manual=document.getElementById(p+'-manual').checked;
   const lv=document.getElementById(p+'-level');
