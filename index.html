@@ -666,6 +666,12 @@ details.fold[open]{gap:12px}
 .card.pl .rows .r.total{border-top:1px solid var(--line);padding-top:6px}
 .card.pl .rows .r{gap:10px}
 .card.pl .rows .r b{white-space:normal;text-align:end;min-width:0;overflow-wrap:break-word}
+
+.code-in{font-family:var(--f-data);font-size:1.4rem;letter-spacing:.12em;text-transform:uppercase;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
+.pass-row{display:flex;gap:8px}
+.pass-row .code-in{font-size:1.05rem;padding:9px 12px}
+.pass-l .code-in{font-size:1.05rem;max-width:320px}
+.passchip{font-family:var(--f-data);letter-spacing:.1em;background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:6px}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -676,6 +682,12 @@ details.fold[open]{gap:12px}
    Cada fila: [texto en español, inglés, árabe]. {0}, {1}… son huecos que se rellenan con datos.
    Si falta una traducción, se muestra el español. */
 const TR=[
+["Código del curso","Course code","رمز الصف"],
+["Escribid el código que os ha dado vuestro profesor o profesora para entrar en {0}.","Enter the code your teacher gave you to join {0}.","اكتبوا الرمز الذي أعطاكم إياه أستاذكم أو أستاذتكم للدخول إلى {0}."],
+["Entrar en el curso","Join the class","الدخول إلى الصف"],
+["Escribid el código.","Enter the code.","اكتبوا الرمز."],
+["Ese código no es correcto. Revisadlo con vuestro profesor o profesora.","That code is not correct. Check it with your teacher.","هذا الرمز غير صحيح. تأكدوا منه مع أستاذكم أو أستاذتكم."],
+["Este curso todavía no está creado. Pedid a vuestro profesor o profesora que lo cree.","This class has not been created yet. Ask your teacher to create it.","هذا الصف لم يُنشأ بعد. اطلبوا من أستاذكم أو أستاذتكم إنشاءه."],
 ["Evento inesperado · semana {0}","Unexpected event · week {0}","حدث غير متوقع · الأسبوع {0}"],
 ["Diseña.","Design.","صمِّم."],["Fabrica.","Build.","اصنع."],["Vende.","Sell.","بِع."],
 /* Componentes */
@@ -829,7 +841,7 @@ const TR=[
 ["Elegid continente, nicho de clientes y transporte.","Choose a continent, a customer niche and transport.","اختاروا القارة وشريحة الزبائن ووسيلة النقل."],
 ["Poned precio, cuántos fabricar y cuánto gastar en publicidad, y enviad. <b>Una vez enviadas, las decisiones no se pueden cambiar.</b>","Set the price, how many to make and how much to spend on advertising, then send. <b>Once sent, decisions cannot be changed.</b>","حدّدوا السعر وعدد الهواتف التي ستصنعونها وكم ستنفقون على الإعلان، ثم أرسلوا. <b>بعد الإرسال لا يمكن تغيير القرارات.</b>"],
 ["Los resultados de cada semana del juego se publican al terminar la ronda.","Each game week's results are published when the round ends.","تُنشر نتائج كل أسبوع من اللعبة عند انتهاء الجولة."],
-["<b>Atentos a los eventos inesperados.</b> Cada 2 semanas puede pasar algo que cambie vuestros costes o vuestros mercados: sube el petróleo, un país pone aranceles, una guerra cierra un continente, hay huelga de transportistas… Tenedlo en cuenta antes de decidir.","<b>Watch out for unexpected events.</b> Every 2 weeks something may happen that changes your costs or your markets: oil prices rise, a country sets tariffs, a war closes a continent, truck drivers go on strike… Keep it in mind before deciding.","<b>انتبهوا للأحداث غير المتوقعة.</b> كل أسبوعين قد يحدث شيء يغيّر تكاليفكم أو أسواقكم: يرتفع النفط، تفرض دولة رسومًا جمركية، تُغلق حرب قارة، يُضرب سائقو الشاحنات… خذوا ذلك بعين الاعتبار قبل أن تقرّروا."],
+["<b>Atentos a los eventos inesperados.</b> Desde la semana 2, cada semana puede pasar algo que cambie vuestros costes o vuestros mercados: sube el petróleo, un país pone aranceles, una guerra cierra un continente, hay huelga de transportistas… Tenedlo en cuenta antes de decidir.","<b>Watch out for unexpected events.</b> From week 2 on, every week something may happen that changes your costs or your markets: oil prices rise, a country sets tariffs, a war closes a continent, truck drivers go on strike… Keep it in mind before deciding.","<b>انتبهوا للأحداث غير المتوقعة.</b> ابتداءً من الأسبوع الثاني قد يحدث كل أسبوع شيء يغيّر تكاليفكم أو أسواقكم: يرتفع النفط، تفرض دولة رسومًا جمركية، تُغلق حرب قارة، يُضرب سائقو الشاحنات… خذوا ذلك بعين الاعتبار قبل أن تقرّروا."],
 ["Cada semana pagáis {0} de gastos fijos (sueldos y alquiler). Gana la empresa con más beneficio al final.","Each week you pay {0} in fixed costs (wages and rent). The company with the most profit at the end wins.","كل أسبوع تدفعون {0} تكاليف ثابتة (أجور وكراء). تفوز الشركة التي تحقق أكبر ربح في النهاية."],
 ["Escribid el nombre y los apellidos de al menos un integrante.","Write the first name and surname of at least one member.","اكتبوا الاسم الكامل لعضو واحد على الأقل."],
 ["Escribid nombre y apellidos de cada integrante (por ejemplo, Ana López).","Write each member's first name and surname (for example, Ana López).","اكتبوا الاسم الكامل لكل عضو (مثلًا: Ana López)."],
@@ -1770,6 +1782,7 @@ function renderInner(){
   {const want=VIEW==='teacher'||VIEW==='proj'?'es':(()=>{try{return localStorage.getItem('mm-lang')||'es'}catch(e){return 'es'}})();if(LANG!==want)applyLang(want)}
   if(VIEW==='splash') return renderSplash();
   if(VIEW==='company'&&G) return renderCompany();
+  if(VIEW==='access'&&G) return renderAccess();
   if(VIEW==='tlogin') return renderTLogin();
   if(VIEW==='teacher') return renderTeacher();
   if(VIEW==='proj') return renderProj();
@@ -1799,7 +1812,7 @@ function renderHome(){
       <p class="hint">${T('Dirigís una empresa andaluza que fabrica y vende móviles por todo el mundo durante {0} semanas. Empezáis con {1}.',WEEKS,eur(START_CASH))}</p><ol>
       ${['Cread vuestra empresa: nombre, logo y tipo de móvil (bq, Huawei o Apple).','Cada semana, leed las <b>Noticias</b>: qué buscan los clientes y si ha pasado algo inesperado.','Diseñad el móvil, elegid componentes y qué incluís en la caja.','Elegid continente, nicho de clientes y transporte.','Poned precio, cuántos fabricar y cuánto gastar en publicidad, y enviad. <b>Una vez enviadas, las decisiones no se pueden cambiar.</b>','Los resultados de cada semana del juego se publican al terminar la ronda.'].map(x=>`<li>${T(x)}</li>`).join('')}
     </ol>
-    <div class="note">${T('<b>Atentos a los eventos inesperados.</b> Cada 2 semanas puede pasar algo que cambie vuestros costes o vuestros mercados: sube el petróleo, un país pone aranceles, una guerra cierra un continente, hay huelga de transportistas… Tenedlo en cuenta antes de decidir.')}</div>
+    <div class="note">${T('<b>Atentos a los eventos inesperados.</b> Desde la semana 2, cada semana puede pasar algo que cambie vuestros costes o vuestros mercados: sube el petróleo, un país pone aranceles, una guerra cierra un continente, hay huelga de transportistas… Tenedlo en cuenta antes de decidir.')}</div>
     <p class="hint">${T('Cada semana pagáis {0} de gastos fijos (sueldos y alquiler). Gana la empresa con más beneficio al final.',eur(FIXED))}</p></div></div>
   </div></div></div>`;
   bindTop();
@@ -1818,11 +1831,37 @@ function renderHome(){
     const curso=joinNivel+' '+joinLetra, c=courseCode(curso);
     try{
       Store.stop(); G=null; TEAMS=[];
-      if(!(await Store.getGame(c))) await Store.setGame({code:c,week:1,openedAt:Date.now(),createdAt:Date.now(),curso});
-      await enterCode(c);
+      if(!(await Store.getGame(c))){homeMsg=T('Este curso todavía no está creado. Pedid a vuestro profesor o profesora que lo cree.');return renderHome()}
+      await enterCode(c,true);
     }catch(err){homeMsg=T('No se pudo abrir el curso. Comprobad la conexión e intentadlo otra vez.');return renderHome()}
     if(!G){homeMsg=T('No se pudo abrir el curso. Intentadlo otra vez.');return renderHome()}
-    homeMsg=''; codeTyped=true; VIEW='company'; render();
+    homeMsg=''; accessTyped=''; VIEW=G.pass?'access':'company'; if(!G.pass){codeTyped=true;sess({...sess(),code:c})} render();
+  });
+}
+/* Código de acceso que el profesor/a fija al crear el curso */
+let accessTyped='';
+const normPass=x=>String(x||'').trim().toUpperCase().replace(/\s+/g,'');
+function renderAccess(){
+  if(!G||!joinMembers.some(m=>m.trim())){VIEW='home';return renderHome()}
+  if(!G.pass){VIEW='company';return renderCompany()}
+  app.innerHTML=`${topBar()}<div class="pagebox fitbox"><div class="fit"><div class="setup">
+    <div class="hero">${logoOK()?`<img class="logo-big" src="${esc(VS().logo)}" alt="${T('Logo del centro')}">`:''}
+      <div><p class="label">${esc(G.curso||G.code)} · ${joinMembers.filter(m=>m.trim()).map(m=>esc(m.trim())).join(', ')}</p><h1>${T('Código del curso')}</h1></div></div>
+    <form class="panel form" id="facc">
+      <label for="acode"><b>${T('Escribid el código que os ha dado vuestro profesor o profesora para entrar en {0}.',esc(G.curso||G.code))}</b>
+        <input id="acode" class="code-in" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${esc(accessTyped)}"></label>
+      ${homeMsg?`<p class="err" role="alert">${esc(homeMsg)}</p>`:''}
+      <button class="go" type="submit">${T('Entrar en el curso')}</button>
+      <button class="ghost" type="button" id="backmem2" style="align-self:flex-start">${T('← Cambiar integrantes o curso')}</button>
+    </form></div></div></div>`;
+  bindTop();
+  const inp=document.getElementById('acode'); inp.focus(); inp.addEventListener('input',()=>{accessTyped=inp.value});
+  document.getElementById('backmem2').addEventListener('click',()=>{homeMsg='';VIEW='home';render()});
+  document.getElementById('facc').addEventListener('submit',e=>{
+    e.preventDefault(); const v=normPass(inp.value);
+    if(!v){homeMsg=T('Escribid el código.');return renderAccess()}
+    if(v!==normPass(G.pass)){homeMsg=T('Ese código no es correcto. Revisadlo con vuestro profesor o profesora.');return renderAccess()}
+    homeMsg=''; accessTyped=''; codeTyped=true; sess({...sess(),code:G.code}); VIEW='company'; render();
   });
 }
 function renderCompany(){
@@ -2368,7 +2407,8 @@ function tCursos(){
   const due=dueAt(G)===Infinity?'Los resultados solo se publican cuando tú pulses el botón.':`Si no publicas antes, se publican solos el ${fmtDate(dueAt(G))}.`;
   return `${courseBar()}
     <div class="class-head">
-      <div><span class="label">${esc(G.code)}</span><h2>${esc(G.curso||'Sin curso')} · ${ended?'partida terminada':`semana ${G.week} de ${WEEKS}`}</h2></div>
+      <div><span class="label">${esc(G.code)}</span><h2>${esc(G.curso||'Sin curso')} · ${ended?'partida terminada':`semana ${G.week} de ${WEEKS}`}</h2>
+        <p class="hint">${G.pass?`Código para entrar: <b class="passchip">${esc(G.pass)}</b>`:'Este curso no tiene código: cualquiera puede entrar. Ponle uno en «Reglas y código del curso».'}</p></div>
       <div class="btns"><button class="ghost" id="projBtn" ${TEAMS.length?'':'disabled'}>Proyectar clasificación</button>${ended?'':advBtn()}</div>
     </div>
     ${ended||!TEAMS.length?'':`<div class="card progress-card"><div class="prog-row"><b>${sentN} de ${TEAMS.length} empresas han enviado sus decisiones</b><span class="hint">${due}</span></div>
@@ -2376,7 +2416,7 @@ function tCursos(){
       <p class="hint">${pend.length?`Faltan: <b>${pend.map(t=>esc(t.name)).join(', ')}</b>. Las que no envíen no fabrican nada esta semana y pagan los gastos fijos.`:'Ya han enviado todas. Puedes publicar los resultados.'}</p></div>`}
     <div class="course-grid">
       <div class="tbl-wrap"><table class="stack"><thead><tr><th class="rt">Pos.</th><th>Empresa</th><th>Móvil</th><th>Semana ${Math.min(G.week,WEEKS)}</th><th>Evento</th><th class="rt">Vendidos</th><th class="rt">Beneficio</th><th class="rt">Presupuesto</th><th></th></tr></thead>
-      <tbody>${rows||`<tr><td colspan="9" class="muted">Todavía no hay empresas. Los grupos entran eligiendo ${esc(G.curso||G.code)} en la pantalla de inicio.</td></tr>`}</tbody></table></div>
+      <tbody>${rows||`<tr><td colspan="9" class="muted">Todavía no hay empresas. Los grupos entran eligiendo ${esc(G.curso||G.code)} en la pantalla de inicio${G.pass?' y escribiendo el código <b>'+esc(G.pass)+'</b>':''}.</td></tr>`}</tbody></table></div>
       <section class="panel compact" id="board"></section>
     </div>
     <div class="btns"><button class="go small" id="pdfbtn" ${TEAMS.length?'':'disabled'}>Exportar resultados en PDF</button><span class="hint" id="pdfmsg">Incluye la clasificación, el beneficio por semana y una página por empresa con sus decisiones y su reflexión final.</span></div>
@@ -2446,7 +2486,9 @@ function tCrear(){
       <div class="rules-grid">
         <label for="n-nivel"><b>Curso</b><select id="n-nivel">${NIVELES.map(n=>`<option>${n}</option>`).join('')}</select></label>
         <label for="n-letra"><b>Letra</b><select id="n-letra">${LETRAS.map(l=>`<option>${l}</option>`).join('')}</select></label>
+        <label for="n-pass"><b>Código para que entre el alumnado</b><span class="pass-row"><input id="n-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Ej.: OLIVO24" value="${esc(newPass())}"><button type="button" class="ghost" id="n-gen">Otro</button></span></label>
       </div>
+      <p class="hint">Los grupos tendrán que escribir este código después de elegir su curso. Usa de 4 a 20 letras o números; no distingue mayúsculas de minúsculas.</p>
       <h3>Reglas de la partida</h3>
       ${rulesFields('n',{rounds:5,roundMs:864e5,endTime:'09:00',level:'basico'})}
       <div class="btns"><button class="go small" type="submit">Crear curso</button></div><p class="hint" id="nmsg"></p>
@@ -2455,12 +2497,16 @@ function tCrear(){
 }
 function bindCrear(){
   bindRulesFields('n',null);
+  const g=document.getElementById('n-gen'); g&&g.addEventListener('click',()=>{document.getElementById('n-pass').value=newPass(true)});
   const f=document.getElementById('fnew'); if(!f) return;
   f.addEventListener('submit',async e=>{
     e.preventDefault(); const curso=document.getElementById('n-nivel').value+' '+document.getElementById('n-letra').value, c=courseCode(curso), rules=readRules('n');
-    const msg=document.getElementById('nmsg'); msg.textContent='Creando…';
-    let created; try{created=await createCourse(c,curso,rules)}catch(err){msg.textContent='No se pudo crear el curso. Inténtalo otra vez.';return}
-    TFLASH=created?`Curso ${curso} creado (${rulesTxt(rules)}). Los grupos ya pueden entrar eligiendo ${curso} en la pantalla de inicio.`:`El curso ${curso} ya existía. Sus reglas no se han cambiado; puedes cambiarlas aquí abajo, en «Reglas de la partida».`;
+    const msg=document.getElementById('nmsg'), pass=normPass(document.getElementById('n-pass').value);
+    if(!PASS_OK(pass)){msg.textContent='El código debe tener de 4 a 20 letras o números, sin espacios ni símbolos.';return}
+    msg.textContent='Creando…';
+    let created; try{created=await createCourse(c,curso,rules,pass)}catch(err){msg.textContent='No se pudo crear el curso. Inténtalo otra vez.';return}
+    NEWPASS='';
+    TFLASH=created?`Curso ${curso} creado (${rulesTxt(rules)}). Código para entrar: ${pass}. Los grupos eligen ${curso} en la pantalla de inicio y después escriben el código.`:`El curso ${curso} ya existía. Sus reglas no se han cambiado; puedes cambiarlas aquí abajo, en «Reglas de la partida».`;
     TTAB=3; renderTeacher(); window.scrollTo({top:0});
   });
 }
@@ -2471,8 +2517,10 @@ function tCursos2(){
   const ended=G.week>WEEKS, r={...RULE_DEF,...(G.rules||{})};
   const minR=Math.max(3,G.week-(ended?1:0));
   return `${TFLASH?`<p class="flash" role="status">${esc(TFLASH)}</p>`:''}${tCursos()}
-    <details class="card fold"><summary><b>Reglas de la partida</b><span class="hint">${esc(rulesTxt(r))}</span></summary>
-      <form class="form" id="frules2">${rulesFields('e',r,minR,TEAMS.some(x=>(x.history||[]).length))}
+    <details class="card fold"><summary><b>Reglas y código del curso</b><span class="hint">${esc(rulesTxt(r))}</span></summary>
+      <form class="form" id="frules2">
+        <label for="e-pass" class="pass-l"><b>Código para que entre el alumnado</b><input id="e-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" value="${esc(G.pass||'')}" placeholder="Sin código: cualquiera puede entrar"></label>
+        ${rulesFields('e',r,minR,TEAMS.some(x=>(x.history||[]).length))}
         <div class="btns"><button class="go small" type="submit">Guardar reglas</button></div><p class="hint" id="emsg"></p></form></details>
     <details class="card fold danger-card"><summary><b>Reiniciar o borrar el curso</b><span class="hint">Acciones que no se pueden deshacer</span></summary>
       <p class="hint">Reiniciar borra sus empresas y resultados y vuelve a la semana 1 (se mantienen las reglas). Borrar elimina el curso entero.</p>
@@ -2486,8 +2534,11 @@ function bindCursos2(){
   const f=document.getElementById('frules2'); if(!f) return;
   f.addEventListener('submit',async e=>{
     e.preventDefault(); const rules=readRules('e'); if(TEAMS.some(x=>(x.history||[]).length)) rules.level=(G.rules&&G.rules.level)||'basico'; const ng={...G,rules};
+    const pass=normPass(document.getElementById('e-pass').value);
+    if(pass&&!PASS_OK(pass)){document.getElementById('emsg').textContent='El código debe tener de 4 a 20 letras o números, sin espacios ni símbolos.';return}
+    if(pass) ng.pass=pass; else delete ng.pass;
     if(dueAt(ng)<=Date.now()+60000||(G.week>gW(G)&&G.week<=rules.rounds)) ng.openedAt=Date.now();
-    try{await Store.setGame(ng);G=ng;syncRules(G);await loadGames();TFLASH=`Reglas guardadas: ${rulesTxt(rules)}.`;renderTeacher()}
+    try{await Store.setGame(ng);G=ng;syncRules(G);await loadGames();TFLASH=`Reglas guardadas: ${rulesTxt(rules)}.${pass?' Código para entrar: '+pass+'.':' El curso no tiene código.'}`;renderTeacher()}
     catch(err){document.getElementById('emsg').textContent='No se pudieron guardar. Inténtalo otra vez.'}
   });
 }
@@ -2575,7 +2626,7 @@ function bindRes(){
 function renderProj(){
   if(!teacherOK||!G){VIEW='teacher';return renderTeacher()}
   const ended=G.week>WEEKS, sentN=TEAMS.filter(t=>t.decWeek===G.week).length, pct=TEAMS.length?Math.round(sentN/TEAMS.length*100):0;
-  app.innerHTML=`<div class="proj"><header class="proj-top"><div><span class="label">${esc(G.curso||G.code)} · Mercado Móvil</span><h1>${ended?'Clasificación final':`Semana ${G.week} de ${WEEKS}`}</h1></div>
+  app.innerHTML=`<div class="proj"><header class="proj-top"><div><span class="label">${esc(G.curso||G.code)} · Mercado Móvil</span><h1>${ended?'Clasificación final':`Semana ${G.week} de ${WEEKS}`}</h1>${G.pass&&!ended?`<p class="hint">Código para entrar: <b class="passchip">${esc(G.pass)}</b></p>`:''}</div>
     ${ended?'':`<div class="proj-prog"><b>${sentN} de ${TEAMS.length} empresas han enviado</b><span class="prog"><i style="width:${pct}%"></i></span></div>`}
     <button class="mini" id="projExit">Salir de la proyección</button></header>
     <section class="panel" id="board"></section></div>`;
@@ -2861,10 +2912,14 @@ function bindDelete(){
   }));
 }
 /* Crea un curso (partida) o abre uno existente y lo deja seleccionado en Cursos */
-async function createCourse(c,curso,rules){
+let NEWPASS='';
+/* Código propuesto (fácil de dictar: sin 0/O ni 1/I) */
+function newPass(force){if(!NEWPASS||force){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';NEWPASS=[...Array(6)].map(()=>A[Math.floor(Math.random()*A.length)]).join('')}return NEWPASS}
+const PASS_OK=p=>/^[A-Z0-9ÑÁÉÍÓÚÜ-]{4,20}$/.test(p);
+async function createCourse(c,curso,rules,pass){
   Store.stop(); G=null; TEAMS=[];
   let g=await Store.getGame(c), created=false;
-  if(!g){g={code:c,week:1,openedAt:Date.now(),createdAt:Date.now(),curso};if(rules)g.rules=rules;await Store.setGame(g);created=true}
+  if(!g){g={code:c,week:1,openedAt:Date.now(),createdAt:Date.now(),curso};if(rules)g.rules=rules;if(pass)g.pass=pass;await Store.setGame(g);created=true}
   else if(curso&&curso!==g.curso){await Store.setGame({...g,curso})}
   await enterCode(c,true); await loadGames();
   if(!GAMES.some(x=>x.code===c)) GAMES.push(G);
