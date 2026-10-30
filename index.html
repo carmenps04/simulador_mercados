@@ -769,6 +769,34 @@ td .eye{margin-inline-start:6px;vertical-align:middle}
 .unl select{font:inherit;padding:3px 6px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 .unl select:disabled{opacity:.4}
 .tmodal .gloss-box{max-width:900px;width:min(900px,96vw)}
+/* Móvil y pantallas táctiles */
+.inv-t{table-layout:fixed}
+.inv-t th{white-space:normal;overflow-wrap:anywhere;line-height:1.25}
+.inv-t td{overflow-wrap:anywhere}
+@media (max-width:600px){.invoice{padding:12px}.inv-t th,.inv-t td{padding:6px 4px;font-size:.85rem}.inv-t th{font-size:.7rem}.inv-t th:first-child{width:38%}}
+@media (max-width:420px){.inv-r{grid-template-columns:minmax(0,1fr) 22px;row-gap:4px}.inv-r label{grid-column:1/-1}.inv-f{width:100%}}
+.gloss-box,.drawer{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@supports (height:100dvh){.gloss-box{max-height:86dvh}.drawer{height:100dvh;bottom:auto}}
+@media (max-width:420px){@supports (height:100dvh){.gloss-box{max-height:92dvh}}.gloss-box{padding-bottom:max(14px,env(safe-area-inset-bottom))}}
+html.lock,html.lock body{overflow:hidden}
+@media (max-width:900px){
+  .top .kpi .label,.label{font-size:max(11px,.68rem)}
+  button,select,input,textarea{touch-action:manipulation}
+}
+@media (pointer:coarse),(max-width:900px){
+  select,input:not([type=checkbox]):not([type=radio]),textarea{font-size:16px!important}
+  .top .btns .langsel select,.langsel select{padding:7px 8px;min-height:38px}
+  .mini{min-height:38px;padding:6px 12px}
+  .ghost{min-height:40px}
+  .linkbtn{min-height:34px;padding:4px 6px}
+  .gl{position:relative}
+  .gl::after{content:"";position:absolute;inset:-9px -4px}
+  .tabs button{min-height:42px}
+  .lvsel{min-height:38px}
+  .eye{min-height:38px}
+  .secrow select,select[data-unl]{min-height:36px;padding:4px 6px}
+  .form label input[type=checkbox],.secrow input[type=checkbox]{width:22px;height:22px}
+}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -1592,13 +1620,14 @@ function messagesAll(r,sent){
 const msgsOf=h=>(LANG!=='es'&&h.msgsI18n&&h.msgsI18n[LANG])||h.msgs;
 function evTitle(h){if(h.evId){const e=EVENTS.find(x=>x.id===h.evId);if(e)return e.t(h.evTarget)}return h.event||''}
 const glBtn=k=>`<button type="button" class="gl" data-gl="${k}" aria-label="${T('¿Qué significa?')}" title="${T('¿Qué significa?')}">?</button>`;
-function closeGloss(){const o=document.getElementById('gloss');if(o)o.remove()}
+function syncLock(){try{document.documentElement.classList.toggle('lock',!!document.querySelector('.gloss-ov, .drawer.open'))}catch(e){}}
+function closeGloss(){const o=document.getElementById('gloss');if(o)o.remove();syncLock()}
 function openGloss(k){
   closeGloss(); const L=LANG;
   const ov=document.createElement('div'); ov.id='gloss'; ov.className='gloss-ov'; ov.dir=L==='ar'?'rtl':'ltr';
   ov.innerHTML=`<div class="gloss-box" role="dialog" aria-modal="true" aria-label="${T('Glosario')}"><div class="gloss-head"><h2>${T('Glosario')}</h2><button class="mini" id="glclose">${T('Cerrar')}</button></div>
     <dl>${GLOSS.map(g=>`<div class="gl-item ${g.k===k?'hit':''}" id="gl-${g.k}"><dt>${g[L][0]}</dt><dd>${g[L][1]}</dd><dd class="ex"><b>${T('Ejemplo')}:</b> ${g[L][2]}</dd></div>`).join('')}</dl></div>`;
-  document.body.appendChild(ov);
+  document.body.appendChild(ov); syncLock();
   ov.addEventListener('click',e=>{if(e.target===ov)closeGloss()});
   document.getElementById('glclose').addEventListener('click',closeGloss); document.getElementById('glclose').focus();
   const hit=k&&document.getElementById('gl-'+k); hit&&hit.scrollIntoView({block:'center'});
@@ -2657,7 +2686,7 @@ function bindAdv2(d,refresh){
 /* Abre o cierra el menú lateral sin repintar la pantalla, para que se deslice */
 function drawerSet(open){
   MENU=open; const dr=document.getElementById('drawer'), ov=document.getElementById('drawerOv'), bu=document.getElementById('burger'); if(!dr) return;
-  dr.classList.toggle('open',open); ov&&ov.classList.toggle('open',open); bu&&bu.setAttribute('aria-expanded',open);
+  dr.classList.toggle('open',open); ov&&ov.classList.toggle('open',open); syncLock(); bu&&bu.setAttribute('aria-expanded',open);
   if(open){dr.removeAttribute('inert');const f=dr.querySelector('[aria-current="true"]');f&&f.focus()} else {dr.setAttribute('inert','');bu&&bu.focus()}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&MENU&&VIEW==='team') drawerSet(false)});
@@ -3754,7 +3783,8 @@ function fitAll(){
   document.querySelectorAll('.fitbox').forEach(box=>{
     const f=box.querySelector(':scope>.fit'); if(!f) return;
     f.style.zoom='';
-    if(small||box.classList.contains('noshrink')||box.querySelector('.fitbox')) return;
+    if(small){box.classList.remove('clip');return}
+    if(box.classList.contains('noshrink')||box.querySelector('.fitbox')) return;
     const tf=box.classList.contains('tfit');
     const fits=()=>box.scrollHeight<=box.clientHeight+1;
     /* En el panel, un sobrante de pocos píxeles (redondeo del zoom) se recorta en vez de mostrar barra */
@@ -3767,6 +3797,7 @@ function fitAll(){
   });
   anims.forEach((a,i)=>{try{a.currentTime=saved[i]}catch(e){}});
   try{FX.scan()}catch(e){console.error(e)}
+  syncLock();
 }
 let fitRaf=0; const fitSoon=()=>{cancelAnimationFrame(fitRaf);fitRaf=requestAnimationFrame(fitAll)};
 try{new MutationObserver(r=>{if(r.every(m=>m.target.closest&&m.target.closest('.fx-amt')))return;fitSoon()}).observe(app,{childList:true,subtree:true})}catch(e){}
