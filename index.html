@@ -2858,7 +2858,7 @@ function addCourseForm(){
   return `<form class="addcourse" id="faddc"><span class="label">Añadir curso</span>
     <label class="sr-label" for="ac-nivel">Curso</label><select id="ac-nivel">${NIVELES.map(n=>`<option>${n}</option>`).join('')}</select>
     <label class="sr-label" for="ac-letra">Grupo</label><select id="ac-letra">${LETRAS.map(l=>`<option>${l}</option>`).join('')}</select>
-    <button class="go small" type="submit">Crear curso</button><span class="hint" id="cmsg">Los cursos también se crean solos cuando entra el primer grupo.</span></form>`;
+    <button class="go small" type="submit">Crear curso</button><span class="hint" id="cmsg"></span></form>`;
 }
 function bindAddCourse(after){
   const fa=document.getElementById('faddc'); if(!fa) return;
@@ -2887,18 +2887,17 @@ function tCursos(){
   const due=dueAt(G)===Infinity?'Los resultados solo se publican cuando tú pulses el botón.':`Si no publicas antes, se publican solos el ${fmtDate(dueAt(G))}.`;
   return `${courseSelect()}
     <div class="class-head">
-      <div><h2>${esc(G.curso||'Sin curso')} · ${ended?'partida terminada':`semana ${G.week} de ${WEEKS}`}</h2>
-        <p class="codeline">${G.pass?`Código: <b class="passcode">${esc(G.pass)}</b>`:'<span class="hint">Este curso no tiene código: cualquiera puede entrar. Ponle uno en «Reglas y código del curso».</span>'}</p></div>
+      <div><h2>${esc(G.curso||'Sin curso')} · ${ended?'partida terminada':`semana ${G.week} de ${WEEKS}`}</h2></div>
       <div class="btns"><button class="ghost" id="projBtn" ${TEAMS.length?'':'disabled'}>Proyectar clasificación</button>${ended?'':advBtn()}</div>
     </div>
-    ${ended||!TEAMS.length?'':`<div class="card progress-card"><div class="prog-row"><b>${sentN} de ${TEAMS.length} empresas han enviado sus decisiones</b><span class="hint">${due}</span></div>
+    ${ended||!TEAMS.length?'':`<div class="card progress-card"><div class="prog-row"><b>${sentN} de ${TEAMS.length} empresas han enviado sus decisiones</b></div>
       <span class="prog"><i style="width:${pct}%"></i></span>
-      <p class="hint">${pend.length?`Faltan: <b>${pend.map(t=>esc(t.name)).join(', ')}</b>. Las que no envíen no fabrican nada esta semana y pagan los gastos fijos.`:'Ya han enviado todas. Puedes publicar los resultados.'}</p></div>`}
+      <p class="hint">${pend.length?`Faltan: <b>${pend.map(t=>esc(t.name)).join(', ')}</b>`:'Ya han enviado todas.'}</p></div>`}
     <div class="course-grid one">
       <div class="tbl-wrap"><table class="stack"><thead><tr><th class="rt">Pos.</th><th>Grupo</th><th>Integrantes</th><th>Móvil</th><th>Dificultad</th><th>Semana ${Math.min(G.week,WEEKS)}</th><th>Evento</th><th class="rt">Vendidos</th><th class="rt">Beneficio</th><th class="rt">Presupuesto</th><th></th></tr></thead>
-      <tbody>${rows||`<tr><td colspan="11" class="muted">Todavía no hay empresas. Los grupos entran eligiendo ${esc(G.curso||G.code)} en la pantalla de inicio${G.pass?' y escribiendo el código <b>'+esc(G.pass)+'</b>':''}.</td></tr>`}</tbody></table></div>
+      <tbody>${rows||`<tr><td colspan="11" class="muted">Todavía no hay grupos.</td></tr>`}</tbody></table></div>
     </div>
-    <div class="btns"><button class="go small" id="pdfbtn" ${TEAMS.length?'':'disabled'}>Exportar resultados en PDF</button><span class="hint" id="pdfmsg">Incluye la clasificación, el beneficio por semana y una página por empresa con sus decisiones y su reflexión final.</span></div>
+    <div class="btns"><button class="go small" id="pdfbtn" ${TEAMS.length?'':'disabled'}>Exportar resultados en PDF</button><span class="hint" id="pdfmsg"></span></div>
 `;
 }
 function bindCursos(){
@@ -2976,11 +2975,9 @@ function tCrear(){
         <label for="n-letra"><b>Letra</b><select id="n-letra">${LETRAS.map(l=>`<option>${l}</option>`).join('')}</select></label>
         <label for="n-pass"><b>Código para que entre el alumnado</b><span class="pass-row"><input id="n-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Ej.: OLIVO24" value="${esc(newPass())}"><button type="button" class="ghost" id="n-gen">Otro</button></span></label>
       </div>
-      <p class="hint">Los grupos tendrán que escribir este código después de elegir su curso. Usa de 4 a 20 letras o números; no distingue mayúsculas de minúsculas.</p>
-      <div class="btns"><button class="go small" type="submit">Crear curso</button></div><p class="hint" id="nmsg"></p>
-      ${GAMES.length?`<p class="hint">Cursos creados: ${GAMES.map(g=>esc(g.curso||g.code)).join(', ')}.</p>`:''}</section>
+      <div class="btns"><button class="go small" type="submit">Crear curso</button></div><p class="hint" id="nmsg"></p></section>
       <section class="nc-col"><h3>Reglas de la partida</h3>
-      ${rulesFields('n',{rounds:5,roundMs:864e5,endTime:'09:00',level:NEWLV})}</section></div>
+      ${rulesFields('n',{rounds:5,roundMs:864e5,endTime:'09:00',level:NEWLV},3,false,true)}</section></div>
     </form>`;
 }
 function bindCrear(){
@@ -2997,7 +2994,7 @@ function bindCrear(){
     msg.textContent='Creando…';
     let created; try{created=await createCourse(c,curso,rules,pass)}catch(err){msg.textContent='No se pudo crear el curso. Inténtalo otra vez.';return}
     NEWPASS='';
-    TFLASH=created?`Curso ${curso} creado (${rulesTxt(rules)}). Código para entrar: ${pass}. Los grupos eligen ${curso} en la pantalla de inicio y después escriben el código.`:`El curso ${curso} ya existía. Sus reglas no se han cambiado; puedes cambiarlas aquí abajo, en «Reglas de la partida».`;
+    TFLASH=created?`Curso ${curso} creado.`:`El curso ${curso} ya existía.`;
     NEWOFF=[]; NEWUNLOCK={}; NEWLV='basico'; TTAB=3; renderTeacher(); window.scrollTo({top:0});
   });
 }
@@ -3019,7 +3016,6 @@ function tCursos2(){
         </div>
         <div class="mtab" data-mtp="2" hidden><div id="e-secs">${secChecklist(r.level||'basico',r.off||[],'e',r.unlock||{},r.rounds)}</div></div>
         <div class="btns"><button class="go small" type="submit">Guardar</button></div><p class="hint" id="emsg"></p></form>`:`
-      <p class="hint">Reiniciar borra sus empresas y resultados y vuelve a la semana 1 (se mantienen las reglas). Borrar elimina el curso entero.</p>
       <div class="btns"><button class="ghost danger" id="reset">${resetArmed?'¿Seguro? Se borrarán todas las empresas de este curso. Pulsa otra vez':'Reiniciar este curso'}</button>
       <button class="ghost danger delg" data-delg="${esc(G.code)}" ${DELBUSY?'disabled':''}>${DELARM===G.code?'¿Seguro? Se borrará el curso entero. Pulsa otra vez':'Borrar este curso'}</button></div><p class="hint" id="delmsg"></p>`)+`</div></div>`:'');
 }
@@ -3046,7 +3042,7 @@ function bindCursos2(){
     if(pass&&!PASS_OK(pass)){document.getElementById('emsg').textContent='El código debe tener de 4 a 20 letras o números, sin espacios ni símbolos.';return}
     if(pass) ng.pass=pass; else delete ng.pass;
     if(dueAt(ng)<=Date.now()+60000||(G.week>gW(G)&&G.week<=rules.rounds)) ng.openedAt=Date.now();
-    try{await Store.setGame(ng);G=ng;syncRules(G);await loadGames();TMODAL=null;TFLASH=`Reglas y apartados guardados: ${rulesTxt(rules)}.${pass?' Código para entrar: '+pass+'.':' El curso no tiene código.'}`;renderTeacher()}
+    try{await Store.setGame(ng);G=ng;syncRules(G);await loadGames();TMODAL=null;TFLASH='Reglas y apartados guardados.';renderTeacher()}
     catch(err){document.getElementById('emsg').textContent='No se pudieron guardar. Inténtalo otra vez.'}
   });
 }
@@ -3091,7 +3087,6 @@ function tRes(){
       return {name:g.curso||g.code,color:COL(i),pts}});
     return `${sel}<section class="card"><h3>${mname} de cada curso (media por empresa)</h3>
       <div class="chart">${lineChart(S,{maxW,money,fmt,key:'rg|'+RMETRIC,title:mname})}</div>${legendHTML(S.filter(s=>s.pts.length))}
-      <p class="hint">Cada línea es la media de las empresas del curso, para poder comparar cursos con distinto número de grupos.</p></section>
       <div class="tbl-wrap"><table class="stack"><thead><tr><th>Curso</th><th class="rt">Empresas</th><th class="rt">Semanas publicadas</th><th class="rt">${money?'Beneficio medio':'Ventas medias'}</th><th>Va primero</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>
       <div class="btns"><button class="ghost" id="rreload">Actualizar datos</button></div>`;
   }
@@ -3140,7 +3135,7 @@ function secChecklist(level,off,prefix,unlock,rounds){
   S.forEach(([k,l,g])=>{g=g||(ADV_SECS.find(x=>x[0]===k)||[])[2]||'Apartados';let gr=groups.find(x=>x.n===g);if(!gr)groups.push(gr={n:g,items:[]});gr.items.push([k,l])});
   return `<div class="secgrid">${groups.map(g=>`<fieldset class="secg"><legend>${esc(g.n)}</legend>${g.items.map(([k,l])=>{const fx=FIXED_SECS.includes(k);
     const on=fx||!off.includes(k), u=Math.min(defU(k),R);
-    return `<div class="secrow"><label class="check"><input type="checkbox" data-sec="${prefix}" value="${k}" ${on?'checked':''} ${fx?'disabled':''}> ${esc(l)}${fx?' <span class="hint">(siempre)</span>':''}</label>
+    return `<div class="secrow"><label class="check"><input type="checkbox" data-sec="${prefix}" value="${k}" ${on?'checked':''} ${fx?'disabled':''}> ${esc(l)}${fx?'':''}</label>
       ${unlock!==null&&!fx?`<label class="unl"><span>ronda</span><select data-unl="${prefix}" data-k="${k}" ${on?'':'disabled'}>${[...Array(R)].map((_,i)=>`<option ${u===i+1?'selected':''}>${i+1}</option>`).join('')}</select></label>`:''}</div>`}).join('')}</fieldset>`).join('')}</div>`;
 }
 const readUnlock=prefix=>{const o={};document.querySelectorAll(`select[data-unl="${prefix}"]`).forEach(x=>{o[x.dataset.k]=+x.value});return o};
@@ -3154,7 +3149,6 @@ function secModalHTML(){
   const title=SECM.scope==='team'?`Apartados de ${t?t.name:'este grupo'} · ${LEVELS[SECM.level]}`:`Apartados del nivel ${LEVELS[SECM.level].toLowerCase()}`;
   return `<div class="gloss-ov tmodal" id="tmodal"><div class="gloss-box" role="dialog" aria-modal="true" aria-label="${esc(title)}">
     <div class="gloss-head"><h2>${esc(title)}</h2><button class="mini" id="secX">Cerrar</button></div>
-    <p class="hint">Desmarca lo que este ${SECM.scope==='team'?'grupo':'curso'} todavía no ha trabajado. Lo desmarcado no aparecerá en su pantalla y el juego usará valores estándar (por ejemplo, sin «Impuestos» no se paga IVA; sin «Plantilla» la fábrica contrata sola con el salario mínimo).</p>
     ${secChecklist(SECM.level,SECM.off,'m',SECM.scope==='new'?NEWUNLOCK:null,SECM.scope==='new'?+((document.getElementById('n-rounds')||{}).value||5):8)}
     <div class="btns"><button class="go small" id="secOk">Guardar</button><button class="ghost" id="secAll">Marcar todos</button>${SECM.scope==='team'?'<button class="ghost" id="secCourse">Usar los del curso</button>':''}</div><p class="hint" id="secmsg"></p>
   </div></div>`;
@@ -3288,8 +3282,7 @@ function tRecom(){
     <div class="recom-grid">
       <div class="fit-col"><h2>Resumen de ${esc(t.name)}</h2>${summaryOf(t)}</div>
       <form class="form fbform" id="ffb"><label for="fbtext"><h2>Recomendación para la semana ${Math.min(G.week,WEEKS)}</h2></label>
-        <p class="hint">El grupo la verá en la pestaña Noticias y en su pantalla de resultados.</p>
-        ${sug.length?`<div class="sugs"><span class="label">Ideas según sus resultados (pulsa para añadir)</span>${sug.map((x,i)=>`<button type="button" class="sug" data-sug="${i}">${esc(x)}</button>`).join('')}</div>`:''}
+        ${sug.length?`<div class="sugs"><span class="label">Ideas según sus resultados</span>${sug.map((x,i)=>`<button type="button" class="sug" data-sug="${i}">${esc(x)}</button>`).join('')}</div>`:''}
         <textarea id="fbtext" rows="6" maxlength="800" placeholder="Ej.: Habéis fabricado de más. Revisad la cantidad y probad a bajar un poco el precio.">${esc(cur?cur.text:'')}</textarea>
         <div class="btns"><button class="go small" type="submit" ${G.week>WEEKS?'disabled':''}>Guardar</button>${TEAMS.length>1?`<button class="go small" type="submit" data-next="1" ${G.week>WEEKS?'disabled':''}>Guardar y pasar a la siguiente →</button>`:''}</div><p class="hint" id="fbmsg">${esc(FBMSG)}</p>
         ${fb.filter(f=>f.week!==G.week).length?`<div><span class="label">Recomendaciones anteriores</span><ul class="fbold">${fb.filter(f=>f.week!==G.week).map(f=>`<li><b>Semana ${f.week}:</b> ${esc(f.text)}</li>`).join('')}</ul></div>`:''}
@@ -3351,7 +3344,6 @@ function tLogo(){
     <label class="tlc" for="tlc"><b>Curso</b><select id="tlc">
       ${GAMES.map(g=>`<option value="${esc(g.code)}" ${g.code===TLC?'selected':''}>${esc(g.curso||g.code)}</option>`).join('')}
       <option value="" ${TLC===''?'selected':''}>Sin curso elegido (dispositivos que aún no han entrado en un curso)</option></select></label>
-    <p class="hint">${TLC?`Lo que guardes aquí solo lo verán los grupos de <b>${esc(gname)}</b>. Si dejas el título o el logo vacíos, se usan los de «Sin curso elegido».`:'Es la portada que aparece antes de que un grupo elija su curso, y la que se usa en los cursos sin título o logo propios.'}</p>
     <div class="design-row">
       <label class="drop logo-drop" for="logoin">${lg?`<img src="${esc(lg)}" alt="Logo">`:'<span><b>Subir logo</b><br><span class="hint">PNG o JPG</span></span>'}</label>
       <input type="file" id="logoin" accept="image/*" class="sr">
