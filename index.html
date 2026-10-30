@@ -621,6 +621,25 @@ tr.pend td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
 .proj .rank li{padding:14px 8px}
 .proj .rank .nm b{font-size:1.25rem}
 .proj .rank .val{font-size:1.3rem}
+
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.rules-grid label{display:flex;flex-direction:column;gap:6px}
+.rules-grid select,.rules-grid input,.res-bar select{font:inherit;width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:400}
+.rules-grid select:disabled,.rules-grid input:disabled{opacity:.45}
+.form label.check{flex-direction:row;align-items:center;gap:10px}
+label.check{display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer}
+label.check input{width:20px;height:20px;accent-color:var(--accent)}
+.newcourse{max-width:760px}
+.flash{background:var(--good-soft);color:var(--good);border-radius:10px;padding:12px 14px;font-weight:600}
+details.fold>summary{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline;cursor:pointer;list-style:none}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::after{content:"▾";color:var(--muted);transition:transform .2s}
+details.fold[open]>summary::after{transform:rotate(180deg)}
+details.fold[open]{gap:12px}
+.res-bar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.res-bar label{display:flex;flex-direction:column;gap:6px;min-width:min(100%,320px)}
+.res-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:12px}
+.card .chart svg{width:100%;height:auto;max-height:360px;display:block;margin-inline:auto}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -1045,6 +1064,16 @@ const FIXED=5000, START_CASH=100000, EV_FROM=2;
 const RULE_DEF={rounds:5,roundMs:7*864e5};
 let WEEKS=RULE_DEF.rounds, WEEK_MS=RULE_DEF.roundMs;
 const gW=g=>(g&&g.rules&&g.rules.rounds)||RULE_DEF.rounds;
+/* Momento en que termina la ronda: N días después de abrirse, a la hora fijada (o Infinity si es manual) */
+function dueAt(g){
+  if(!g) return Infinity;
+  const r={...RULE_DEF,...(g.rules||{})};
+  if(!r.roundMs) return Infinity;
+  if(!r.endTime) return g.openedAt+r.roundMs;
+  const [hh,mm]=String(r.endTime).split(':').map(Number), d=new Date(g.openedAt);
+  d.setHours(hh||0,mm||0,0,0); d.setDate(d.getDate()+Math.max(1,Math.round(r.roundMs/864e5)));
+  return d.getTime();
+}
 function syncRules(g){const r=(g&&g.rules)||{};WEEKS=r.rounds||RULE_DEF.rounds;WEEK_MS=r.roundMs===0?Infinity:(r.roundMs||RULE_DEF.roundMs)}
 
 /* Traduce los textos de los datos al idioma elegido (el español original se guarda aparte) */
@@ -1351,7 +1380,7 @@ const typing=()=>{const a=document.activeElement;return !!(a&&app.contains(a)&&(
 app.addEventListener('focusout',()=>{if(odPending)setTimeout(()=>{if(odPending&&!typing()){odPending=false;onDataNow()}},50)});
 function onDataNow(){
   syncRules(G);
-  if(G&&G.week<=WEEKS&&Date.now()>=G.openedAt+WEEK_MS) closeWeek();
+  if(G&&G.week<=WEEKS&&Date.now()>=dueAt(G)) closeWeek();
   const t=myTeam();
   const sig=VIEW+'|'+(G&&G.week)+'|'+(t?(t.history||[]).length+':'+t.decWeek+':'+(t.seenWeek||0):'-');
   if(VIEW==='team'&&sig===lastSig){paintBoard();if(!document.activeElement||document.activeElement.id!=='langSel')paintHeader();return}
@@ -1623,7 +1652,7 @@ function chartSVG(S,small){
 function resultsHTML(t){
   const H=(t.history||[]); const h=H[H.length-1];
   if(!h){
-    const due=G.openedAt+WEEK_MS;
+    const due=dueAt(G);
     return `<section class="panel"><span class="label">Resultados</span><h2>Todavía no hay resultados</h2>
       <p class="muted">Tomad las decisiones de la semana ${G.week} y enviadlas. Los resultados aparecerán el ${fmtDate(due)}, o antes si el profesor o la profesora los publica.</p></section>`;
   }
@@ -1739,7 +1768,7 @@ function sentHTML(t){
   const look=t.design&&t.design.look?LOOKS[t.design.look]:T('Sin elegir');
   const item=(l,v)=>`<div class="sitem"><span class="label">${T(l)}</span><b>${v}</b></div>`;
   return `<section class="panel sent-screen">
-    <div class="sent-msg" data-fx="sent" data-fx-key="${esc(t.id)}-${G.week}"><svg class="fx-check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23" pathLength="1"></circle><path d="M15 27l7.5 7.5L38 19" pathLength="1"></path></svg><div><h2>${T('Decisiones enviadas')}</h2><p>${WEEK_MS===Infinity?T('Los resultados se publicarán cuando el profesor o la profesora los publique.'):T('Los resultados se publicarán el {0}.',fmtDate(G.openedAt+WEEK_MS))}</p></div></div>
+    <div class="sent-msg" data-fx="sent" data-fx-key="${esc(t.id)}-${G.week}"><svg class="fx-check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23" pathLength="1"></circle><path d="M15 27l7.5 7.5L38 19" pathLength="1"></path></svg><div><h2>${T('Decisiones enviadas')}</h2><p>${dueAt(G)===Infinity?T('Los resultados se publicarán cuando el profesor o la profesora los publique.'):T('Los resultados se publicarán el {0}.',fmtDate(dueAt(G)))}</p></div></div>
     <h3>${T('Resumen de vuestras decisiones · semana {0}',G.week)}</h3>
     <div class="sgrid">
       ${item('Móvil',m.n+' ('+m.g.toLowerCase()+')')}${item('Diseño',look)}${item('Logo',T(teamLogo(t)?'Sí':'No'))}
@@ -1861,13 +1890,13 @@ function renderTLogin(){
     <button class="ghost" id="back" style="align-self:flex-start">${T('Volver')}</button></div></div>`;
   document.getElementById('pcode').focus();
   document.getElementById('fprof').addEventListener('submit',e=>{e.preventDefault();
-    if(document.getElementById('pcode').value.trim()===TEACHER_CODE){teacherOK=true;VIEW='teacher';(async()=>{await loadGames();if(!G&&GAMES[0])await selectGame(GAMES[0].code);TTAB=1;render()})()}
+    if(document.getElementById('pcode').value.trim()===TEACHER_CODE){teacherOK=true;VIEW='teacher';(async()=>{await loadGames();if(!G&&GAMES[0])await selectGame(GAMES[0].code);TTAB=GAMES.length?3:1;render()})()}
     else document.getElementById('perr').textContent=T('Código incorrecto.')});
   document.getElementById('back').addEventListener('click',()=>{VIEW=tReturn==='team'?'team':'home';render()});
   bindTop();
 }
 let resetArmed=false;
-const TTABS=[[1,'Clase'],[2,'Recomendaciones'],[3,'Reglas de partida'],[4,'Cursos'],[5,'Pantalla de inicio']];
+const TTABS=[[1,'Crear curso'],[2,'Pantalla de inicio'],[3,'Cursos'],[4,'Recomendaciones'],[5,'Resultados']];
 let GAMES=[], FBTEAM=null;
 async function loadGames(){try{GAMES=(await Store.listGames()).sort((a,b)=>String(a.curso||a.code).localeCompare(String(b.curso||b.code),'es'))}catch(e){GAMES=[]}}
 async function selectGame(code){Store.stop();G=null;TEAMS=[];await enterCode(code,true)}
@@ -1881,28 +1910,28 @@ function renderTeacher(){
   if(LANG!=='es') applyLang('es');
   const tabs=`<div class="tabs ttabs" role="tablist">${TTABS.map(([n,l])=>`<button role="tab" data-ttab="${n}" aria-selected="${TTAB===n}"><span class="step-n">${n}</span>${l}</button>`).join('')}</div>`;
   let body='';
-  if(TTAB===1) body=tCursos();
-  if(TTAB===2) body=tRecom();
-  if(TTAB===3) body=tReglas();
-  if(TTAB===4) body=tCodigo();
-  if(TTAB===5) body=tLogo();
+  if(TTAB===1) body=tCrear();
+  if(TTAB===2) body=tLogo();
+  if(TTAB===3) body=tCursos2();
+  if(TTAB===4) body=tRecom();
+  if(TTAB===5) body=tRes();
   app.innerHTML=`<div class="app"><header class="top"><div class="brand"><h1>Panel del profesor/a</h1><span class="team">${GAMES.length} ${GAMES.length===1?'curso':'cursos'}</span></div>
     <div class="btns"><button class="mini" id="logout">Salir del modo profesor</button><button class="mini" id="homeBtn">Inicio</button></div></header>
-    <div class="main"><section class="panel tabpanel">${tabs}<div class="tabbody fitbox"><div class="fit">${body}</div></div></section></div></div>`;
+    <div class="main"><section class="panel tabpanel">${tabs}<div class="tabbody fitbox noshrink"><div class="fit">${body}</div></div></section></div></div>`;
   bindTop();
-  app.querySelectorAll('[data-ttab]').forEach(b=>b.addEventListener('click',()=>{TTAB=+b.dataset.ttab;resetArmed=false;ADVARM=false;FBMSG='';renderTeacher()}));
+  app.querySelectorAll('[data-ttab]').forEach(b=>b.addEventListener('click',()=>{TTAB=+b.dataset.ttab;resetArmed=false;ADVARM=false;FBMSG='';TFLASH='';renderTeacher()}));
   document.getElementById('logout').addEventListener('click',goBack);
   bindCourseBar();
-  if(TTAB===1) bindCursos();
-  if(TTAB===2) bindRecom();
-  if(TTAB===3) bindReglas();
-  if(TTAB===4) bindCodigo();
-  if(TTAB===5) bindLogo();
+  if(TTAB===1) bindCrear();
+  if(TTAB===2) bindLogo();
+  if(TTAB===3) bindCursos2();
+  if(TTAB===4) bindRecom();
+  if(TTAB===5) bindRes();
 }
 const profitOf=t=>(t.history||[]).reduce((a,h)=>a+h.profit,0);
 const ROUND_OPTS=[[0,'Manual: solo cuando yo publique los resultados'],[864e5,'1 día'],[2*864e5,'2 días'],[3*864e5,'3 días'],[7*864e5,'1 semana'],[14*864e5,'2 semanas']];
 function tReglas(){
-  if(!G) return courseBar()+'<p class="muted">Crea primero un curso en la pestaña «Cursos».</p>';
+  if(!G) return courseBar()+'<p class="muted">Crea primero un curso en la pestaña «Crear curso».</p>';
   const r={...RULE_DEF,...(G.rules||{})}, ended=G.week>gW(G), minR=Math.max(3,G.week-(ended?1:0));
   const nOpts=[3,4,5,6,7,8,9,10].map(n=>`<option value="${n}" ${n===r.rounds?'selected':''} ${n<minR?'disabled':''}>${n} rondas</option>`).join('');
   const mOpts=ROUND_OPTS.map(([v,l])=>`<option value="${v}" ${v===r.roundMs?'selected':''}>${l}</option>`).join('');
@@ -1951,7 +1980,7 @@ function tCursos(){
     <td class="num">${int((t.history||[]).reduce((a,h)=>a+h.sold,0))}</td><td class="num ${profitOf(t)<0?'neg':''}">${eur(profitOf(t))}</td><td class="num">${eur(t.cash)}</td>
     <td><button class="linkbtn" data-see="${esc(t.id)}">Ver pantalla</button></td></tr>`).join('');
   const pct=TEAMS.length?Math.round(sentN/TEAMS.length*100):0;
-  const due=WEEK_MS===Infinity?'Los resultados solo se publican cuando tú pulses el botón.':`Si no publicas antes, se publican solos el ${fmtDate(G.openedAt+WEEK_MS)}.`;
+  const due=dueAt(G)===Infinity?'Los resultados solo se publican cuando tú pulses el botón.':`Si no publicas antes, se publican solos el ${fmtDate(dueAt(G))}.`;
   return `${courseBar()}
     <div class="class-head">
       <div><span class="label">${esc(G.code)}</span><h2>${esc(G.curso||'Sin curso')} · ${ended?'partida terminada':`semana ${G.week} de ${WEEKS}`}</h2></div>
@@ -1966,7 +1995,7 @@ function tCursos(){
       <section class="panel compact" id="board"></section>
     </div>
     <div class="btns"><button class="go small" id="pdfbtn" ${TEAMS.length?'':'disabled'}>Exportar resultados en PDF</button><span class="hint" id="pdfmsg">Incluye la clasificación, el beneficio por semana y una página por empresa con sus decisiones y su reflexión final.</span></div>
-    <p class="hint">Para reiniciar o borrar este curso, ve a la pestaña «Cursos».</p>`;
+`;
 }
 function bindCursos(){
   bindAddCourse(1);
@@ -1987,6 +2016,172 @@ function bindReset(){
     TEAMS=[]; if(!Store.db)Store.localPush(CODE); await loadGames(); renderTeacher();
   });
 }
+
+/* ================= Panel del profesor/a (v2): crear curso, cursos y resultados ================= */
+let TFLASH='', RVIEW='general', RMETRIC='profit', ALLT=null, ALLT_BUSY=false;
+const DAY_OPTS=[[1,'1 día'],[2,'2 días'],[3,'3 días'],[7,'1 semana'],[14,'2 semanas']];
+const rulesTxt=r=>{r={...RULE_DEF,...(r||{})};return `${r.rounds} rondas · `+(r.roundMs?`cada ${(DAY_OPTS.find(o=>o[0]===Math.round(r.roundMs/864e5))||[0,Math.round(r.roundMs/864e5)+' días'])[1]}${r.endTime?' a las '+r.endTime:''}`:'publicación manual')};
+/* Campos de reglas (los usan «Crear curso» y «Cursos») */
+function rulesFields(p,r,minR){
+  r={...RULE_DEF,...(r||{})}; const manual=!r.roundMs, days=r.roundMs?Math.round(r.roundMs/864e5):1, tm=r.endTime||'09:00';
+  return `<div class="rules-grid">
+    <label for="${p}-rounds"><b>Duración de la partida</b><select id="${p}-rounds">${[3,4,5,6,7,8,9,10].map(n=>`<option value="${n}" ${n===r.rounds?'selected':''} ${n<(minR||3)?'disabled':''}>${n} rondas</option>`).join('')}</select></label>
+    <label for="${p}-days"><b>Cada cuánto cambia de ronda</b><select id="${p}-days" ${manual?'disabled':''}>${DAY_OPTS.map(([v,l])=>`<option value="${v}" ${v===days?'selected':''}>${l}</option>`).join('')}</select></label>
+    <label for="${p}-time"><b>Hora de cierre y publicación</b><input type="time" id="${p}-time" value="${esc(tm)}" ${manual?'disabled':''}></label>
+  </div>
+  <label class="check" for="${p}-manual"><input type="checkbox" id="${p}-manual" ${manual?'checked':''}> Publicar los resultados manualmente</label>
+  <p class="hint" id="${p}-prev"></p>`;
+}
+function readRules(p){
+  const manual=document.getElementById(p+'-manual').checked;
+  const r={rounds:+document.getElementById(p+'-rounds').value,roundMs:manual?0:(+document.getElementById(p+'-days').value)*864e5};
+  if(!manual) r.endTime=document.getElementById(p+'-time').value||'09:00';
+  return r;
+}
+function bindRulesFields(p,g){
+  const m=document.getElementById(p+'-manual'); if(!m) return;
+  const upd=()=>{
+    const man=m.checked; document.getElementById(p+'-days').disabled=man; document.getElementById(p+'-time').disabled=man;
+    const r=readRules(p), wk=g?Math.min(g.week,r.rounds):1, d=dueAt({openedAt:g?g.openedAt:Date.now(),rules:r}), pv=document.getElementById(p+'-prev');
+    pv.textContent=man?'Los resultados solo se publicarán cuando pulses «Publicar resultados» en la pestaña «Cursos».'
+      :`${d<=Date.now()?'Con este cambio la ronda vuelve a contar desde ahora. ':''}La ronda ${wk} terminará el ${fmtDate(d<=Date.now()?dueAt({openedAt:Date.now(),rules:r}):d)} y los resultados se publicarán solos. Hace falta que algún dispositivo tenga la app abierta a esa hora; si no, se publican en cuanto alguien la abra.`;
+  };
+  [p+'-manual',p+'-days',p+'-time',p+'-rounds'].forEach(id=>{const e=document.getElementById(id);e&&e.addEventListener('input',upd);e&&e.addEventListener('change',upd)});
+  upd();
+}
+
+/* 1. Crear curso */
+function tCrear(){
+  return `<h2>Crear curso</h2>
+    <form class="form newcourse" id="fnew">
+      <div class="rules-grid">
+        <label for="n-nivel"><b>Curso</b><select id="n-nivel">${NIVELES.map(n=>`<option>${n}</option>`).join('')}</select></label>
+        <label for="n-letra"><b>Letra</b><select id="n-letra">${LETRAS.map(l=>`<option>${l}</option>`).join('')}</select></label>
+      </div>
+      <h3>Reglas de la partida</h3>
+      ${rulesFields('n',{rounds:5,roundMs:864e5,endTime:'09:00'})}
+      <div class="btns"><button class="go small" type="submit">Crear curso</button></div><p class="hint" id="nmsg"></p>
+    </form>
+    ${GAMES.length?`<p class="hint">Cursos creados: ${GAMES.map(g=>esc(g.curso||g.code)).join(', ')}.</p>`:''}`;
+}
+function bindCrear(){
+  bindRulesFields('n',null);
+  const f=document.getElementById('fnew'); if(!f) return;
+  f.addEventListener('submit',async e=>{
+    e.preventDefault(); const curso=document.getElementById('n-nivel').value+' '+document.getElementById('n-letra').value, c=courseCode(curso), rules=readRules('n');
+    const msg=document.getElementById('nmsg'); msg.textContent='Creando…';
+    let created; try{created=await createCourse(c,curso,rules)}catch(err){msg.textContent='No se pudo crear el curso. Inténtalo otra vez.';return}
+    TFLASH=created?`Curso ${curso} creado (${rulesTxt(rules)}). Los grupos ya pueden entrar eligiendo ${curso} en la pantalla de inicio.`:`El curso ${curso} ya existía. Sus reglas no se han cambiado; puedes cambiarlas aquí abajo, en «Reglas de la partida».`;
+    TTAB=3; renderTeacher(); window.scrollTo({top:0});
+  });
+}
+
+/* 3. Cursos: seguimiento de la ronda, publicación, reglas y gestión */
+function tCursos2(){
+  if(!G) return `${courseBar()}<p class="muted">Crea tu primer curso en la pestaña «Crear curso».</p>`;
+  const ended=G.week>WEEKS, r={...RULE_DEF,...(G.rules||{})};
+  const minR=Math.max(3,G.week-(ended?1:0));
+  return `${TFLASH?`<p class="flash" role="status">${esc(TFLASH)}</p>`:''}${tCursos()}
+    <details class="card fold"><summary><b>Reglas de la partida</b><span class="hint">${esc(rulesTxt(r))}</span></summary>
+      <form class="form" id="frules2">${rulesFields('e',r,minR)}
+        <div class="btns"><button class="go small" type="submit">Guardar reglas</button></div><p class="hint" id="emsg"></p></form></details>
+    <details class="card fold danger-card"><summary><b>Reiniciar o borrar el curso</b><span class="hint">Acciones que no se pueden deshacer</span></summary>
+      <p class="hint">Reiniciar borra sus empresas y resultados y vuelve a la semana 1 (se mantienen las reglas). Borrar elimina el curso entero.</p>
+      <div class="btns"><button class="ghost danger" id="reset">${resetArmed?'¿Seguro? Se borrarán todas las empresas de este curso. Pulsa otra vez':'Reiniciar este curso'}</button>
+      <button class="ghost danger delg" data-delg="${esc(G.code)}" ${DELBUSY?'disabled':''}>${DELARM===G.code?'¿Seguro? Se borrará el curso entero. Pulsa otra vez':'Borrar este curso'}</button></div><p class="hint" id="delmsg"></p></details>`;
+}
+function bindCursos2(){
+  if(!G) return;
+  bindCursos(); bindReset(); bindDelete(); bindRulesFields('e',G);
+  if(resetArmed||DELARM) {const d=document.querySelector('.danger-card');d&&(d.open=true)}
+  const f=document.getElementById('frules2'); if(!f) return;
+  f.addEventListener('submit',async e=>{
+    e.preventDefault(); const rules=readRules('e'), ng={...G,rules};
+    if(dueAt(ng)<=Date.now()+60000||(G.week>gW(G)&&G.week<=rules.rounds)) ng.openedAt=Date.now();
+    try{await Store.setGame(ng);G=ng;syncRules(G);await loadGames();TFLASH=`Reglas guardadas: ${rulesTxt(rules)}.`;renderTeacher()}
+    catch(err){document.getElementById('emsg').textContent='No se pudieron guardar. Inténtalo otra vez.'}
+  });
+}
+
+/* 5. Resultados con gráficas de líneas */
+function lineChart(S,o){
+  const W=640,H=o.h||280,L=70,R=16,TP=14,B=34, minW=o.minW||0, maxW=Math.max(minW+1,o.maxW||1);
+  const vals=S.flatMap(s=>s.pts.map(p=>p.v)); if(!vals.length) return `<div class="empty">${o.empty||'Todavía no hay resultados publicados.'}</div>`;
+  let lo=Math.min(0,...vals), hi=Math.max(0,...vals); if(hi===lo) hi=lo+1;
+  const st=niceStep(hi-lo); lo=Math.floor(lo/st)*st; hi=Math.ceil(hi/st)*st;
+  const x=w=>L+(W-L-R)*(w-minW)/(maxW-minW), y=v=>TP+(H-TP-B)*(1-(v-lo)/(hi-lo)), f=o.fmt||(v=>int(v));
+  let grid='';
+  for(let v=lo;v<=hi+1e-9;v+=st) grid+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="${v===0?1.5:1}"></line><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${compact(v)}${o.money?' €':''}</text>`;
+  for(let w=minW;w<=maxW;w++) grid+=`<text x="${x(w)}" y="${H-10}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${w===0?'Inicio':'S'+w}</text>`;
+  const lines=S.map((s,si)=>{if(!s.pts.length)return '';const d=s.pts.map((p,i)=>(i?'L':'M')+x(p.w).toFixed(1)+' '+y(p.v).toFixed(1)).join(' ');
+    return `<path class="fx-ln" data-i="${si}" pathLength="1" d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.bold?4:2.5}" stroke-linejoin="round" stroke-linecap="round"></path>
+      ${s.pts.map(p=>`<circle class="fx-pt" data-i="${si}" data-p="${((p.w-minW)/(maxW-minW)).toFixed(3)}" cx="${x(p.w)}" cy="${y(p.v)}" r="${s.bold?4.5:3.5}" fill="${s.color}"><title>${esc(s.name)} · ${p.w===0?'Inicio':'S'+p.w}: ${f(p.v)}</title></circle>`).join('')}`}).join('');
+  return `<svg data-fx-chart="${esc(o.key)}|${S.length}|${maxW}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.title||'Gráfica')}">${grid}${lines}</svg>`;
+}
+const legendHTML=S=>`<div class="legend">${S.map(s=>`<span><i style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div>`;
+const COL=i=>`var(--c${i%8+1})`;
+async function loadAllTeams(){
+  if(ALLT_BUSY) return; ALLT_BUSY=true;
+  try{const o={};for(const g of GAMES)o[g.code]=await Store.listTeams(g.code);ALLT=o}catch(e){ALLT={}}
+  ALLT_BUSY=false; if(VIEW==='teacher'&&TTAB===5) renderTeacher();
+}
+function tRes(){
+  const sel=`<div class="res-bar"><label for="rview"><b>Ver</b><select id="rview">
+      <option value="general" ${RVIEW==='general'?'selected':''}>Resultados generales de los cursos</option>
+      <option value="curso" ${RVIEW==='curso'?'selected':''}>Resultados por curso</option>
+      <option value="empresa" ${RVIEW==='empresa'?'selected':''}>Resultados por empresa</option></select></label>
+    ${RVIEW!=='empresa'?`<div class="toggle" role="group" aria-label="Qué comparar"><button data-rm="profit" aria-pressed="${RMETRIC==='profit'}">Beneficio</button><button data-rm="sold" aria-pressed="${RMETRIC==='sold'}">Ventas</button></div>`:''}</div>`;
+  const money=RMETRIC==='profit', fmt=v=>money?eur(v):int(v)+' uds', mname=money?'Beneficio acumulado':'Móviles vendidos acumulados';
+  if(!GAMES.length) return sel+'<p class="muted">Todavía no hay cursos.</p>';
+  if(RVIEW==='general'){
+    if(!ALLT){loadAllTeams();return sel+'<p class="muted">Cargando los resultados de todos los cursos…</p>'}
+    let maxW=1; const rows=[];
+    const S=GAMES.map((g,i)=>{const ts=ALLT[g.code]||[], closed=Math.max(0,Math.min(g.week-1,gW(g))); maxW=Math.max(maxW,closed);
+      const pts=ts.length?[...Array(closed+1)].map((_,w)=>({w,v:ts.reduce((a,t)=>a+(t.history||[]).filter(h=>h.week<=w).reduce((b,h)=>b+(money?h.profit:h.sold),0),0)/ts.length})):[];
+      const best=[...ts].sort((a,b)=>profitOf(b)-profitOf(a))[0];
+      rows.push(`<tr><td><span class="sw-in" style="background:${COL(i)}"></span><b>${esc(g.curso||g.code)}</b></td><td class="num">${ts.length}</td><td class="num">${closed} de ${gW(g)}</td><td class="num">${pts.length?fmt(pts[pts.length-1].v):'—'}</td><td>${best?esc(best.name)+' · '+eur(profitOf(best)):'—'}</td></tr>`);
+      return {name:g.curso||g.code,color:COL(i),pts}});
+    return `${sel}<section class="card"><h3>${mname} de cada curso (media por empresa)</h3>
+      <div class="chart">${lineChart(S,{maxW,money,fmt,key:'rg|'+RMETRIC,title:mname})}</div>${legendHTML(S.filter(s=>s.pts.length))}
+      <p class="hint">Cada línea es la media de las empresas del curso, para poder comparar cursos con distinto número de grupos.</p></section>
+      <div class="tbl-wrap"><table class="stack"><thead><tr><th>Curso</th><th class="rt">Empresas</th><th class="rt">Semanas publicadas</th><th class="rt">${money?'Beneficio medio':'Ventas medias'}</th><th>Va primero</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>
+      <div class="btns"><button class="ghost" id="rreload">Actualizar datos</button></div>`;
+  }
+  if(!G) return sel+courseBar();
+  const closed=Math.max(0,Math.min(G.week-1,WEEKS));
+  if(RVIEW==='curso'){
+    metric=RMETRIC; const ser=series(), S=ser.map(x=>({name:x.t.name,color:x.color,pts:x.pts}));
+    const ranked=[...ser].sort((a,b)=>b.total-a.total);
+    return `${sel}${courseBar()}<section class="card"><h3>${mname} por empresa · ${esc(G.curso||G.code)}</h3>
+      <div class="chart">${TEAMS.length?lineChart(S,{maxW:closed,money,fmt,key:'rc|'+G.code+'|'+RMETRIC,title:mname}):'<div class="empty">Este curso todavía no tiene empresas.</div>'}</div>${legendHTML(S)}</section>
+      ${TEAMS.length?`<div class="tbl-wrap"><table class="stack"><thead><tr><th class="rt">Pos.</th><th>Empresa</th><th>Móvil</th>${[...Array(closed)].map((_,i)=>`<th class="rt">S${i+1}</th>`).join('')}<th class="rt">Total</th></tr></thead><tbody>
+      ${ranked.map((x,i)=>`<tr><td class="num">${i+1}º</td><td><span class="sw-in" style="background:${x.color}"></span><b>${esc(x.t.name)}</b></td><td>${MODELS[x.t.model].n}</td>${[...Array(closed)].map((_,k)=>{const h=(x.t.history||[]).find(y=>y.week===k+1);return `<td class="num ${h&&money&&h.profit<0?'neg':''}">${h?(money?eur(h.profit):int(h.sold)):'—'}</td>`}).join('')}<td class="num"><b>${fmt(x.total)}</b></td></tr>`).join('')}</tbody></table></div>`:''}`;
+  }
+  if(!TEAMS.length) return sel+courseBar()+'<p class="muted">Este curso todavía no tiene empresas.</p>';
+  if(!RGROUP||!TEAMS.some(t=>t.id===RGROUP)) RGROUP=TEAMS[0].id;
+  const t=TEAMS.find(x=>x.id===RGROUP), H=(t.history||[]).slice().sort((a,b)=>a.week-b.week), mx=Math.max(1,closed);
+  const P=(k,name,i)=>({name,color:COL(i),pts:H.map(h=>({w:h.week,v:h[k]||0}))});
+  let acc=0; const cum={name:'Beneficio acumulado',color:COL(2),bold:true,pts:[{w:0,v:0},...H.map(h=>({w:h.week,v:acc+=h.profit}))]};
+  const S1=[P('revenue','Ingresos',0),P('costs','Gastos',1),{...P('profit','Beneficio',2),bold:true}], S2=[P('demand','Querían comprar (demanda)',1),P('prod','Fabricados (oferta)',0),P('sold','Vendidos',2)];
+  const S3=[cum,{name:'Presupuesto',color:COL(4),pts:[{w:0,v:START_CASH},...H.map(h=>({w:h.week,v:h.cash}))]}];
+  return `${sel}${courseBar()}<div class="coursebar"><span class="label">Empresa</span>${TEAMS.map(x=>`<button class="opt pick" data-rg="${esc(x.id)}" aria-pressed="${x.id===RGROUP}"><b>${esc(x.name)}</b><span class="hint">${MODELS[x.model].n}</span></button>`).join('')}</div>
+    <p class="hint">${(t.members||[]).length?'<b>Integrantes:</b> '+(t.members||[]).map(esc).join(', ')+' · ':''}${MODELS[t.model].n} (${MODELS[t.model].g.toLowerCase()}) · presupuesto ${eur(t.cash)} · reputación ${Math.round(t.rep)}/100</p>
+    ${H.length?`<div class="res-charts">
+      <section class="card"><h3>Dinero de cada semana</h3><div class="chart">${lineChart(S1,{minW:1,maxW:mx,money:true,fmt:eur,key:'re1|'+t.id,h:240})}</div>${legendHTML(S1)}</section>
+      <section class="card"><h3>Oferta, demanda y ventas</h3><div class="chart">${lineChart(S2,{minW:1,maxW:mx,fmt:v=>int(v)+' uds',key:'re2|'+t.id,h:240})}</div>${legendHTML(S2)}</section>
+      <section class="card"><h3>Beneficio acumulado y presupuesto</h3><div class="chart">${lineChart(S3,{maxW:mx,money:true,fmt:eur,key:'re3|'+t.id,h:240})}</div>${legendHTML(S3)}</section></div>
+    <div class="tbl-wrap"><table class="stack dense"><thead><tr><th>Sem.</th><th>Continente</th><th>Nicho</th><th>Transporte</th><th class="rt">Precio</th><th class="rt">Fabricados</th><th class="rt">Vendidos</th><th class="rt">Publicidad</th><th class="rt">Ingresos</th><th class="rt">Beneficio</th><th>Evento</th></tr></thead>
+    <tbody>${H.map(h=>`<tr><td>${h.week}</td><td>${h.sent?CONTS[h.cont].n:'No envió'}</td><td>${h.sent&&h.niche&&NICHES[h.niche]?NICHES[h.niche].n:'—'}</td><td>${h.sent&&h.mode?MODES[h.mode].n:'—'}</td>
+      <td class="num">${eur(h.price)}</td><td class="num">${int(h.prod)}</td><td class="num">${int(h.sold)}</td><td class="num">${eur(h.ad)}</td><td class="num">${eur(h.revenue)}</td><td class="num ${h.profit<0?'neg':'pos'}">${eur(h.profit)}</td><td>${esc(evTitle(h)||'—')}</td></tr>`).join('')}</tbody></table></div>`
+    :'<p class="muted">Esta empresa todavía no tiene resultados publicados.</p>'}`;
+}
+function bindRes(){
+  const v=document.getElementById('rview'); v&&v.addEventListener('change',()=>{RVIEW=v.value;if(RVIEW==='general')ALLT=null;renderTeacher()});
+  app.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',()=>{RMETRIC=b.dataset.rm;renderTeacher()}));
+  app.querySelectorAll('[data-rg]').forEach(b=>b.addEventListener('click',()=>{RGROUP=b.dataset.rg;renderTeacher()}));
+  const rl=document.getElementById('rreload'); rl&&rl.addEventListener('click',()=>{ALLT=null;renderTeacher()});
+}
+
 /* Proyección en clase: clasificación y gráfica a pantalla completa, se actualiza sola */
 function renderProj(){
   if(!teacherOK||!G){VIEW='teacher';return renderTeacher()}
@@ -2130,7 +2325,7 @@ function tEmpresas(){
     <td class="num">${eur(t.cash)}</td><td class="num">${Math.round(t.rep)}</td>
     <td><button class="linkbtn" data-see="${esc(t.id)}">Ver pantalla</button></td></tr>`}).join('');
   return `<div class="panel-head"><h2>${ended?'Partida terminada':`Semana ${G.week} de ${WEEKS}`}</h2>
-      ${ended?'':`<span class="hint">Si no avanzas tú, los resultados se publican solos el ${fmtDate(G.openedAt+WEEK_MS)}.</span>`}</div>
+      ${ended?'':`<span class="hint">Si no avanzas tú, los resultados se publican solos el ${fmtDate(dueAt(G))}.</span>`}</div>
     ${ended?'':`<p>${sentN} de ${TEAMS.length} empresas han enviado sus decisiones. Las que no envíen no fabrican nada y pagan los gastos fijos.</p>
     <button class="go small" id="advance" style="align-self:flex-start" ${TEAMS.length?'':'disabled'}>Publicar resultados y pasar a la semana ${G.week+1>WEEKS?'final':G.week+1}</button>`}
     <div class="tbl-wrap"><table><thead><tr><th>Empresa</th><th>Móvil</th><th>Semana ${Math.min(G.week,WEEKS)}</th><th>Evento actual</th><th class="rt">Presupuesto</th><th class="rt">Reputación</th><th></th></tr></thead>
@@ -2277,10 +2472,10 @@ function bindDelete(){
   }));
 }
 /* Crea un curso (partida) o abre uno existente y lo deja seleccionado en Cursos */
-async function createCourse(c,curso){
+async function createCourse(c,curso,rules){
   Store.stop(); G=null; TEAMS=[];
   let g=await Store.getGame(c), created=false;
-  if(!g){g={code:c,week:1,openedAt:Date.now(),createdAt:Date.now(),curso};await Store.setGame(g);created=true}
+  if(!g){g={code:c,week:1,openedAt:Date.now(),createdAt:Date.now(),curso};if(rules)g.rules=rules;await Store.setGame(g);created=true}
   else if(curso&&curso!==g.curso){await Store.setGame({...g,curso})}
   await enterCode(c,true); await loadGames();
   if(!GAMES.some(x=>x.code===c)) GAMES.push(G);
@@ -2290,7 +2485,7 @@ function bindCodigo(){bindAddCourse(4);bindDelete();bindReset()}
 function openPreview(id){SEEFROM={me:ME,tab:TAB,draft};PREVIEW=true;ME=id;VIEW='team';draft=null;TAB=1;editing=false;RTAB='empresa';lastSig='';render();window.scrollTo({top:0})}
 function exitPreview(silent){
   if(!PREVIEW) return; PREVIEW=false; const f=SEEFROM||{}; ME=f.me||null; TAB=f.tab||1; draft=f.draft||null; SEEFROM=null; editing=false;
-  if(silent!==true){VIEW='teacher';TTAB=1;lastSig='';render();window.scrollTo({top:0})}
+  if(silent!==true){VIEW='teacher';TTAB=3;lastSig='';render();window.scrollTo({top:0})}
 }
 async function goBack(){
   if(PREVIEW) exitPreview(true);
@@ -2306,7 +2501,7 @@ async function boot(){
   SET=await Store.getSettings();
   const s=sess();
   if(s.code){await enterCode(s.code); if(G) codeTyped=true; if(s.team&&TEAMS.some(t=>t.id===s.team)){ME=s.team;VIEW='team'}}
-  if(G&&G.week<=WEEKS&&Date.now()>=G.openedAt+WEEK_MS) await closeWeek();
+  if(G&&G.week<=WEEKS&&Date.now()>=dueAt(G)) await closeWeek();
   splashNext=VIEW; VIEW='splash'; render();
 }
 /* Conecta la app a un almacén compartido y vuelve a cargar la sesión del dispositivo */
@@ -2315,7 +2510,7 @@ async function useDB(db){
     SET=await Store.getSettings();
     const s=sess(); ME=null; VIEW='home'; G=null; TEAMS=[];
     if(s.code){await enterCode(s.code); if(G) codeTyped=true; if(s.team&&TEAMS.some(t=>t.id===s.team)){ME=s.team;VIEW='team'}}
-    if(G&&G.week<=WEEKS&&Date.now()>=G.openedAt+WEEK_MS) await closeWeek();
+    if(G&&G.week<=WEEKS&&Date.now()>=dueAt(G)) await closeWeek();
     splashNext=VIEW; VIEW='splash'; lastSig=''; render();
 }
 /* Dentro de Claude: almacenamiento compartido del artefacto */
@@ -2564,6 +2759,7 @@ let fitRaf=0; const fitSoon=()=>{cancelAnimationFrame(fitRaf);fitRaf=requestAnim
 try{new MutationObserver(r=>{if(r.every(m=>m.target.closest&&m.target.closest('.fx-amt')))return;fitSoon()}).observe(app,{childList:true,subtree:true})}catch(e){}
 window.addEventListener('resize',fitSoon);
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitSoon);
+setInterval(()=>{try{if(G&&G.week<=WEEKS&&Date.now()>=dueAt(G))closeWeek()}catch(e){}},30000);
 applyLang(LANG); FX.intro(); boot(); initShared(); initFirebase();
 </script>
 
