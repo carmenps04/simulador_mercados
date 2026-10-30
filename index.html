@@ -1685,17 +1685,20 @@ function levelOf(t){
 const isAdv=t=>levelOf(t)!=='basico';
 const gameLevel=g=>(g&&g.rules&&LEVELS[g.rules.level])?g.rules.level:'basico';
 /* Modo progresivo: cada bloque se desbloquea en una semana (sin pasar de la última ronda) */
-const UNLOCK={staff:2,mach:2,zone:3,ads:4,ai:4,tax:5};
+const UNLOCK={staff:2,mach:2,zone:3,ads:4,ai:99,tax:99};
 const UNLOCK_N={staff:'Plantilla',mach:'Maquinaria',zone:'Ubicación de la fábrica',ads:'Publicidad por enfoque y medios',ai:'Mejoras con IA',tax:'Impuestos (IVA, aranceles y sociedades)'};
 const unlockWeek=k=>Math.min(UNLOCK[k],WEEKS);
 /* Apartados desactivados: los del grupo (si el profesor/a los ha ajustado) o los del curso */
 const FIXED_SECS=['news','price'];
+/* Apartados que no existen en cada nivel (el progresivo no tiene financiación, IA, factura ni impuestos) */
+const LEVEL_EXCL={progresivo:['finance','ai','invoice','tax']};
 function offFor(t){
   if(t===undefined) t=(VIEW==='team'&&ME)?(TEAMS.find(x=>x.id===ME)||null):null;
   const own=t&&G&&G.teamOff&&G.teamOff[t.id];
-  return Array.isArray(own)?own:((G&&G.rules&&Array.isArray(G.rules.off))?G.rules.off:[]);
+  const base=Array.isArray(own)?own:((G&&G.rules&&Array.isArray(G.rules.off))?G.rules.off:[]);
+  return [...base,...(LEVEL_EXCL[levelOf(t)]||[])];
 }
-const secsOfLevel=l=>l==='basico'?BASIC_SECS:ADV_SECS;
+const secsOfLevel=l=>(l==='basico'?BASIC_SECS:ADV_SECS).filter(([k])=>!(LEVEL_EXCL[l]||[]).includes(k));
 function feat(k,t,w){if(offFor(t).includes(k))return false;const l=levelOf(t);if(l==='avanzado')return true;if(l!=='progresivo')return false;return (w||G.week)>=unlockWeek(k)}
 const featsOf=(t,w)=>({staff:feat('staff',t,w),mach:feat('mach',t,w),zone:feat('zone',t,w),ads:feat('ads',t,w),ai:feat('ai',t,w),tax:feat('tax',t,w)});
 const SMI=1221, SS_EMP=0.32, PER_WORKER=30, PER_ROBOT=45, ROBOT_WEEK=380, MOVE_COST=10000, DISMISS_COST=1200, REPAIR=2500, IVA=0.21;
@@ -1868,7 +1871,7 @@ function advNavHTML(S,t){
 }
 function advAlerts(t){
   const A=advCalc(draft,G.week,t), P=A.P; let s='';
-  if(levelOf(t)==='progresivo'){const nw=Object.keys(UNLOCK).filter(k=>G.week>1&&unlockWeek(k)===G.week);
+  if(levelOf(t)==='progresivo'){const nw=Object.keys(UNLOCK).filter(k=>G.week>1&&unlockWeek(k)===G.week&&!offFor(t).includes(k));
     if(nw.length) s+=`<div class="card newblock"><span class="label">${T('Novedad de esta semana')}</span><h3>${T('Ahora también decidís: {0}',nw.map(k=>T(UNLOCK_N[k])).join(', '))}</h3><p>${T('Lo encontraréis en el menú (☰), marcado como «Nuevo».')}</p></div>`}
   if(P.strike) s+=`<div class="card event"><span class="label">${T('Huelga en curso')}</span><h3>${T('La plantilla está en huelga')}</h3><p>${T('Tenéis que decidir qué medida tomar en la sección «Plantilla». Si no hacéis nada, la huelga puede seguir y fabricaréis mucho menos.')}</p></div>`;
   const last=(t.history||[]).slice().sort((a,b)=>b.week-a.week)[0];
@@ -2905,7 +2908,7 @@ function rulesFields(p,r,minR,lock){
   <p class="hint" id="${p}-lvhint">${LEVEL_HINT}${lock?' La dificultad ya no se puede cambiar porque hay resultados publicados.':''}</p>
   <p class="hint" id="${p}-prev"></p>`;
 }
-const LEVEL_HINT='Básico: diseño, componentes, mercado, transporte, precio y publicidad. Progresivo: empieza como el básico y cada semana añade un bloque del avanzado (semana 2 plantilla y maquinaria, 3 ubicación, 4 publicidad por medios e IA, 5 impuestos). Avanzado: añade plantilla y sueldos (con huelgas y automatización con IA), maquinaria y averías, IA en el móvil, ubicación de la fábrica en Andalucía con costes fijos y variables, IVA, aranceles e impuesto de sociedades, y publicidad por enfoque y medios. Las secciones aparecen en un menú lateral (☰).';
+const LEVEL_HINT='Básico: diseño, componentes, mercado, transporte, precio y publicidad. Progresivo: empieza como el básico, sin financiación ni factura, y añade bloques del avanzado (semana 2 plantilla y maquinaria, 3 ubicación de la fábrica, 4 publicidad por enfoque y medios). No incluye mejoras con IA ni impuestos. Avanzado: añade plantilla y sueldos (con huelgas y automatización con IA), maquinaria y averías, IA en el móvil, ubicación de la fábrica en Andalucía con costes fijos y variables, IVA, aranceles e impuesto de sociedades, y publicidad por enfoque y medios. Las secciones aparecen en un menú lateral (☰).';
 function readRules(p){
   const manual=document.getElementById(p+'-manual').checked;
   const lv=document.getElementById(p+'-level');
