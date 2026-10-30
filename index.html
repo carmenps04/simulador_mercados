@@ -2680,8 +2680,20 @@ function bindAdv(run){
   });
 }
 async function advance(btn){btn.disabled=true;btn.textContent='Calculando resultados…';await closeWeek();if(!Store.db)Store.localPush(CODE);lastSig='';render();window.scrollTo({top:0})}
+/* En el enlace público (GitHub) solo se entra con correo y contraseña; el código solo vale dentro de Claude o sin servidor */
+const onWeb=()=>!(window.claude&&window.claude.use)&&/^https?:$/.test(location.protocol);
 function renderTLogin(){
   if(FBAUTH) return renderTLoginFB();
+  if(onWeb()){
+    app.innerHTML=`${topBar()}<div class="setup"><div class="panel"><h2>Acceso del profesorado</h2>
+      ${FBSTATE==='error'?`<p class="err">No se pudo conectar con Firebase${FBERR?` (${esc(FBERR)})`:''}.</p><p class="hint">${esc(fbHelp(FBERR))}</p><div class="btns"><button class="go small" id="retry">Reintentar</button></div>`
+        :'<p>Conectando con el servidor…</p>'}
+      <button class="ghost" id="back" style="align-self:flex-start">Volver</button></div></div>`;
+    document.getElementById('back').addEventListener('click',()=>{VIEW=tReturn==='team'?'team':'home';render()});
+    const r=document.getElementById('retry'); r&&r.addEventListener('click',async()=>{FBSTATE='loading';renderTLogin();await initFirebase();if(VIEW==='tlogin')renderTLogin()});
+    if(FBSTATE!=='error'&&FBINIT) FBINIT.then(()=>{if(VIEW==='tlogin')renderTLogin()});
+    bindTop(); return;
+  }
   app.innerHTML=`${topBar()}<div class="setup"><div class="panel"><h2>${T('Código de profesor')}</h2>
     <form class="form" id="fprof"><label for="pcode">${T('Código')}<input id="pcode" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label>
     <button class="go small" type="submit">${T('Entrar')}</button><p class="err" id="perr"></p></form>
@@ -3406,7 +3418,13 @@ function fireDB(fs){
     collection(p){const r=fs.collection(FB_ROOT+p);return {get:()=>r.get().then(wrapQ),onSnapshot:(cb,err)=>r.onSnapshot(q=>cb(wrapQ(q)),err)}}
   };
 }
-let FBAUTH=null;
+let FBAUTH=null, FBSTATE='loading', FBERR='', FBINIT=null;
+function fbHelp(code){
+  if(/admin-restricted|operation-not-allowed/.test(code)) return 'Falta activar el acceso anónimo: en Firebase, Authentication → Método de acceso → Anónimo → Habilitar.';
+  if(/permission-denied/.test(code)) return 'Las reglas de Firestore no permiten la lectura. Revisa que las reglas publicadas sean las que te di.';
+  if(/network|unavailable|failed-precondition/.test(code)) return 'Comprueba la conexión a internet del ordenador o la red del centro y pulsa Reintentar.';
+  return 'Comprueba la conexión a internet y pulsa Reintentar. Si se repite, manda una captura de esta pantalla.';
+}
 /* Profesorado con cuenta de correo y contraseña (las reglas de Firestore comprueban el correo) */
 const fbTeacher=()=>!!(FBAUTH&&FBAUTH.currentUser&&!FBAUTH.currentUser.isAnonymous);
 async function fbTeacherOut(){
@@ -3414,9 +3432,9 @@ async function fbTeacherOut(){
   try{await FBAUTH.signOut();await FBAUTH.signInAnonymously()}catch(e){console.error(e)}
   if(CODE){try{await enterCode(CODE,true)}catch(e){}}
 }
-async function initFirebase(){
-  if(window.claude&&window.claude.use) return;
-  if(!/^https?:$/.test(location.protocol)) return;
+function initFirebase(){if(!onWeb())return Promise.resolve();FBINIT=initFirebase2();return FBINIT}
+async function initFirebase2(){
+  FBSTATE='loading'; FBERR='';
   try{
     const V='https://www.gstatic.com/firebasejs/10.14.1/';
     await loadScript(V+'firebase-app-compat.js');
@@ -3427,9 +3445,9 @@ async function initFirebase(){
     const cur=await new Promise(ok=>{const u=FBAUTH.onAuthStateChanged(x=>{u();ok(x)})});
     if(!cur) await FBAUTH.signInAnonymously();
     await fs.doc(FB_ROOT+'ajustes/centro').get();
-    DBERR=''; await useDB(fireDB(fs));
+    DBERR=''; FBSTATE='ok'; await useDB(fireDB(fs));
   }catch(e){
-    console.error(e); Store.db=null; FBAUTH=null;
+    console.error(e); Store.db=null; FBAUTH=null; FBSTATE='error'; FBERR=(e&&(e.code||e.message))||'';
     DBERR='Sin conexión con el servidor: los datos solo se guardan en este dispositivo y el profesor/a no los verá. Revisad la conexión a internet y recargad la página.';
     if(VIEW==='splash') render();
   }
