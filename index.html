@@ -685,7 +685,8 @@ details.fold[open]{gap:12px}
   .tfit .res-charts{grid-template-columns:repeat(3,minmax(0,1fr))}
   .tfit .res-charts .card .chart svg{max-height:240px}
 }
-@media (max-width:900px){.nc-cols{grid-template-columns:minmax(0,1fr)}}
+@media (min-width:901px){.nc-col+.nc-col{border-inline-start:2px solid var(--line);padding-inline-start:32px}}
+@media (max-width:900px){.nc-cols{grid-template-columns:minmax(0,1fr)}.nc-col+.nc-col{border-top:2px solid var(--line);padding-top:16px}}
 
 .tactions{align-items:center}
 .tactions .hint{flex:1;min-width:160px}
@@ -696,6 +697,12 @@ details.fold[open]{gap:12px}
   .tfit .res-charts .card{gap:6px;padding:12px}
   .tfit .res-split table{font-size:.85rem}
 }
+
+/* Panel del profesor/a: nunca se ve una barra de desplazamiento */
+html.tview,html.tview *{scrollbar-width:none}
+html.tview::-webkit-scrollbar,html.tview *::-webkit-scrollbar{display:none;width:0;height:0}
+.tfit.clip{overflow:hidden!important}
+@media (min-width:901px){html.tview,html.tview body{overflow:hidden}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -1798,6 +1805,7 @@ function render(){
   const key=[VIEW,TAB,TTAB,RTAB].join('|');
   if(key===scrollKey) scrollMem=[...document.querySelectorAll('.tabbody,.side')].map(e=>e.scrollTop); else scrollMem=[];
   renderInner();
+  document.documentElement.classList.toggle('tview',['teacher','proj','tlogin'].includes(VIEW));
   if(key===scrollKey&&scrollMem.length) document.querySelectorAll('.tabbody,.side').forEach((e,i)=>{if(scrollMem[i])e.scrollTop=scrollMem[i]});
   scrollKey=key;
 }
@@ -3221,11 +3229,15 @@ function fitAll(){
     const f=box.querySelector(':scope>.fit'); if(!f) return;
     f.style.zoom='';
     if(small||box.classList.contains('noshrink')||box.querySelector('.fitbox')) return;
+    const tf=box.classList.contains('tfit');
     const fits=()=>box.scrollHeight<=box.clientHeight+1;
-    if(fits()) return;
+    /* En el panel, un sobrante de pocos píxeles (redondeo del zoom) se recorta en vez de mostrar barra */
+    const clip=()=>tf&&box.classList.toggle('clip',box.scrollHeight-box.clientHeight<=12);
+    if(fits()){clip();return}
     let lo=+(box.dataset.minz||.72), hi=1;
     for(let i=0;i<7;i++){const z=(lo+hi)/2; f.style.zoom=String(z); if(fits()) lo=z; else hi=z}
     f.style.zoom=String(lo);
+    clip();
   });
   anims.forEach((a,i)=>{try{a.currentTime=saved[i]}catch(e){}});
   try{FX.scan()}catch(e){console.error(e)}
