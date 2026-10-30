@@ -751,10 +751,24 @@ details.allmsg[open]>summary{margin-bottom:8px}
 .lv-row select{flex:1}
 .eye{display:inline-flex;align-items:center;gap:4px;padding:6px 8px;font-size:.8rem;white-space:nowrap}
 td .eye{margin-inline-start:6px;vertical-align:middle}
-.secgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-.secg{border:1px solid var(--line);border-radius:10px;padding:8px 12px 10px;margin:0;display:flex;flex-direction:column;gap:6px}
+.secgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,255px),1fr));gap:10px}
+.form .unl{flex-direction:row;align-items:center}
+.secg label.check{font-size:.9rem}
+.secg{border:1px solid var(--line);border-radius:10px;padding:8px 12px 10px;margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.secg input[type=checkbox]{flex:none}
 .secg legend{font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:0 4px}
 .secg label.check{font-weight:600;font-size:.95rem}
+
+.codeline{margin:4px 0 0;font-weight:600}
+.passcode{font-family:var(--f-data);font-size:1.35rem;letter-spacing:.12em;color:var(--accent)}
+.mtabs{margin-bottom:6px}
+.secrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:nowrap;padding:3px 0;border-bottom:1px dashed var(--line)}
+.secrow:last-child{border-bottom:0}
+.secrow label.check{flex:1;min-width:0}
+.unl{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted);font-weight:600;white-space:nowrap;flex:none}
+.unl select{font:inherit;padding:3px 6px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.unl select:disabled{opacity:.4}
+.tmodal .gloss-box{max-width:900px;width:min(900px,96vw)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -765,6 +779,7 @@ td .eye{margin-inline-start:6px;vertical-align:middle}
    Cada fila: [texto en español, inglés, árabe]. {0}, {1}… son huecos que se rellenan con datos.
    Si falta una traducción, se muestra el español. */
 const TR=[
+["Lo encontraréis en las pestañas de arriba.","You will find it in the tabs above.","ستجدونه في التبويبات في الأعلى."],
 ["Decidid cuánto dinero invertís en publicidad esta semana.","Decide how much money you will spend on advertising this week.","قرّروا كم من المال ستنفقون على الإعلان هذا الأسبوع."],["Precio y producción","Price and production","السعر والإنتاج"],
 ["Financiación", "Financing", "التمويل"],
 ["Factura", "Invoice", "الفاتورة"],
@@ -1472,7 +1487,7 @@ function simulateAdv(dec,w,t){
   const blocked=blockedCont(ev,dec.cont)||!modeOK(dec.cont,dec.mode,ev);
   const hasLogo=!!teamLogo(t), ref=(habitual(dec.model,dec.cont)+1)*(hasLogo?1.08:1), L=lookFx(t,dec.cont), N=NICHES[dec.niche]||NICHES.estudiantes;
   const pf=Math.min(2.5,Math.pow(dec.price/ref,-Math.max(.6,c.el+N.el+(ev&&ev.elAdd||0))));
-  const hasImg=!!(t.design&&t.design.img)||offFor(t).includes('design'), D=advDemand(dec,t,A,ev,hasImg);
+  const hasImg=!!(t.design&&t.design.img)||offAt(t,w).includes('design'), D=advDemand(dec,t,A,ev,hasImg);
   const repf=0.6+0.8*t.rep/100;
   let exf=1; for(const k in EXTRAS) if(dec.extras&&dec.extras[k]) exf*=1+exFx(k,dec.cont,dec.model,dec.niche);
   const nf=N.size[dec.cont]*N.model[dec.model]*(hasLogo?1.05:1);
@@ -1509,7 +1524,7 @@ function simulate(dec,w,t){
   const ref=(habitual(dec.model,dec.cont)+1)*(hasLogo?1.08:1), L=lookFx(t,dec.cont);
   const N=NICHES[dec.niche]||NICHES.estudiantes;
   const pf=Math.min(2.5,Math.pow(dec.price/ref,-Math.max(.6,c.el+N.el+(ev&&ev.elAdd||0))));
-  const hasImg=!!(t.design&&t.design.img)||offFor(t).includes('design');
+  const hasImg=!!(t.design&&t.design.img)||offAt(t,w).includes('design');
   const adf=1+0.35*Math.log(1+dec.ad/1000)*(ev&&ev.adMul||1)*(hasImg?1:0.8);
   const repf=0.6+0.8*t.rep/100;
   let exf=1; for(const k in EXTRAS) if(dec.extras&&dec.extras[k]) exf*=1+exFx(k,dec.cont,dec.model,dec.niche);
@@ -1630,7 +1645,7 @@ function defaultDec(model){const l=model==='A'?1:model==='C'?3:2;return {model,n
 /* Ajusta una decisión a lo que permite el evento de esta semana */
 function fixDec(d,ev,t){
   const df=defaultDec(d.model); if(!NICHES[d.niche]) d.niche=df.niche; d.comps={...df.comps,...(d.comps||{})}; d.extras={...df.extras,...(d.extras||{})};
-  {const off=offFor(t);if(off.includes('box'))d.eco={};if(off.includes('finance'))d.fin={loan:0,term:8,plazos:'no'};
+  {const off=offAt(t);if(off.includes('box'))d.eco={};if(off.includes('finance'))d.fin={loan:0,term:8,plazos:'no'};
    if(off.includes('cont')){d.cont='europa';d.price=d.price||habitual(d.model,'europa')}if(off.includes('mode'))d.mode='camion';
    if(off.includes('ads')){d.ad=0;d.adv={...(d.adv||{}),media:[]}}
    if(off.includes('niche'))d.niche=df.niche;if(off.includes('comps'))d.comps={...df.comps};if(off.includes('box'))d.extras={...df.extras}}
@@ -1652,9 +1667,9 @@ async function closeWeek(){
     for(const t of teams){
       if((t.history||[]).some(h=>h.week===w)) continue;
       const sent=t.decWeek===w, ev=teamEvent(t,w), dec=fixDec(JSON.parse(JSON.stringify(sent?t.dec:{...t.dec,prod:0,ad:0,adv:{...((t.dec&&t.dec.adv)||{}),media:[],mach:1,measure:'nada'}})),ev,t);
-      const r=simulate(dec,w,t); r.off=offFor(t);
+      const r=simulate(dec,w,t); r.off=offAt(t,w);
       const iv=invOf(t,w), io=iv?invOrder(t,w):null, bonus=iv&&iv.ok?(iv.tries<=1?2:1):0;
-      if(sent&&!offFor(t).includes('invoice')) r.inv={ok:!!(iv&&iv.ok),client:io?io.client:invOrder(t,w).client,bonus};
+      if(sent&&!offAt(t,w).includes('invoice')) r.inv={ok:!!(iv&&iv.ok),client:io?io.client:invOrder(t,w).client,bonus};
       const MA=messagesAll(r,sent), msgs=MA.msgs;
       const cash=t.cash+r.profit+r.FIN.taken-r.FIN.principal, rep=clamp(t.rep+r.repDelta+bonus,0,100);
       const h={week:w,sent,cont:dec.cont,niche:dec.niche,mode:dec.mode,lateSold:r.lateSold,tariffPaid:Math.round(r.tariffPaid),event:MA.evEs,evId:ev?ev.id:null,evTarget:ev?ev.target:null,price:dec.price,prod:r.X?r.X.produced:dec.prod,ad:dec.ad,demand:r.demand,adClients:r.adClients,sold:r.sold,lost:r.lost,
@@ -1701,7 +1716,19 @@ function offFor(t){
   return [...base,...(LEVEL_EXCL[levelOf(t)]||[])];
 }
 const secsOfLevel=l=>(l==='basico'?BASIC_SECS:ADV_SECS).filter(([k])=>!(LEVEL_EXCL[l]||[]).includes(k));
-function feat(k,t,w){if(offFor(t).includes(k))return false;const l=levelOf(t);if(l==='avanzado')return true;if(l!=='progresivo')return false;return (w||G.week)>=unlockWeek(k)}
+/* Ronda desde la que aparece cada apartado: la que fija el profesor/a para el curso o la del nivel por defecto */
+function unlockOf(k,t){
+  const l=levelOf(t), u=G&&G.rules&&G.rules.unlock;
+  let w=(u&&l===gameLevel(G)&&u[k]!=null)?+u[k]:(l==='progresivo'?(UNLOCK[k]||1):1);
+  return Math.max(1,Math.min(w||1,WEEKS));
+}
+/* Apartados apagados en una semana: desmarcados o todavía no habilitados */
+function offAt(t,w){
+  if(t===undefined) t=(VIEW==='team'&&ME)?(TEAMS.find(x=>x.id===ME)||null):null;
+  w=w||(G&&G.week)||1;
+  return [...offFor(t),...secsOfLevel(levelOf(t)).map(x=>x[0]).filter(k=>!FIXED_SECS.includes(k)&&unlockOf(k,t)>w)];
+}
+function feat(k,t,w){if(offAt(t,w).includes(k))return false;return levelOf(t)!=='basico'}
 const featsOf=(t,w)=>({staff:feat('staff',t,w),mach:feat('mach',t,w),zone:feat('zone',t,w),ads:feat('ads',t,w),focus:feat('ads',t,w)&&levelOf(t)==='avanzado',ai:feat('ai',t,w),tax:feat('tax',t,w)});
 const SMI=1221, SS_EMP=0.32, PER_WORKER=30, PER_ROBOT=45, ROBOT_WEEK=380, MOVE_COST=10000, DISMISS_COST=1200, REPAIR=2500, IVA=0.21;
 /* Un móvil de gama baja se monta más rápido que uno de gama alta */
@@ -1850,8 +1877,13 @@ const ADV_SECS=[['news','Noticias','Semana'],['design','Diseño','Producto'],['c
   ['cont','Continente','Mercado'],['niche','Nicho','Mercado'],['mode','Transporte','Mercado'],['ads','Publicidad','Mercado'],
   ['price','Precio y producción','Números'],['finance','Financiación','Números'],['tax','Impuestos','Números'],['invoice','Factura','Números']];
 const SEC_FEAT={ai:'ai',zone:'zone',staff:'staff',mach:'mach',ads:'ads',tax:'tax'};
-const secList=()=>{const off=offFor();return (isAdv()?ADV_SECS.filter(([k])=>!SEC_FEAT[k]||feat(SEC_FEAT[k])):BASIC_SECS).filter(([k])=>FIXED_SECS.includes(k)||!off.includes(k))};
-const isNewSec=k=>levelOf()==='progresivo'&&SEC_FEAT[k]&&G.week===unlockWeek(SEC_FEAT[k])&&G.week>1;
+const secList=()=>{const off=offAt();return (isAdv()?ADV_SECS:BASIC_SECS).filter(([k])=>FIXED_SECS.includes(k)||(!off.includes(k)&&!(LEVEL_EXCL[levelOf()]||[]).includes(k)))};
+const isNewSec=k=>G.week>1&&!FIXED_SECS.includes(k)&&unlockOf(k)===G.week&&!offFor().includes(k);
+/* Aviso en Noticias de los apartados que se habilitan esta semana (todos los niveles) */
+function unlockNotice(t){
+  const nw=secsOfLevel(levelOf(t)).filter(([k])=>isNewSec(k)).map(([,l])=>T(l));
+  return nw.length?`<div class="card newblock"><span class="label">${T('Novedad de esta semana')}</span><h3>${T('Ahora también decidís: {0}',nw.join(', '))}</h3><p>${T(isAdv()?'Lo encontraréis en el menú (☰), marcado como «Nuevo».':'Lo encontraréis en las pestañas de arriba.')}</p></div>`:'';
+}
 let MENU=false;
 const BURGER='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
 /* Secciones que el grupo ya ha abierto esta semana (se recuerda en el dispositivo) */
@@ -1873,8 +1905,6 @@ function advNavHTML(S,t){
 }
 function advAlerts(t){
   const A=advCalc(draft,G.week,t), P=A.P; let s='';
-  if(levelOf(t)==='progresivo'){const nw=Object.keys(UNLOCK).filter(k=>G.week>1&&unlockWeek(k)===G.week&&!offFor(t).includes(k));
-    if(nw.length) s+=`<div class="card newblock"><span class="label">${T('Novedad de esta semana')}</span><h3>${T('Ahora también decidís: {0}',nw.map(k=>T(UNLOCK_N[k])).join(', '))}</h3><p>${T('Lo encontraréis en el menú (☰), marcado como «Nuevo».')}</p></div>`}
   if(P.strike) s+=`<div class="card event"><span class="label">${T('Huelga en curso')}</span><h3>${T('La plantilla está en huelga')}</h3><p>${T('Tenéis que decidir qué medida tomar en la sección «Plantilla». Si no hacéis nada, la huelga puede seguir y fabricaréis mucho menos.')}</p></div>`;
   const last=(t.history||[]).slice().sort((a,b)=>b.week-a.week)[0];
   if(last&&last.adv&&last.adv.broke) s+=`<div class="card"><span class="label">${T('Maquinaria')}</span><p>${T('La semana pasada se averió la maquinaria. Más mantenimiento reduce el riesgo de avería.')}</p></div>`;
@@ -2441,7 +2471,7 @@ let editing=false, sendArmed=false;
 function decideHTML(t){
   const w=G.week, ev=teamEvent(t,w), d=fixDec(draft,ev), m=MODELS[d.model], SECS=secList(); if(TAB>SECS.length) TAB=1;
   const KEY=SECS[TAB-1][0]; markSeen(t,KEY);
-  const tabs=isAdv()?advNavHTML(SECS,t):`<div class="tabs" role="tablist">${SECS.map(([k,l],i)=>`<button role="tab" data-tab="${i+1}" aria-selected="${TAB===i+1}"><span class="step-n ${seenOf(t).includes(k)?'seen':''}">${seenOf(t).includes(k)?'✓':i+1}</span>${T(l)}</button>`).join('')}</div>`;
+  const tabs=isAdv()?advNavHTML(SECS,t):`<div class="tabs" role="tablist">${SECS.map(([k,l],i)=>`<button role="tab" data-tab="${i+1}" aria-selected="${TAB===i+1}"><span class="step-n ${seenOf(t).includes(k)?'seen':''}">${seenOf(t).includes(k)?'✓':i+1}</span>${T(l)}${isNewSec(k)?` <span class="dnew">${T('Nuevo')}</span>`:''}</button>`).join('')}</div>`;
   let body='';
   if(KEY==='news') body=newsHTML(t);
   if(KEY==='design') body=designHTML(t);
@@ -2496,7 +2526,7 @@ function newsHTML(t){
   const w=G.week, ev=teamEvent(t,w), next=(period(w)+1)*2+1, nextEv=w+1<=WEEKS&&w+1>=EV_FROM;
   const tr=Object.keys(MODELS).map(m=>`<li class="${m===draft.model?'me':''}"><span>${MODELS[m].n} (${MODELS[m].g.toLowerCase()})</span><b>${ATTR[trend(m,w)]}</b></li>`).join('');
   const fb=latestFb(t);
-  return `<h2>${T('Noticias de la semana {0}',w)}</h2>${isAdv()?advAlerts(t):''}${fb?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(fb.text)}</p></div>`:''}<div class="grid2">
+  return `<h2>${T('Noticias de la semana {0}',w)}</h2>${unlockNotice(t)}${isAdv()?advAlerts(t):''}${fb?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(fb.text)}</p></div>`:''}<div class="grid2">
     ${ev?`<div class="card event"><span class="label">${T('Evento inesperado · semana {0}',w)}</span><h3>${ev.title}</h3><p>${ev.text}</p></div>`
       :`<div class="card"><span class="label">${T('Evento inesperado')}</span><p class="muted">${T('Semana tranquila.')} ${T(nextEv?'Atentos: la semana que viene puede pasar algo.':'No hay eventos especiales.')}</p></div>`}
     <div class="card"><span class="label">${T('Lo que más buscan los clientes de cada móvil')}</span><ul class="trend-list">${tr}</ul>
@@ -2841,7 +2871,7 @@ function bindAddCourse(after){
 /* Desplegable con los cursos registrados (pestaña Cursos) */
 function courseSelect(){
   if(!GAMES.length) return '<p class="muted">Todavía no hay cursos.</p>';
-  return `<label class="csel" for="csel"><b>Curso</b><select id="csel">${GAMES.map(g=>`<option value="${esc(g.code)}" ${G&&G.code===g.code?'selected':''}>${esc(g.curso||g.code)} · ${g.week>gW(g)?'terminada':'semana '+g.week+' de '+gW(g)} · ${LEVELS[gameLevel(g)].toLowerCase()}</option>`).join('')}</select></label>`;
+  return `<label class="csel" for="csel"><b>Curso</b><select id="csel">${GAMES.map(g=>`<option value="${esc(g.code)}" ${G&&G.code===g.code?'selected':''}>${esc(g.curso||g.code)}</option>`).join('')}</select></label>`;
 }
 function tCursos(){
   if(!G) return courseSelect()+addCourseForm();
@@ -2857,8 +2887,8 @@ function tCursos(){
   const due=dueAt(G)===Infinity?'Los resultados solo se publican cuando tú pulses el botón.':`Si no publicas antes, se publican solos el ${fmtDate(dueAt(G))}.`;
   return `${courseSelect()}
     <div class="class-head">
-      <div><span class="label">${esc(G.code)}</span><h2>${esc(G.curso||'Sin curso')} · ${ended?'partida terminada':`semana ${G.week} de ${WEEKS}`}</h2>
-        <p class="hint">${G.pass?`Código para entrar: <b class="passchip">${esc(G.pass)}</b>`:'Este curso no tiene código: cualquiera puede entrar. Ponle uno en «Reglas y código del curso».'}</p></div>
+      <div><h2>${esc(G.curso||'Sin curso')} · ${ended?'partida terminada':`semana ${G.week} de ${WEEKS}`}</h2>
+        <p class="codeline">${G.pass?`Código: <b class="passcode">${esc(G.pass)}</b>`:'<span class="hint">Este curso no tiene código: cualquiera puede entrar. Ponle uno en «Reglas y código del curso».</span>'}</p></div>
       <div class="btns"><button class="ghost" id="projBtn" ${TEAMS.length?'':'disabled'}>Proyectar clasificación</button>${ended?'':advBtn()}</div>
     </div>
     ${ended||!TEAMS.length?'':`<div class="card progress-card"><div class="prog-row"><b>${sentN} de ${TEAMS.length} empresas han enviado sus decisiones</b><span class="hint">${due}</span></div>
@@ -2902,7 +2932,7 @@ let TFLASH='', RVIEW='general', RMETRIC='profit', ALLT=null, ALLT_BUSY=false;
 const DAY_OPTS=[[1,'1 día'],[2,'2 días'],[3,'3 días'],[7,'1 semana'],[14,'2 semanas']];
 const rulesTxt=r=>{r={...RULE_DEF,...(r||{})};return `${LEVELS[r.level]||'Básico'} · ${r.rounds} rondas · `+(r.roundMs?`cada ${(DAY_OPTS.find(o=>o[0]===Math.round(r.roundMs/864e5))||[0,Math.round(r.roundMs/864e5)+' días'])[1]}${r.endTime?' a las '+r.endTime:''}`:'publicación manual')};
 /* Campos de reglas (los usan «Crear curso» y «Cursos») */
-function rulesFields(p,r,minR,lock){
+function rulesFields(p,r,minR,lock,bare){
   r={...RULE_DEF,...(r||{})}; const manual=!r.roundMs, days=r.roundMs?Math.round(r.roundMs/864e5):1, tm=r.endTime||'09:00';
   return `<div class="rules-grid">
     <label for="${p}-level"><b>Dificultad</b><span class="lv-row"><select id="${p}-level" ${lock?'disabled':''}>${Object.entries(LEVELS).map(([k,n])=>`<option value="${k}" ${(r.level||'basico')===k?'selected':''}>${n}</option>`).join('')}</select>${p==='n'?`<button type="button" class="ghost eye" id="n-eye" title="Ver y elegir apartados" aria-label="Ver y elegir apartados">${EYE}<span>${secCount(r.level||'basico',NEWOFF)}</span></button>`:''}</span></label>
@@ -2911,8 +2941,8 @@ function rulesFields(p,r,minR,lock){
     <label for="${p}-time"><b>Hora de cierre y publicación</b><input type="time" id="${p}-time" value="${esc(tm)}" ${manual?'disabled':''}></label>
   </div>
   <label class="check" for="${p}-manual"><input type="checkbox" id="${p}-manual" ${manual?'checked':''}> Publicar los resultados manualmente</label>
-  <p class="hint" id="${p}-lvhint">${LEVEL_HINT}${lock?' La dificultad ya no se puede cambiar porque hay resultados publicados.':''}</p>
-  <p class="hint" id="${p}-prev"></p>`;
+  ${bare?'':`<p class="hint" id="${p}-lvhint">${LEVEL_HINT}${lock?' La dificultad ya no se puede cambiar porque hay resultados publicados.':''}</p>
+  <p class="hint" id="${p}-prev"></p>`}`;
 }
 const LEVEL_HINT='Básico: diseño, componentes, mercado, transporte, publicidad (cuánto invertir), precio, financiación y factura. Progresivo: empieza como el básico, sin financiación ni factura; en publicidad eligen los medios, y añade bloques del avanzado (semana 2 plantilla y maquinaria, semana 3 ubicación de la fábrica). No incluye mejoras con IA ni impuestos. En publicidad: básico, solo cuánto invertir; progresivo, en qué medios; avanzado, medios y enfoque del anuncio. Avanzado: añade plantilla y sueldos (con huelgas y automatización con IA), maquinaria y averías, IA en el móvil, ubicación de la fábrica en Andalucía con costes fijos y variables, IVA, aranceles e impuesto de sociedades, y publicidad por enfoque y medios. Las secciones aparecen en un menú lateral (☰).';
 function readRules(p){
@@ -2921,6 +2951,7 @@ function readRules(p){
   const lvl=lv?lv.value:'basico', off=p==='n'?NEWOFF.filter(k=>secsOfLevel(lvl).some(([x])=>x===k)):document.querySelector(`input[data-sec="${p}"]`)?readOff(p,lvl):undefined;
   const r={rounds:+document.getElementById(p+'-rounds').value,roundMs:manual?0:(+document.getElementById(p+'-days').value)*864e5,level:lvl};
   if(off) r.off=off;
+  if(p==='n') r.unlock={...NEWUNLOCK}; else if(document.querySelector(`select[data-unl="${p}"]`)) r.unlock=readUnlock(p);
   if(!manual) r.endTime=document.getElementById(p+'-time').value||'09:00';
   return r;
 }
@@ -2928,7 +2959,7 @@ function bindRulesFields(p,g){
   const m=document.getElementById(p+'-manual'); if(!m) return;
   const upd=()=>{
     const man=m.checked; document.getElementById(p+'-days').disabled=man; document.getElementById(p+'-time').disabled=man;
-    const r=readRules(p), wk=g?Math.min(g.week,r.rounds):1, d=dueAt({openedAt:g?g.openedAt:Date.now(),rules:r}), pv=document.getElementById(p+'-prev');
+    const r=readRules(p), wk=g?Math.min(g.week,r.rounds):1, d=dueAt({openedAt:g?g.openedAt:Date.now(),rules:r}), pv=document.getElementById(p+'-prev'); if(!pv) return;
     pv.textContent=man?'Los resultados solo se publicarán cuando pulses «Publicar resultados» en la pestaña «Cursos».'
       :`${d<=Date.now()?'Con este cambio la ronda vuelve a contar desde ahora. ':''}La ronda ${wk} terminará el ${fmtDate(d<=Date.now()?dueAt({openedAt:Date.now(),rules:r}):d)} y los resultados se publicarán solos. Hace falta que algún dispositivo tenga la app abierta a esa hora; si no, se publican en cuanto alguien la abra.`;
   };
@@ -2956,7 +2987,7 @@ function bindCrear(){
   bindRulesFields('n',null);
   const g=document.getElementById('n-gen'); g&&g.addEventListener('click',()=>{document.getElementById('n-pass').value=newPass(true)});
   const lv=document.getElementById('n-level'), openSec=()=>{NEWLV=lv.value;SECM={scope:'new',level:lv.value,off:NEWOFF};app.insertAdjacentHTML('beforeend',secModalHTML());bindSecModal()};
-  lv&&lv.addEventListener('change',()=>{NEWOFF=[];openSec()});
+  lv&&lv.addEventListener('change',()=>{NEWOFF=[];NEWUNLOCK={};openSec()});
   const ey=document.getElementById('n-eye'); ey&&ey.addEventListener('click',openSec);
   const f=document.getElementById('fnew'); if(!f) return;
   f.addEventListener('submit',async e=>{
@@ -2967,7 +2998,7 @@ function bindCrear(){
     let created; try{created=await createCourse(c,curso,rules,pass)}catch(err){msg.textContent='No se pudo crear el curso. Inténtalo otra vez.';return}
     NEWPASS='';
     TFLASH=created?`Curso ${curso} creado (${rulesTxt(rules)}). Código para entrar: ${pass}. Los grupos eligen ${curso} en la pantalla de inicio y después escriben el código.`:`El curso ${curso} ya existía. Sus reglas no se han cambiado; puedes cambiarlas aquí abajo, en «Reglas de la partida».`;
-    NEWOFF=[]; NEWLV='basico'; TTAB=3; renderTeacher(); window.scrollTo({top:0});
+    NEWOFF=[]; NEWUNLOCK={}; NEWLV='basico'; TTAB=3; renderTeacher(); window.scrollTo({top:0});
   });
 }
 
@@ -2980,11 +3011,14 @@ function tCursos2(){
     <div class="btns tactions"><button class="ghost" id="openRules">Reglas y código del curso</button><span class="hint">${esc(rulesTxt(r))}</span><button class="ghost danger" id="openDanger">Reiniciar o borrar el curso</button></div>`
     +(TMODAL?`<div class="gloss-ov tmodal" id="tmodal"><div class="gloss-box" role="dialog" aria-modal="true" aria-label="${TMODAL==='rules'?'Reglas y código del curso':'Reiniciar o borrar el curso'}">
       <div class="gloss-head"><h2>${TMODAL==='rules'?'Reglas y código del curso':'Reiniciar o borrar el curso'}</h2><button class="mini" id="tmodalX">Cerrar</button></div>`+(TMODAL==='rules'?`
+      <div class="tabs mtabs" role="tablist"><button type="button" role="tab" data-mt="1" aria-selected="true"><span class="step-n">1</span>Reglas y código</button><button type="button" role="tab" data-mt="2" aria-selected="false"><span class="step-n">2</span>Apartados del curso</button></div>
       <form class="form" id="frules2">
-        <label for="e-pass" class="pass-l"><b>Código para que entre el alumnado</b><input id="e-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" value="${esc(G.pass||'')}" placeholder="Sin código: cualquiera puede entrar"></label>
-        ${rulesFields('e',r,minR,TEAMS.some(x=>(x.history||[]).length))}
-        <h3>Apartados del curso <span class="hint">(${secCount(r.level||'basico',r.off||[])})</span></h3>${secChecklist(r.level||'basico',r.off||[],'e')}
-        <div class="btns"><button class="go small" type="submit">Guardar reglas</button></div><p class="hint" id="emsg"></p></form>`:`
+        <div class="mtab" data-mtp="1">
+          <label for="e-pass" class="pass-l"><b>Código para que entre el alumnado</b><input id="e-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" value="${esc(G.pass||'')}" placeholder="Sin código: cualquiera puede entrar"></label>
+          ${rulesFields('e',r,minR,TEAMS.some(x=>(x.history||[]).length),true)}
+        </div>
+        <div class="mtab" data-mtp="2" hidden><div id="e-secs">${secChecklist(r.level||'basico',r.off||[],'e',r.unlock||{},r.rounds)}</div></div>
+        <div class="btns"><button class="go small" type="submit">Guardar</button></div><p class="hint" id="emsg"></p></form>`:`
       <p class="hint">Reiniciar borra sus empresas y resultados y vuelve a la semana 1 (se mantienen las reglas). Borrar elimina el curso entero.</p>
       <div class="btns"><button class="ghost danger" id="reset">${resetArmed?'¿Seguro? Se borrarán todas las empresas de este curso. Pulsa otra vez':'Reiniciar este curso'}</button>
       <button class="ghost danger delg" data-delg="${esc(G.code)}" ${DELBUSY?'disabled':''}>${DELARM===G.code?'¿Seguro? Se borrará el curso entero. Pulsa otra vez':'Borrar este curso'}</button></div><p class="hint" id="delmsg"></p>`)+`</div></div>`:'');
@@ -3000,13 +3034,19 @@ function bindCursos2(){
   const mx=document.getElementById('tmodalX'); mx&&mx.addEventListener('click',cm);
   const mo=document.getElementById('tmodal'); mo&&mo.addEventListener('click',e=>{if(e.target===mo)cm()});
   const f=document.getElementById('frules2'); if(!f) return;
+  /* Pestañas de la ventana (sin repintar, para no perder lo escrito) */
+  app.querySelectorAll('[data-mt]').forEach(b=>b.addEventListener('click',()=>{app.querySelectorAll('[data-mt]').forEach(x=>x.setAttribute('aria-selected',x===b));app.querySelectorAll('[data-mtp]').forEach(p=>p.hidden=p.dataset.mtp!==b.dataset.mt)}));
+  /* Si cambian la dificultad o las rondas, se rehace la lista de apartados */
+  const redo=()=>{const lv=document.getElementById('e-level').value, R=+document.getElementById('e-rounds').value, keepU=readUnlock('e');
+    const same=lv===((G.rules&&G.rules.level)||'basico');document.getElementById('e-secs').innerHTML=secChecklist(lv,same?(G.rules.off||[]):[],'e',same?{...(G.rules.unlock||{}),...keepU}:{},R)};
+  ['e-level','e-rounds'].forEach(id=>{const x=document.getElementById(id);x&&x.addEventListener('change',redo)});
   f.addEventListener('submit',async e=>{
     e.preventDefault(); const rules=readRules('e'); if(TEAMS.some(x=>(x.history||[]).length)) rules.level=(G.rules&&G.rules.level)||'basico'; const ng={...G,rules};
     const pass=normPass(document.getElementById('e-pass').value);
     if(pass&&!PASS_OK(pass)){document.getElementById('emsg').textContent='El código debe tener de 4 a 20 letras o números, sin espacios ni símbolos.';return}
     if(pass) ng.pass=pass; else delete ng.pass;
     if(dueAt(ng)<=Date.now()+60000||(G.week>gW(G)&&G.week<=rules.rounds)) ng.openedAt=Date.now();
-    try{await Store.setGame(ng);G=ng;syncRules(G);await loadGames();TMODAL=null;TFLASH=`Reglas guardadas: ${rulesTxt(rules)}.${pass?' Código para entrar: '+pass+'.':' El curso no tiene código.'}`;renderTeacher()}
+    try{await Store.setGame(ng);G=ng;syncRules(G);await loadGames();TMODAL=null;TFLASH=`Reglas y apartados guardados: ${rulesTxt(rules)}.${pass?' Código para entrar: '+pass+'.':' El curso no tiene código.'}`;renderTeacher()}
     catch(err){document.getElementById('emsg').textContent='No se pudieron guardar. Inténtalo otra vez.'}
   });
 }
@@ -3092,14 +3132,20 @@ function bindRes(){
 
 
 /* ===== Apartados de cada dificultad: ventana para marcar y desmarcar ===== */
-let SECM=null, NEWOFF=[], NEWLV='basico';
+let SECM=null, NEWOFF=[], NEWLV='basico', NEWUNLOCK={};
 const EYE='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
-function secChecklist(level,off,prefix){
-  const S=secsOfLevel(level), groups=[];
+function secChecklist(level,off,prefix,unlock,rounds){
+  const S=secsOfLevel(level), groups=[], R=rounds||8;
+  const defU=k=>(unlock&&unlock[k]!=null)?+unlock[k]:(level==='progresivo'?(UNLOCK[k]||1):1);
   S.forEach(([k,l,g])=>{g=g||(ADV_SECS.find(x=>x[0]===k)||[])[2]||'Apartados';let gr=groups.find(x=>x.n===g);if(!gr)groups.push(gr={n:g,items:[]});gr.items.push([k,l])});
   return `<div class="secgrid">${groups.map(g=>`<fieldset class="secg"><legend>${esc(g.n)}</legend>${g.items.map(([k,l])=>{const fx=FIXED_SECS.includes(k);
-    return `<label class="check"><input type="checkbox" data-sec="${prefix}" value="${k}" ${fx||!off.includes(k)?'checked':''} ${fx?'disabled':''}> ${esc(l)}${fx?' <span class="hint">(siempre)</span>':''}${level==='progresivo'&&SEC_FEAT[k]?` <span class="hint">· desde la semana ${Math.min(UNLOCK[SEC_FEAT[k]],8)}</span>`:''}</label>`}).join('')}</fieldset>`).join('')}</div>`;
+    const on=fx||!off.includes(k), u=Math.min(defU(k),R);
+    return `<div class="secrow"><label class="check"><input type="checkbox" data-sec="${prefix}" value="${k}" ${on?'checked':''} ${fx?'disabled':''}> ${esc(l)}${fx?' <span class="hint">(siempre)</span>':''}</label>
+      ${unlock!==null&&!fx?`<label class="unl"><span>ronda</span><select data-unl="${prefix}" data-k="${k}" ${on?'':'disabled'}>${[...Array(R)].map((_,i)=>`<option ${u===i+1?'selected':''}>${i+1}</option>`).join('')}</select></label>`:''}</div>`}).join('')}</fieldset>`).join('')}</div>`;
 }
+const readUnlock=prefix=>{const o={};document.querySelectorAll(`select[data-unl="${prefix}"]`).forEach(x=>{o[x.dataset.k]=+x.value});return o};
+/* Al desmarcar un apartado se desactiva su ronda */
+document.addEventListener('change',e=>{const c=e.target;if(c&&c.matches&&c.matches('input[data-sec]')){const r=c.closest('.secrow'),sl=r&&r.querySelector('select[data-unl]');if(sl)sl.disabled=!c.checked}});
 const readOff=(prefix,level)=>{const on=[...document.querySelectorAll(`input[data-sec="${prefix}"]`)].filter(x=>x.checked).map(x=>x.value);return secsOfLevel(level).map(([k])=>k).filter(k=>!FIXED_SECS.includes(k)&&!on.includes(k))};
 const secCount=(level,off)=>{const S=secsOfLevel(level);return `${S.filter(([k])=>FIXED_SECS.includes(k)||!off.includes(k)).length} de ${S.length}`};
 function secModalHTML(){
@@ -3109,7 +3155,7 @@ function secModalHTML(){
   return `<div class="gloss-ov tmodal" id="tmodal"><div class="gloss-box" role="dialog" aria-modal="true" aria-label="${esc(title)}">
     <div class="gloss-head"><h2>${esc(title)}</h2><button class="mini" id="secX">Cerrar</button></div>
     <p class="hint">Desmarca lo que este ${SECM.scope==='team'?'grupo':'curso'} todavía no ha trabajado. Lo desmarcado no aparecerá en su pantalla y el juego usará valores estándar (por ejemplo, sin «Impuestos» no se paga IVA; sin «Plantilla» la fábrica contrata sola con el salario mínimo).</p>
-    ${secChecklist(SECM.level,SECM.off,'m')}
+    ${secChecklist(SECM.level,SECM.off,'m',SECM.scope==='new'?NEWUNLOCK:null,SECM.scope==='new'?+((document.getElementById('n-rounds')||{}).value||5):8)}
     <div class="btns"><button class="go small" id="secOk">Guardar</button><button class="ghost" id="secAll">Marcar todos</button>${SECM.scope==='team'?'<button class="ghost" id="secCourse">Usar los del curso</button>':''}</div><p class="hint" id="secmsg"></p>
   </div></div>`;
 }
@@ -3126,7 +3172,7 @@ function bindSecModal(){
     try{await Store.setGame(ng);G=ng;TFLASH='El grupo vuelve a usar los apartados del curso.';SECM=null;renderTeacher()}catch(e){document.getElementById('secmsg').textContent='No se pudo guardar.'}});
   document.getElementById('secOk').addEventListener('click',async()=>{
     const off=readOff('m',SECM.level);
-    if(isNew){NEWOFF=off;drop();return}
+    if(isNew){NEWOFF=off;NEWUNLOCK=readUnlock('m');drop();return}
     const ng=SECM.scope==='team'?{...G,teamOff:{...(G.teamOff||{}),[SECM.id]:off}}:{...G,rules:{...(G.rules||{}),off}};
     try{await Store.setGame(ng);G=ng;TFLASH=SECM.scope==='team'?`Apartados guardados para ${(TEAMS.find(x=>x.id===SECM.id)||{}).name||'el grupo'}: ${secCount(SECM.level,off)}.`:'Apartados del curso guardados.';SECM=null;renderTeacher()}
     catch(e){document.getElementById('secmsg').textContent='No se pudo guardar. Inténtalo otra vez.'}
