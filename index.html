@@ -739,6 +739,13 @@ details.allmsg[open]>summary{margin-bottom:8px}
 .card.loanbox{max-width:520px}
 .pend-t{color:var(--event);font-weight:600}
 @media (max-width:600px){.inv-top{grid-template-columns:minmax(0,1fr)}.inv-r{grid-template-columns:minmax(0,1fr) 120px 22px}}
+
+.csel{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.csel select{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:min(100%,340px)}
+.memcol{font-size:.85rem;color:var(--muted);max-width:240px}
+.lvsel.lv-basico{border-color:var(--line)}
+.lvsel.lv-progresivo{border-color:var(--event);background:var(--event-soft)}
+.lvsel.lv-avanzado{border-color:var(--accent);background:var(--accent-soft)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -2051,7 +2058,7 @@ function onDataNow(){
   syncRules(G);
   if(G&&G.week<=WEEKS&&Date.now()>=dueAt(G)) closeWeek();
   const t=myTeam();
-  const sig=VIEW+'|'+(G&&G.week)+'|'+(t?(t.history||[]).length+':'+t.decWeek+':'+(t.seenWeek||0):'-');
+  const sig=VIEW+'|'+(G&&G.week)+'|'+(G&&G.rules&&G.rules.level)+'|'+(t?(t.history||[]).length+':'+t.decWeek+':'+(t.seenWeek||0)+':'+(t.level||''):'-');
   if(VIEW==='team'&&sig===lastSig){paintBoard();if(!document.activeElement||document.activeElement.id!=='langSel')paintHeader();return}
   if(typing()&&(sig===lastSig||VIEW!=='team')){odPending=true;return}
   if(sig!==lastSig&&lastSig&&lastSig.split('|')[1]!==String(G&&G.week)) editing=false;
@@ -2802,19 +2809,24 @@ function bindAddCourse(after){
     TTAB=after||TTAB; renderTeacher(); const m=document.getElementById('cmsg'); if(m) m.textContent=created?`Curso ${curso} creado.`:`El curso ${curso} ya existía.`;
   });
 }
+/* Desplegable con los cursos registrados (pestaña Cursos) */
+function courseSelect(){
+  if(!GAMES.length) return '<p class="muted">Todavía no hay cursos.</p>';
+  return `<label class="csel" for="csel"><b>Curso</b><select id="csel">${GAMES.map(g=>`<option value="${esc(g.code)}" ${G&&G.code===g.code?'selected':''}>${esc(g.curso||g.code)} · ${g.week>gW(g)?'terminada':'semana '+g.week+' de '+gW(g)} · ${LEVELS[gameLevel(g)].toLowerCase()}</option>`).join('')}</select></label>`;
+}
 function tCursos(){
-  if(!G) return courseBar()+addCourseForm();
+  if(!G) return courseSelect()+addCourseForm();
   const ended=G.week>WEEKS, sentN=TEAMS.filter(t=>t.decWeek===G.week).length, pend=TEAMS.filter(t=>t.decWeek!==G.week);
   const ranked=[...TEAMS].sort((a,b)=>profitOf(b)-profitOf(a));
-  const rows=ranked.map((t,i)=>`<tr class="${!ended&&t.decWeek!==G.week?'pend':''}"><td class="num">${i+1}º</td><td><b title="${esc((t.members||[]).join(', '))}">${esc(t.name)}</b></td><td>${MODELS[t.model].n}</td>
-    <td><select class="lvsel" data-tlevel="${esc(t.id)}" aria-label="Nivel de ${esc(t.name)}"><option value="">Del curso (${LEVELS[gameLevel(G)].toLowerCase()})</option>${Object.entries(LEVELS).map(([k,n])=>`<option value="${k}" ${t.level===k?'selected':''}>${n}</option>`).join('')}</select></td>
+  const rows=ranked.map((t,i)=>`<tr class="${!ended&&t.decWeek!==G.week?'pend':''}"><td class="num">${i+1}º</td><td><b>${esc(t.name)}</b></td><td class="memcol">${(t.members||[]).map(esc).join(', ')||'—'}</td><td>${MODELS[t.model].n}</td>
+    <td><select class="lvsel lv-${levelOf(t)}" data-tlevel="${esc(t.id)}" aria-label="Dificultad de ${esc(t.name)}">${Object.entries(LEVELS).map(([k,n])=>`<option value="${k}" ${levelOf(t)===k?'selected':''}>${n}</option>`).join('')}</select></td>
     <td>${ended?'—':t.decWeek===G.week?'<span class="pos">Enviado</span>':'<span class="neg">Pendiente</span>'}</td>
     <td>${ended?'—':esc((teamEvent(t,G.week)||{}).title||'Ninguno')}</td>
     <td class="num">${int((t.history||[]).reduce((a,h)=>a+h.sold,0))}</td><td class="num ${profitOf(t)<0?'neg':''}">${eur(profitOf(t))}</td><td class="num ${t.cash<0?'neg':''}">${eur(t.cash)}${t.cash<BANKRUPT?' <span class="chip neg">quiebra</span>':''}</td>
     <td><button class="linkbtn" data-see="${esc(t.id)}">Ver pantalla</button></td></tr>`).join('');
   const pct=TEAMS.length?Math.round(sentN/TEAMS.length*100):0;
   const due=dueAt(G)===Infinity?'Los resultados solo se publican cuando tú pulses el botón.':`Si no publicas antes, se publican solos el ${fmtDate(dueAt(G))}.`;
-  return `${courseBar()}
+  return `${courseSelect()}
     <div class="class-head">
       <div><span class="label">${esc(G.code)}</span><h2>${esc(G.curso||'Sin curso')} · ${ended?'partida terminada':`semana ${G.week} de ${WEEKS}`}</h2>
         <p class="hint">${G.pass?`Código para entrar: <b class="passchip">${esc(G.pass)}</b>`:'Este curso no tiene código: cualquiera puede entrar. Ponle uno en «Reglas y código del curso».'}</p></div>
@@ -2824,8 +2836,8 @@ function tCursos(){
       <span class="prog"><i style="width:${pct}%"></i></span>
       <p class="hint">${pend.length?`Faltan: <b>${pend.map(t=>esc(t.name)).join(', ')}</b>. Las que no envíen no fabrican nada esta semana y pagan los gastos fijos.`:'Ya han enviado todas. Puedes publicar los resultados.'}</p></div>`}
     <div class="course-grid one">
-      <div class="tbl-wrap"><table class="stack"><thead><tr><th class="rt">Pos.</th><th>Empresa</th><th>Móvil</th><th>Nivel</th><th>Semana ${Math.min(G.week,WEEKS)}</th><th>Evento</th><th class="rt">Vendidos</th><th class="rt">Beneficio</th><th class="rt">Presupuesto</th><th></th></tr></thead>
-      <tbody>${rows||`<tr><td colspan="10" class="muted">Todavía no hay empresas. Los grupos entran eligiendo ${esc(G.curso||G.code)} en la pantalla de inicio${G.pass?' y escribiendo el código <b>'+esc(G.pass)+'</b>':''}.</td></tr>`}</tbody></table></div>
+      <div class="tbl-wrap"><table class="stack"><thead><tr><th class="rt">Pos.</th><th>Grupo</th><th>Integrantes</th><th>Móvil</th><th>Dificultad</th><th>Semana ${Math.min(G.week,WEEKS)}</th><th>Evento</th><th class="rt">Vendidos</th><th class="rt">Beneficio</th><th class="rt">Presupuesto</th><th></th></tr></thead>
+      <tbody>${rows||`<tr><td colspan="11" class="muted">Todavía no hay empresas. Los grupos entran eligiendo ${esc(G.curso||G.code)} en la pantalla de inicio${G.pass?' y escribiendo el código <b>'+esc(G.pass)+'</b>':''}.</td></tr>`}</tbody></table></div>
     </div>
     <div class="btns"><button class="go small" id="pdfbtn" ${TEAMS.length?'':'disabled'}>Exportar resultados en PDF</button><span class="hint" id="pdfmsg">Incluye la clasificación, el beneficio por semana y una página por empresa con sus decisiones y su reflexión final.</span></div>
 `;
@@ -2836,9 +2848,10 @@ function bindCursos(){
   paintBoard();
   bindAdv(async a=>{a.disabled=true;a.textContent='Calculando resultados…';await closeWeek();if(!Store.db)Store.localPush(CODE);await loadGames();renderTeacher()});
   app.querySelectorAll('[data-see]').forEach(b=>b.addEventListener('click',()=>openPreview(b.dataset.see)));
+  const cs=document.getElementById('csel'); cs&&cs.addEventListener('change',async()=>{await selectGame(cs.value);FBTEAM=null;TMODAL=null;TFLASH='';renderTeacher()});
   app.querySelectorAll('[data-tlevel]').forEach(sel=>sel.addEventListener('change',async()=>{
-    const id=sel.dataset.tlevel, v=sel.value||null, t=TEAMS.find(x=>x.id===id);
-    try{await Store.patchTeam(CODE,id,{level:v});if(t)t.level=v;TFLASH=`${t?t.name:'Empresa'}: nivel ${v?LEVELS[v].toLowerCase():'del curso ('+LEVELS[gameLevel(G)].toLowerCase()+')'}. Se aplica desde la semana ${G.week}.`;renderTeacher()}
+    const id=sel.dataset.tlevel, v=sel.value, t=TEAMS.find(x=>x.id===id);
+    try{await Store.patchTeam(CODE,id,{level:v});if(t)t.level=v;TFLASH=`${t?t.name:'Grupo'}: dificultad ${LEVELS[v].toLowerCase()}. Lo verán en su pantalla desde la semana ${G.week}.`;renderTeacher()}
     catch(e){TFLASH='No se pudo cambiar el nivel. Inténtalo otra vez.';renderTeacher()}}));
   const pb=document.getElementById('pdfbtn'); pb&&pb.addEventListener('click',()=>exportPDF(pb));
   const pj=document.getElementById('projBtn'); pj&&pj.addEventListener('click',()=>{VIEW='proj';render();try{const r=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();r&&r.catch&&r.catch(()=>{})}catch(e){}});
@@ -2925,7 +2938,7 @@ function bindCrear(){
 
 /* 3. Cursos: seguimiento de la ronda, publicación, reglas y gestión */
 function tCursos2(){
-  if(!G) return `${courseBar()}<p class="muted">Crea tu primer curso en la pestaña «Crear curso».</p>`;
+  if(!G) return `${courseSelect()}<p class="muted">Crea tu primer curso en la pestaña «Crear curso».</p>`;
   const ended=G.week>WEEKS, r={...RULE_DEF,...(G.rules||{})};
   const minR=Math.max(3,G.week-(ended?1:0));
   return `${TFLASH?`<p class="flash" role="status">${esc(TFLASH)}</p>`:''}${tCursos()}
