@@ -640,6 +640,32 @@ details.fold[open]{gap:12px}
 .res-bar label{display:flex;flex-direction:column;gap:6px;min-width:min(100%,320px)}
 .res-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:12px}
 .card .chart svg{width:100%;height:auto;max-height:360px;display:block;margin-inline:auto}
+
+/* Modo avanzado: menú lateral */
+.mnav{display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--line);padding-bottom:8px}
+.burger{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--on-accent);border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:.95rem;cursor:pointer}
+.mnav-t{display:flex;flex-direction:column;min-width:0}
+.mnav-t b{font-family:var(--f-display);font-size:1.15rem}
+.drawer-ov{position:fixed;inset:0;background:rgba(10,15,25,.4);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}
+.drawer-ov.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;bottom:0;left:0;width:min(330px,86vw);background:var(--surface);border-right:1px solid var(--line);z-index:41;transform:translateX(-102%);transition:transform .32s var(--ease-out);overflow:auto;padding:max(16px,env(safe-area-inset-top)) 14px 24px;display:flex;flex-direction:column;gap:14px;box-shadow:8px 0 30px -12px rgba(0,0,0,.35)}
+[dir="rtl"] .drawer{left:auto;right:0;border-right:0;border-left:1px solid var(--line);transform:translateX(102%)}
+.drawer.open{transform:none}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.dgroup{display:flex;flex-direction:column;gap:2px}
+.dgroup .label{margin:4px 6px}
+.dgroup button{display:flex;align-items:center;gap:10px;background:none;border:0;border-radius:8px;padding:10px;font:inherit;font-weight:600;color:var(--ink);text-align:start;cursor:pointer}
+.dgroup button:hover{background:var(--bg)}
+.dgroup button[aria-current="true"]{background:var(--accent-soft);color:var(--accent)}
+.dwarn{margin-inline-start:auto;background:var(--bad);color:#fff;border-radius:50%;width:20px;height:20px;display:inline-grid;place-items:center;font-size:.8rem;font-weight:800}
+.rows .label.sub{margin-top:8px;display:block}
+.prog.sat{height:12px}
+.taxl{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+.taxl li.me{font-weight:700;color:var(--accent)}
+.numf .big{font-size:1.6rem;font-weight:700}
+.card.pl .rows .r.total{border-top:1px solid var(--line);padding-top:6px}
+.card.pl .rows .r{gap:10px}
+.card.pl .rows .r b{white-space:normal;text-align:end;min-width:0;overflow-wrap:break-word}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -909,6 +935,24 @@ const TR=[
 ];
 /* Glosario: término, definición y ejemplo en cada idioma */
 const GLOSS=[
+ {k:'fijo',es:['Coste fijo','Gasto que se paga cada semana aunque no se fabrique nada: alquiler, sueldos, mantenimiento, publicidad.','Si alquiláis la nave por 3.000 € a la semana, los pagáis fabriquéis 0 o 500 móviles.'],
+  en:['Fixed cost','A cost paid every week even if nothing is made: rent, wages, maintenance, advertising.','If the factory rent is €3,000 a week, you pay it whether you make 0 or 500 phones.'],
+  ar:['التكلفة الثابتة','نفقة تُدفع كل أسبوع حتى لو لم يُصنع شيء: الإيجار والأجور والصيانة والإعلان.','إذا كان إيجار المصنع 3000 يورو أسبوعيًا فستدفعونه سواء صنعتم 0 أو 500 هاتف.']},
+ {k:'variable',es:['Coste variable','Gasto que depende de cuántas unidades se fabrican: componentes, transporte de cada móvil.','Si cada móvil cuesta 80 €, fabricar 100 cuesta 8.000 € y fabricar 200, 16.000 €.'],
+  en:['Variable cost','A cost that depends on how many units are made: parts and shipping for each phone.','If each phone costs €80, making 100 costs €8,000 and making 200 costs €16,000.'],
+  ar:['التكلفة المتغيرة','نفقة تتغير بحسب عدد الوحدات المصنوعة: المكونات ونقل كل هاتف.','إذا كلّف كل هاتف 80 يورو، فصنع 100 يكلّف 8000 يورو وصنع 200 يكلّف 16000 يورو.']},
+ {k:'smi',es:['Salario mínimo interprofesional (SMI)','El sueldo más bajo que la ley permite pagar por una jornada completa. En 2026 es de 1.221 € brutos al mes en 14 pagas.','Una empresa no puede pagar 1.000 € al mes por jornada completa: es ilegal.'],
+  en:['Minimum wage (SMI)','The lowest wage the law allows for a full-time job. In Spain in 2026 it is €1,221 gross a month, 14 payments a year.','A company cannot pay €1,000 a month for a full-time job: it is illegal.'],
+  ar:['الحد الأدنى للأجور','أدنى أجر يسمح به القانون مقابل دوام كامل. في إسبانيا سنة 2026 هو 1221 يورو إجمالي شهريًا في 14 دفعة.','لا يجوز لشركة أن تدفع 1000 يورو شهريًا لدوام كامل: هذا غير قانوني.']},
+ {k:'huelga',es:['Huelga','Cuando la plantilla deja de trabajar para reclamar mejores condiciones. Es un derecho. En España la empresa no puede contratar a otras personas para sustituir a quienes la hacen.','Si los sueldos son muy bajos, la plantilla puede parar y la fábrica produce mucho menos.'],
+  en:['Strike','When workers stop working to demand better conditions. It is a right. In Spain a company may not hire other people to replace strikers.','If wages are very low, workers may stop and the factory makes far fewer phones.'],
+  ar:['الإضراب','توقف العمال عن العمل للمطالبة بظروف أفضل. وهو حق. في إسبانيا لا يجوز للشركة توظيف أشخاص آخرين بدل المضربين.','إذا كانت الأجور منخفضة جدًا قد يتوقف العمال فيصنع المصنع أقل بكثير.']},
+ {k:'iva',es:['IVA','Impuesto que pagan los clientes al comprar. La empresa lo cobra dentro del precio y se lo entrega a Hacienda. En España, para los móviles, es del 21 %.','Un móvil a 121 €: 100 € son para la empresa y 21 € de IVA para Hacienda.'],
+  en:['VAT','A tax customers pay when they buy. The company collects it in the price and hands it to the tax office. In Spain it is 21 % for phones.','A €121 phone: €100 for the company and €21 of VAT for the tax office.'],
+  ar:['ضريبة القيمة المضافة','ضريبة يدفعها الزبائن عند الشراء. تجمعها الشركة ضمن السعر وتسلّمها لمصلحة الضرائب. في إسبانيا هي 21 % للهواتف.','هاتف بسعر 121 يورو: 100 يورو للشركة و21 يورو ضريبة.']},
+ {k:'sociedades',es:['Impuesto de sociedades','Impuesto que pagan las empresas sobre su beneficio. En 2026 el tipo general es el 25 %; las empresas pequeñas pagan menos (23 %, o 19-21 % si facturan menos de 1 millón).','Si una empresa grande gana 10.000 €, paga 2.500 € de impuesto de sociedades.'],
+  en:['Corporate tax','A tax companies pay on their profit. In Spain in 2026 the general rate is 25 %; small companies pay less (23 %, or 19-21 % below €1 million in sales).','If a large company makes a €10,000 profit, it pays €2,500 in corporate tax.'],
+  ar:['ضريبة الشركات','ضريبة تدفعها الشركات على أرباحها. في إسبانيا سنة 2026 النسبة العامة 25 %، والشركات الصغيرة تدفع أقل (23 %، أو 19-21 % إذا كانت مبيعاتها أقل من مليون).','إذا ربحت شركة كبيرة 10000 يورو فإنها تدفع 2500 يورو ضريبة.']},
  {k:'oferta',es:['Oferta','Cantidad de producto que las empresas ponen a la venta.','Si fabricáis 300 móviles, vuestra oferta es de 300 móviles.'],
   en:['Supply','The amount of a product that companies put up for sale.','If you make 300 phones, your supply is 300 phones.'],
   ar:['العرض','كمية المنتج التي تعرضها الشركات للبيع.','إذا صنعتم 300 هاتف، فعرضكم هو 300 هاتف.']},
@@ -1213,9 +1257,49 @@ function costs(dec,w,t){
   if(md==='barco'&&ev&&ev.shipCont&&ev.shipCont[c]) ship*=ev.shipCont[c];
   let onTime=ONTIME[c][md]||0; if(md==='barco'&&ev&&ev.delayCont&&ev.delayCont[c]) onTime-=ev.delayCont[c];
   const tariff=ev&&ev.tariff&&ev.target===c?ev.tariff:0;
-  return {unit,ship,per:unit+ship,onTime,tariff,invest:dec.prod*(unit+ship)+dec.ad};
+  if(isAdv()){
+    const A=advCalc(dec,w,t), Z=A.Z; unit+=AIF[+A.a.ai||0].c*(ev&&ev.costMul||1);
+    if(md==='barco'&&Z.ship) ship*=Z.ship; if(md==='avion'&&Z.air) ship*=Z.air;
+    const per=unit+ship+Z.v;
+    return {unit,ship,zoneV:Z.v,per,onTime,tariff:Math.max(tariff,TARIFF_BASE[c]||0),iva:c==='europa'?IVA:0,A,invest:Math.min(dec.prod,A.cap)*per+A.fixedTot};
+  }
+  return {unit,ship,per:unit+ship,onTime,tariff,iva:0,invest:dec.prod*(unit+ship)+dec.ad};
+}
+function simulateAdv(dec,w,t){
+  const m=MODELS[dec.model], c=CONTS[dec.cont], F=fitOf(dec,w,t), ev=F.ev, K=costs(dec,w,t), A=K.A;
+  const blocked=blockedCont(ev,dec.cont)||!modeOK(dec.cont,dec.mode,ev);
+  const hasLogo=!!teamLogo(t), ref=(habitual(dec.model,dec.cont)+1)*(hasLogo?1.08:1), L=lookFx(t,dec.cont), N=NICHES[dec.niche]||NICHES.estudiantes;
+  const pf=Math.min(2.5,Math.pow(dec.price/ref,-Math.max(.6,c.el+N.el+(ev&&ev.elAdd||0))));
+  const hasImg=!!(t.design&&t.design.img), D=advDemand(dec,t,A,ev,hasImg);
+  const repf=0.6+0.8*t.rep/100;
+  let exf=1; for(const k in EXTRAS) if(dec.extras&&dec.extras[k]) exf*=1+exFx(k,dec.cont,dec.model,dec.niche);
+  const nf=N.size[dec.cont]*N.model[dec.model]*(hasLogo?1.05:1);
+  const evf=(ev&&ev.demMul||1)*(ev&&ev.demConts&&ev.demConts[dec.cont]||1)*exf*nf;
+  const noise=0.9+0.2*rnd(G.code+'|noise|'+t.id+'|'+w);
+  const strike=rnd(G.code+'|str|'+t.id+'|'+w)<A.strikeRisk, broke=dec.prod>0&&rnd(G.code+'|brk|'+t.id+'|'+w)<A.breakRisk;
+  const cap=Math.floor(A.capH*(strike?.3:1)*(broke?.6:1)+A.capR*(broke?.6:1)), produced=Math.max(0,Math.min(dec.prod,cap));
+  const demand=blocked?0:Math.round(m.dem*c.size*F.sat*pf*D.adf*repf*evf*L.m*noise*D.aiMul*D.imgMul);
+  const adClients=Math.round(demand-demand/D.adf);
+  const avail=blocked?0:Math.round(produced*K.onTime), late=blocked?0:produced-avail;
+  const sold=Math.min(demand,avail), lateSold=Math.min(demand-sold,late), lost=demand-sold-lateSold, left=produced-sold-lateSold;
+  const revMul=dec.cont!=='europa'&&ev&&ev.revOut?ev.revOut:1;
+  const gross=(sold*dec.price+lateSold*dec.price*0.5)*revMul, net=gross/(1+K.iva), iva=gross-net;
+  const tariffPaid=net*K.tariff, revenue=net-tariffPaid, outlet=left*K.unit*0.4;
+  const varCost=produced*K.per, fixedTot=A.fixedTot+(broke?REPAIR:0);
+  const pbt=revenue+outlet-varCost-fixedTot, tax=taxOf(pbt,revenue,A.P.carry), profit=pbt-tax.tax;
+  let repDelta=produced>0&&!blocked?clamp((F.sat-0.8)*25+(dec.extras&&dec.extras.garantia?2:0),-12,8):0;
+  if(A.share>.4) repDelta-=3; if(strike) repDelta-=3; if(A.meas==='sustitutos') repDelta-=10;
+  const X={strike,broke,cap,produced,iva,tariffPaid,tax,pbt,varCost,fixedTot};
+  return {week:w,dec,demand,adClients,sold,lateSold,lost,left,revenue,outlet,tariffPaid,profit,K:{...K,invest:varCost+fixedTot},F,ref,repDelta,blocked,L,hasImg,exf,N,hasLogo,A,D,X};
+}
+function advRecord(r){
+  const A=r.A, X=r.X;
+  return {zone:A.a.zone,workers:A.N,robots:A.R,salary:A.sal,sat:A.sat,strike:X.strike,broke:X.broke,mach:A.mach,maint:A.a.maint,cap:X.cap,produced:X.produced,planned:r.dec.prod,
+    iva:Math.round(X.iva),tax:X.tax.tax,taxRate:X.tax.rate,taxKind:X.tax.kind,carry:X.tax.carryNew,pbt:Math.round(X.pbt),varCost:Math.round(X.varCost),
+    fixed:{...A.fixed,repair:X.broke?REPAIR:0},ai:+A.a.ai||0,focus:A.a.focus,media:A.media,measure:A.meas||null,revenue:Math.round(r.revenue),outlet:Math.round(r.outlet)};
 }
 function simulate(dec,w,t){
+  if(isAdv()) return simulateAdv(dec,w,t);
   const m=MODELS[dec.model], c=CONTS[dec.cont], F=fitOf(dec,w,t), ev=F.ev, K=costs(dec,w,t);
   const blocked=blockedCont(ev,dec.cont)||!modeOK(dec.cont,dec.mode,ev);
   const hasLogo=!!teamLogo(t);
@@ -1260,19 +1344,20 @@ function messages(r){
   if(r.F.sat>1.1) out.push({c:'',t:T('Pusisteis componentes mejores de lo que pedían: gustan, pero suben mucho el coste.')});
   if(r.L.look) out.push({c:r.L.m>1.04?'good':r.L.m<.97?'bad':'',t:T('Diseño «{0}» en {1}: {2}. {3}',LOOKS[r.L.look].toLowerCase(),cn,T(r.L.m>1.04?'gustó mucho':r.L.m<.97?'gustó poco':'ni ayudó ni perjudicó'),LOOKFX[d.cont][r.L.look][1])});
   out.push(r.hasLogo?{c:'good',t:T('Vuestro logo da confianza: los clientes aceptaron pagar algo más por vuestro móvil.')}:{c:'',t:T('No tenéis logo de empresa: los clientes confían menos y pagan menos. Podéis añadirlo en la pestaña Diseño.')});
-  if(!r.hasImg) out.push({c:'',t:T('No habéis subido una imagen del móvil: vuestra publicidad rinde un 20 % menos.')});
+  if(!r.hasImg&&!r.A) out.push({c:'',t:T('No habéis subido una imagen del móvil: vuestra publicidad rinde un 20 % menos.')});
   const ratio=d.price/r.ref;
   if(ratio>1.25) out.push({c:'bad',t:T('Vuestro precio ({0}) estaba muy por encima de lo habitual en {1} ({2}). Mucha gente no pudo o no quiso pagarlo.',eur(d.price),cn,eur(r.ref-1))});
   else if(ratio<0.8) out.push({c:'',t:T('Vuestro precio era muy bajo: vendisteis más, pero ganasteis poco con cada móvil.')});
-  if(d.price*(1-r.K.tariff)<r.K.per) out.push({c:'bad',t:T('Cada móvil os costó {0} y os quedasteis {1} por cada venta: perdisteis dinero con cada móvil.',eur(r.K.per),eur(d.price*(1-r.K.tariff)))});
+  {const keep=d.price/(1+(r.K.iva||0))*(1-r.K.tariff);if(keep<r.K.per) out.push({c:'bad',t:T('Cada móvil os costó {0} y os quedasteis {1} por cada venta: perdisteis dinero con cada móvil.',eur(r.K.per),eur(keep))})}
   if(r.tariffPaid>0) out.push({c:'bad',t:T('Pagasteis {0} en aranceles.',eur(r.tariffPaid))});
   if(r.lateSold>0||r.K.onTime<1&&d.prod>0){const late=d.prod-Math.round(d.prod*r.K.onTime);if(late>0) out.push({c:late>0.2*d.prod?'bad':'',t:T('En {0}, {1} móviles llegaron tarde. Los que se vendieron, fueron a mitad de precio.',MODES[d.mode].n.toLowerCase(),int(late))})}
   if(r.lost>0) out.push({c:'bad',t:T('Os quedasteis sin móviles: {0} clientes querían comprar y no pudieron.',int(r.lost))});
   if(r.left>0&&r.left>=0.15*d.prod) out.push({c:'bad',t:T('Sobraron {0} móviles. Se vendieron en un outlet por solo {1} en total.',int(r.left),eur(r.outlet))});
   if(r.lost===0&&r.left<0.15*d.prod&&d.prod>0) out.push({c:'good',t:T('Acertasteis bastante con la cantidad fabricada.')});
-  if(d.ad===0) out.push({c:'',t:T('No hicisteis publicidad: menos gente conoció vuestro móvil.')});
+  if(d.ad===0&&!r.A) out.push({c:'',t:T('No hicisteis publicidad: menos gente conoció vuestro móvil.')});
   if(r.repDelta<=-5) out.push({c:'bad',t:T('Las opiniones de los clientes fueron malas y vuestra reputación baja. Eso os quitará ventas las próximas semanas.')});
   if(r.repDelta>=4) out.push({c:'good',t:T('Los clientes quedaron contentos: vuestra reputación sube.')});
+  if(r.A) out.push(...advMessages(r));
   return out;
 }
 /* Mensajes en los tres idiomas: el español se guarda como siempre (lo lee el profesorado) */
@@ -1335,10 +1420,12 @@ function bindFinal(t){
     catch(err){document.getElementById('reflmsg').textContent=T('No se pudieron guardar. Intentadlo otra vez.')}
   });
 }
-function defaultDec(model){const l=model==='A'?1:model==='C'?3:2;return {model,niche:model==='A'?'estudiantes':model==='B'?'creadores':'empresarios',comps:{cam:l,pan:l,bat:l,car:l,mem:l,cpu:l,bio:model==='C'?2:1},extras:{funda:false,cargador:true,auriculares:false,garantia:false,protector:false},cont:'europa',mode:'camion',price:habitual(model,'europa'),prod:model==='C'?120:300,ad:3000}}
+function defaultDec(model){const l=model==='A'?1:model==='C'?3:2;return {model,niche:model==='A'?'estudiantes':model==='B'?'creadores':'empresarios',comps:{cam:l,pan:l,bat:l,car:l,mem:l,cpu:l,bio:model==='C'?2:1},extras:{funda:false,cargador:true,auriculares:false,garantia:false,protector:false},cont:'europa',mode:'camion',price:habitual(model,'europa'),prod:model==='C'?120:300,ad:3000,adv:{...ADV_DEF,workers:model==='A'?8:model==='C'?6:11,media:[...ADV_DEF.media]}}}
 /* Ajusta una decisión a lo que permite el evento de esta semana */
 function fixDec(d,ev){
   const df=defaultDec(d.model); if(!NICHES[d.niche]) d.niche=df.niche; d.comps={...df.comps,...(d.comps||{})}; d.extras={...df.extras,...(d.extras||{})};
+  d.adv={...ADV_DEF,...(d.adv||{})}; d.adv.media=(d.adv.media||[]).filter(k=>MEDIA[k]); if(!ZONES[d.adv.zone]) d.adv.zone=ADV_DEF.zone;
+  if(isAdv()) d.ad=d.adv.media.reduce((s,k)=>s+MEDIA[k].c,0);
   if(blockedCont(ev,d.cont)){d.cont=Object.keys(CONTS).find(c=>!blockedCont(ev,c));d.price=habitual(d.model,d.cont)}
   if(!d.mode||!modeOK(d.cont,d.mode,ev)) d.mode=Object.keys(MODES).find(m=>modeOK(d.cont,m,ev));
   return d;
@@ -1354,18 +1441,278 @@ async function closeWeek(){
     const jobs=[];
     for(const t of teams){
       if((t.history||[]).some(h=>h.week===w)) continue;
-      const sent=t.decWeek===w, ev=teamEvent(t,w), dec=fixDec(JSON.parse(JSON.stringify(sent?t.dec:{...t.dec,prod:0,ad:0})),ev);
+      const sent=t.decWeek===w, ev=teamEvent(t,w), dec=fixDec(JSON.parse(JSON.stringify(sent?t.dec:{...t.dec,prod:0,ad:0,adv:{...((t.dec&&t.dec.adv)||{}),media:[],mach:1,measure:'nada'}})),ev);
       const r=simulate(dec,w,t);
       const MA=messagesAll(r,sent), msgs=MA.msgs;
       const cash=t.cash+r.profit, rep=clamp(t.rep+r.repDelta,0,100);
-      const h={week:w,sent,cont:dec.cont,niche:dec.niche,mode:dec.mode,lateSold:r.lateSold,tariffPaid:Math.round(r.tariffPaid),event:MA.evEs,evId:ev?ev.id:null,evTarget:ev?ev.target:null,price:dec.price,prod:dec.prod,ad:dec.ad,demand:r.demand,adClients:r.adClients,sold:r.sold,lost:r.lost,
-        revenue:Math.round(r.revenue+r.outlet),costs:Math.round(r.K.invest+FIXED),profit:Math.round(r.profit),cash:Math.round(cash),repDelta:Math.round(r.repDelta),msgs,msgsI18n:MA.msgsI18n};
+      const h={week:w,sent,cont:dec.cont,niche:dec.niche,mode:dec.mode,lateSold:r.lateSold,tariffPaid:Math.round(r.tariffPaid),event:MA.evEs,evId:ev?ev.id:null,evTarget:ev?ev.target:null,price:dec.price,prod:r.X?r.X.produced:dec.prod,ad:dec.ad,demand:r.demand,adClients:r.adClients,sold:r.sold,lost:r.lost,
+        revenue:Math.round(r.revenue+r.outlet),costs:Math.round(r.K.invest+(r.A?r.X.tax.tax:FIXED)),profit:Math.round(r.profit),cash:Math.round(cash),repDelta:Math.round(r.repDelta),msgs,msgsI18n:MA.msgsI18n};
+      if(r.A) h.adv=advRecord(r);
       jobs.push(Store.patchTeam(CODE,t.id,{cash:Math.round(cash),rep,history:[...(t.history||[]),h]}));
     }
     await Promise.all(jobs);
     await Store.setGame({...fresh,week:w+1,openedAt:Date.now()});
   }catch(e){console.error(e)}
   finally{closing=false}
+}
+
+
+/* ================= Modo avanzado: empresa, plantilla, maquinaria, impuestos y publicidad =================
+   Cifras legales de 2026: SMI 1.221 €/mes en 14 pagas (RD 126/2026); cotización a cargo de la empresa ≈ 30,65 %
+   (contingencias comunes, desempleo, FOGASA, formación y MEI) más accidentes de trabajo → se usa un 32 %.
+   Impuesto de sociedades 2026: 25 % general; 23 % empresas de reducida dimensión (< 10 M€ de facturación);
+   micropymes (< 1 M€) 19 % los primeros 50.000 € de base y 21 % el resto. IVA general 21 %.
+   El resto de valores (alquileres, productividad, aranceles base, eficacia de los medios) son orientativos del juego. */
+const isAdv=g=>{g=g||G;return !!(g&&g.rules&&g.rules.level==='avanzado')};
+const SMI=1221, SS_EMP=0.32, PER_WORKER=30, PER_ROBOT=45, ROBOT_WEEK=380, MOVE_COST=10000, DISMISS_COST=1200, REPAIR=2500, IVA=0.21;
+/* Un móvil de gama baja se monta más rápido que uno de gama alta */
+const MODEL_PROD={A:1.3,B:1,C:.75};
+const ADV_DEF={zone:'granada',workers:11,robots:0,salary:1221,mach:1,maint:'basico',ai:0,focus:'producto',media:['redes'],measure:'nada'};
+const ZONES={
+  sevilla:{n:'Sevilla',d:'Parque Científico y Tecnológico Cartuja. Puerto fluvial y aeropuerto internacional. Mucho personal cualificado, pero alquileres caros.',fix:1600,v:1.5,p:1.05,air:.9},
+  malaga:{n:'Málaga',d:'Málaga TechPark, el polo tecnológico de Andalucía. Gran aeropuerto y puerto. Los alquileres más caros y el personal más especializado.',fix:1900,v:1.2,p:1.1,air:.85},
+  granada:{n:'Granada',d:'Parque Tecnológico de la Salud y universidad. Alquileres moderados, pero lejos del puerto: sacar los móviles cuesta más.',fix:1200,v:2.5,p:1},
+  cadiz:{n:'Cádiz (bahía de Algeciras)',d:'Junto al puerto de Algeciras, uno de los más grandes de Europa: enviar en barco sale más barato.',fix:1300,v:.8,p:.95,ship:.8},
+  almeria:{n:'Almería',d:'Puerto propio y suelo barato, pero menos personal especializado en tecnología.',fix:1100,v:1.8,p:.95},
+  cordoba:{n:'Córdoba',d:'Bien comunicada por autovía y AVE. Suelo barato, pero lejos de los puertos.',fix:1000,v:2.2,p:.95},
+  jaen:{n:'Jaén',d:'El suelo industrial más barato. Lejos de puertos y aeropuertos y con menos personal especializado.',fix:850,v:2.8,p:.9},
+  huelva:{n:'Huelva',d:'Puerto propio y suelo barato, cerca de Portugal. Poca tradición tecnológica.',fix:950,v:1.6,p:.9}
+};
+const MACH={1:{n:'Básica',d:'La que tenéis al empezar.',mul:1,risk:.12,price:0},2:{n:'Estándar',d:'Fabrica un 25 % más y se avería menos.',mul:1.25,risk:.06,price:15000},3:{n:'Avanzada',d:'Fabrica un 50 % más y casi no se avería.',mul:1.5,risk:.03,price:32000}};
+const machPrice=(l,w)=>Math.round(MACH[l].price*(1+0.03*(w-1)));
+const MAINT={nada:{n:'Sin mantenimiento',c:0,m:1.8},basico:{n:'Básico',c:500,m:1},completo:{n:'Completo',c:1500,m:.4}};
+const AIF={0:{n:'Sin IA',d:'El móvil no trae funciones de inteligencia artificial.',c:0},1:{n:'Asistente con IA',d:'Traductor, resúmenes y retoque de fotos con IA.',c:15},2:{n:'IA avanzada',d:'IA que funciona en el propio móvil, sin internet. Necesita un buen procesador.',c:40}};
+const AI_NICHE={estudiantes:[.08,.10],empresarios:[.12,.22],exploradores:[.05,.08],creadores:[.15,.25],gamers:[.08,.15],mayores:[0,-.05],familias:[.03,0],deportistas:[.06,.10]};
+const FOCUS={
+  producto:{n:'El producto y la marca',d:'Enseñáis el móvil y vuestro logo.',f:{}},
+  tecnica:{n:'Características técnicas',d:'Cámara, batería, procesador… con datos y comparaciones.',f:{empresarios:1.25,gamers:1.3,creadores:1.2,mayores:.8,familias:.9,estudiantes:.9}},
+  cotidiana:{n:'El móvil en la vida diaria',d:'Gente normal usando el móvil en casa, en clase o en el trabajo.',f:{familias:1.25,mayores:1.25,estudiantes:1.1,deportistas:1.1,exploradores:1.15,gamers:.85,empresarios:.9}},
+  precio:{n:'Precio y ofertas',d:'«El mejor móvil por menos dinero».',f:{estudiantes:1.3,familias:1.2,mayores:1.1,empresarios:.7,creadores:.9}},
+  emocional:{n:'Emociones y estilo de vida',d:'Viajes, deporte, amistad: lo que se siente con el móvil.',f:{creadores:1.2,deportistas:1.2,exploradores:1.2,empresarios:.9,mayores:.9}}
+};
+const MEDIA={
+  tv:{n:'Televisión',c:8000,f:{mayores:1.4,familias:1.3,deportistas:1,exploradores:.9,empresarios:.8,estudiantes:.6,gamers:.6,creadores:.5}},
+  radio:{n:'Radio',c:2000,f:{mayores:1.3,empresarios:1.1,familias:1.1,deportistas:.9}},
+  prensa:{n:'Prensa y revistas',c:1500,f:{empresarios:1.4,mayores:1.2}},
+  redes:{n:'Redes sociales (Instagram, TikTok)',c:1500,f:{estudiantes:1.5,creadores:1.5,gamers:1.3,deportistas:1.2,exploradores:1,familias:.9,empresarios:.7,mayores:.4}},
+  youtube:{n:'YouTube y Twitch',c:2000,f:{gamers:1.6,creadores:1.3,estudiantes:1.2}},
+  buscadores:{n:'Google y anuncios en webs',c:1000,f:{empresarios:1.2,estudiantes:1,creadores:1,gamers:1,exploradores:1,deportistas:1,familias:1,mayores:.7}},
+  exterior:{n:'Vallas y marquesinas',c:2500,f:{deportistas:.9}},
+  influencers:{n:'Influencers',c:4000,f:{creadores:1.6,estudiantes:1.4,deportistas:1.3,gamers:1.2,exploradores:1.2,familias:.7,empresarios:.5,mayores:.3}}
+};
+const mediaFit=(k,ni)=>(MEDIA[k].f[ni]??(k==='exterior'?.8:.5));
+const focusFit=(k,ni,model)=>((FOCUS[k]||FOCUS.producto).f[ni]??1)*(k==='precio'&&model==='C'?.8:1);
+const MEASURES={
+  subir:{n:'Negociar y subir el sueldo un 5 %',d:'El sueldo de la plantilla sube al menos un 5 % desde esta semana.',c:0},
+  condiciones:{n:'Mejorar las condiciones de trabajo',d:'Mejores horarios, descansos y formación. Pago único de 2.000 €.',c:2000},
+  sustitutos:{n:'Contratar a otras personas para sustituirlas',d:'Traer personal de fuera mientras dura la huelga.',c:7501},
+  nada:{n:'No hacer nada y esperar',d:'La huelga puede continuar.',c:0}
+};
+const TARIFF_BASE={europa:0,america:.10,asia:.08,africa:.15,oceania:.05};
+const eurd=n=>new Intl.NumberFormat(LOCALE(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+' €';
+const pctS=x=>Math.round(x*100)+' %';
+/* Estado de la empresa al empezar la semana w (sale de la semana anterior) */
+function advPrev(t,w){
+  const h=((t&&t.history)||[]).filter(x=>x.week<w&&x.adv).sort((a,b)=>b.week-a.week)[0];
+  return h?{sat:h.adv.sat,mach:h.adv.mach,workers:h.adv.workers,salary:h.adv.salary,zone:h.adv.zone,carry:h.adv.carry||0,strike:!!h.adv.strike,robots:h.adv.robots}
+    :{sat:60,mach:1,workers:0,salary:SMI,zone:null,carry:0,strike:false,robots:0};
+}
+/* Cálculos sin azar: costes fijos, capacidad y satisfacción previstas */
+function advCalc(dec,w,t){
+  const a={...ADV_DEF,...(dec.adv||{})}, P=advPrev(t,w), Z=ZONES[a.zone]||ZONES.granada;
+  const N=Math.max(0,Math.floor(+a.workers||0)), R=Math.max(0,Math.floor(+a.robots||0));
+  let sal=Math.max(SMI,Math.round(+a.salary||SMI));
+  const strikeNow=P.strike, meas=strikeNow?(MEASURES[a.measure]?a.measure:'nada'):null;
+  if(meas==='subir') sal=Math.max(sal,Math.ceil(P.salary*1.05));
+  const mach=Math.max(P.mach,+a.mach||1), buy=mach>P.mach?machPrice(mach,w):0;
+  const wage=N*sal*14/52*(1+SS_EMP), robotsC=R*ROBOT_WEEK, maint=MAINT[a.maint]?MAINT[a.maint].c:500;
+  const move=P.zone&&P.zone!==a.zone?MOVE_COST:0, dismissed=Math.max(0,P.workers-N), dismiss=dismissed*DISMISS_COST;
+  const measureC=meas?MEASURES[meas].c:0;
+  const media=(a.media||[]).filter(k=>MEDIA[k]), mediaC=media.reduce((s,k)=>s+MEDIA[k].c,0);
+  const share=N+R?R/(N+R):0;
+  let target=50+(sal/SMI-1)*200-30*share-(P.workers?40*dismissed/P.workers:0);
+  if(meas) target+={subir:25,condiciones:15,sustitutos:-20,nada:-5}[meas];
+  const sat=clamp(Math.round(0.5*P.sat+0.5*clamp(target,0,100)),0,100), morale=0.9+0.2*sat/100;
+  const capH=N*PER_WORKER*(MODEL_PROD[dec.model]||1)*Z.p*MACH[mach].mul*morale, capR=R*PER_ROBOT*MACH[mach].mul;
+  const fixed={rent:Z.fix,wage:Math.round(wage),robots:robotsC,maint,media:mediaC,machine:buy,move,dismiss,measure:measureC};
+  const fixedTot=Object.values(fixed).reduce((x,y)=>x+y,0);
+  const breakRisk=Math.min(.6,MACH[mach].risk*(MAINT[a.maint]?MAINT[a.maint].m:1));
+  const strikeRisk=N?(strikeNow?{subir:.1,condiciones:.25,sustitutos:.8,nada:.7}[meas]:sat<40?.25+(40-sat)/40:0):0;
+  return {a:{...a,salary:sal,mach,media},P,Z,N,R,sal,mach,buy,move,dismissed,dismiss,meas,measureC,media,mediaC,wage,share,sat,morale,capH,capR,cap:Math.floor(capH+capR),fixed,fixedTot,breakRisk,strikeRisk,strikeNow};
+}
+function advDemand(dec,t,A,ev,hasImg){
+  const ni=dec.niche, a=A.a, lvl=+a.ai||0;
+  let aiMul=1; if(lvl){let e=(AI_NICHE[ni]||[0,0])[lvl-1];if(lvl===2&&dec.comps.cpu===1)e*=.5;aiMul=1+e+(dec.model==='C'&&lvl===2?.05:0)} else if(dec.model==='C') aiMul=.92;
+  const reach=A.media.reduce((s,k)=>s+MEDIA[k].c*mediaFit(k,ni),0), ff=focusFit(a.focus,ni,dec.model);
+  const adf=1+0.35*Math.log(1+reach/1000)*ff*(ev&&ev.adMul||1)*(hasImg?1:0.8);
+  const imgMul=1-A.share*0.25*(dec.cont==='europa'?1.3:1);
+  return {aiMul,adf,reach,ff,imgMul};
+}
+/* Impuesto de sociedades de la semana (tipos 2026 según la facturación anual equivalente) */
+function taxOf(pbt,rev,carry){
+  const annual=rev*52, base=Math.max(0,pbt-carry); let tax,kind,rate;
+  if(annual<1e6){kind='micro';const th=50000/52;tax=Math.min(base,th)*.19+Math.max(0,base-th)*.21;rate=base?tax/base:.19}
+  else if(annual<1e7){kind='erd';rate=.23;tax=base*.23}
+  else{kind='general';rate=.25;tax=base*.25}
+  const carryNew=pbt<0?carry-pbt:Math.max(0,carry-pbt);
+  return {tax:Math.round(tax),rate,kind,base,carryNew:Math.round(carryNew)};
+}
+const TAXK={micro:'micropyme (factura menos de 1 millón al año)',erd:'empresa de reducida dimensión (menos de 10 millones al año)',general:'gran empresa (10 millones o más al año)'};
+function advMessages(r){
+  const A=r.A, X=r.X, out=[], d=r.dec;
+  out.push({c:'',t:`Fábrica en ${A.Z.n}: alquiler y suministros de ${eur(A.Z.fix)} a la semana y ${eurd(A.Z.v)} por móvil para llevarlo al puerto o al aeropuerto.`});
+  if(A.move) out.push({c:'bad',t:`Mudanza de la fábrica: ${eur(A.move)}.`});
+  out.push({c:'',t:`Plantilla: ${A.N} ${A.N===1?'persona':'personas'} con ${eur(A.sal)} brutos al mes. A la empresa le cuesta ${eur(A.wage)} a la semana con la Seguridad Social.`});
+  if(A.dismissed) out.push({c:'bad',t:`Despedisteis a ${A.dismissed} ${A.dismissed===1?'persona':'personas'}: indemnización de ${eur(A.dismiss)} y la plantilla está más preocupada.`});
+  out.push(A.sat>=70?{c:'good',t:`La plantilla está contenta (satisfacción ${A.sat}/100) y trabaja mejor.`}:A.sat<40?{c:'bad',t:`La plantilla está descontenta (satisfacción ${A.sat}/100): hay riesgo de huelga. Subir el sueldo o no despedir ayuda.`}:{c:'',t:`Satisfacción de la plantilla: ${A.sat}/100.`});
+  if(A.meas==='sustitutos') out.push({c:'bad',t:'En España está prohibido contratar a personas para sustituir a quienes hacen huelga (esquirolaje). Multa de 7.501 € y vuestra reputación cae.'});
+  else if(A.meas==='subir') out.push({c:'good',t:`Negociasteis con la plantilla y subisteis el sueldo a ${eur(A.sal)}.`});
+  else if(A.meas==='condiciones') out.push({c:'good',t:'Mejorasteis las condiciones de trabajo (2.000 €).'});
+  if(X.strike) out.push({c:'bad',t:'¡Huelga! La plantilla paró por sus condiciones de trabajo y solo se fabricó una parte. La semana que viene tenéis que decidir qué hacer en la sección «Plantilla».'});
+  else if(A.strikeNow) out.push({c:'good',t:'La huelga ha terminado.'});
+  if(A.R) out.push({c:A.share>.4?'bad':'',t:`Tenéis ${A.R} ${A.R===1?'puesto automatizado':'puestos automatizados'} con IA: fabrican más barato, pero parte de los clientes ve peor a las empresas que sustituyen personas (−${Math.round((1-r.D.imgMul)*100)} % de demanda).`});
+  if(A.buy) out.push({c:'good',t:`Comprasteis maquinaria ${MACH[A.mach].n.toLowerCase()} por ${eur(A.buy)}.`});
+  if(X.broke) out.push({c:'bad',t:`Avería en la maquinaria: perdisteis el 40 % de la capacidad y la reparación costó ${eur(REPAIR)}. Con más mantenimiento hay menos averías.`});
+  if(d.prod>X.produced) out.push({c:'bad',t:`Queríais fabricar ${int(d.prod)} móviles, pero vuestra fábrica solo pudo hacer ${int(X.produced)}. Contratad más personas, comprad mejor maquinaria o fabricad menos.`});
+  const lvl=+A.a.ai||0;
+  if(lvl) out.push({c:r.D.aiMul>1.05?'good':r.D.aiMul<1?'bad':'',t:`${AIF[lvl].n} en el móvil: ${r.D.aiMul>=1?'+':''}${Math.round((r.D.aiMul-1)*100)} % de demanda entre ${r.N.n.toLowerCase()}.${lvl===2&&d.comps.cpu===1?' Con un procesador normal, la IA avanzada va lenta y convence poco.':''}`});
+  else if(d.model==='C') out.push({c:'bad',t:'Los clientes de gama alta esperan funciones de IA: sin ellas vendéis algo menos.'});
+  if(A.media.length){const ff=r.D.ff;out.push({c:ff>=1.15?'good':ff<.9?'bad':'',t:`Publicidad (${eur(A.mediaC)}) en ${A.media.map(k=>MEDIA[k].n.toLowerCase()).join(', ')} con enfoque «${FOCUS[A.a.focus].n.toLowerCase()}». ${ff>=1.15?'El enfoque encajó muy bien con vuestro nicho.':ff<.9?'Ese enfoque no convence mucho a vuestro nicho.':'Encaje normal con vuestro nicho.'}`})}
+  else out.push({c:'',t:'No hicisteis publicidad: menos gente conoció vuestro móvil.'});
+  out.push({c:'',t:`Impuestos: IVA cobrado a los clientes y entregado a Hacienda ${eur(X.iva)}${X.tariffPaid?` · aranceles ${eur(X.tariffPaid)}`:''} · impuesto de sociedades ${eur(X.tax.tax)}${X.tax.base?` (${pctS(X.tax.rate)}, ${TAXK[X.tax.kind]})`:''}.`});
+  if(X.pbt<0) out.push({c:'',t:`Con pérdidas no se paga impuesto de sociedades. Esas pérdidas (${eur(X.tax.carryNew)} pendientes) se restarán de los beneficios de las próximas semanas.`});
+  return out;
+}
+
+
+/* ================= Modo avanzado: secciones, menú lateral y resúmenes ================= */
+const BASIC_SECS=[['news','Noticias'],['design','Diseño'],['comps','Componentes'],['box','Caja'],['cont','Continente'],['niche','Nicho'],['mode','Transporte'],['price','Precio']];
+const ADV_SECS=[['news','Noticias','Semana'],['design','Diseño','Producto'],['comps','Componentes','Producto'],['ai','Mejoras con IA','Producto'],['box','Caja','Producto'],
+  ['zone','Ubicación en Andalucía','Empresa'],['staff','Plantilla','Empresa'],['mach','Maquinaria','Empresa'],
+  ['cont','Continente','Mercado'],['niche','Nicho','Mercado'],['mode','Transporte','Mercado'],['ads','Publicidad','Mercado'],
+  ['price','Precio y producción','Números'],['tax','Impuestos','Números']];
+const secList=()=>isAdv()?ADV_SECS:BASIC_SECS;
+let MENU=false;
+const BURGER='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+function advNavHTML(S,t){
+  const cur=S[TAB-1]||S[0], A=advCalc(draft,G.week,t), groups=[];
+  S.forEach(([k,l,g],i)=>{let gr=groups.find(x=>x.n===g);if(!gr)groups.push(gr={n:g,items:[]});gr.items.push(i+1)});
+  const warn=k=>(k==='staff'&&A.strikeNow)||(k==='price'&&draft.prod>A.cap);
+  return `<div class="mnav"><button class="burger" id="burger" aria-expanded="${MENU}" aria-controls="drawer">${BURGER}<span>${T('Menú')}</span></button>
+    <div class="mnav-t"><span class="label">${T('Sección {0} de {1}',TAB,S.length)} · ${esc(T(cur[2]))}</span><b>${esc(T(cur[1]))}</b></div></div>
+    <div class="drawer-ov ${MENU?'open':''}" id="drawerOv"></div>
+    <nav class="drawer ${MENU?'open':''}" id="drawer" aria-label="${T('Secciones')}" ${MENU?'':'inert'}>
+      <div class="drawer-head"><b>${T('Decisiones de la semana {0}',G.week)}</b><button class="mini" id="drawerX">${T('Cerrar')}</button></div>
+      ${groups.map(g=>`<div class="dgroup"><span class="label">${esc(T(g.n))}</span>${g.items.map(i=>`<button data-tab="${i}" aria-current="${TAB===i}"><span class="step-n">${i}</span><span>${esc(T(S[i-1][1]))}</span>${warn(S[i-1][0])?'<span class="dwarn" aria-label="Atención">!</span>':''}</button>`).join('')}</div>`).join('')}
+    </nav>`;
+}
+function advAlerts(t){
+  const A=advCalc(draft,G.week,t), P=A.P; let s='';
+  if(P.strike) s+=`<div class="card event"><span class="label">${T('Huelga en curso')}</span><h3>${T('La plantilla está en huelga')}</h3><p>${T('Tenéis que decidir qué medida tomar en la sección «Plantilla». Si no hacéis nada, la huelga puede seguir y fabricaréis mucho menos.')}</p></div>`;
+  const last=(t.history||[]).slice().sort((a,b)=>b.week-a.week)[0];
+  if(last&&last.adv&&last.adv.broke) s+=`<div class="card"><span class="label">${T('Maquinaria')}</span><p>${T('La semana pasada se averió la maquinaria. Más mantenimiento reduce el riesgo de avería.')}</p></div>`;
+  return s;
+}
+function advSection(k,d,t,ev,w){
+  const A=advCalc(d,w,t), a=d.adv, N=NICHES[d.niche]||NICHES.estudiantes;
+  if(k==='zone') return `<h2>${T('¿En qué provincia de Andalucía está vuestra fábrica?')}</h2>
+    <p class="hint">${T('Los costes fijos (alquiler y suministros) se pagan cada semana aunque no fabriquéis. Los variables se pagan por cada móvil.')}${A.P.zone?' '+T('Cambiar de provincia cuesta {0} de mudanza.',eur(MOVE_COST)):''}</p>
+    <div class="grid4">${Object.entries(ZONES).map(([z,Z])=>`<button class="opt" data-zone="${z}" aria-pressed="${a.zone===z}"><span class="t">${Z.n}${A.P.zone===z?` <span class="chip">${T('Aquí estáis')}</span>`:''}</span><span class="s">${Z.d}</span>
+      <span class="meta">${T('Fijo: {0}/semana',eur(Z.fix))} · ${T('Variable: {0}/móvil',eurd(Z.v))} · ${T('Productividad {0}',pctS(Z.p))}${Z.ship?' · '+T('barco −{0}',pctS(1-Z.ship)):''}${Z.air?' · '+T('avión −{0}',pctS(1-Z.air)):''}</span></button>`).join('')}</div>`;
+  if(k==='staff'){
+    const per=Math.round(A.sal*14/52*(1+SS_EMP)), lvl=A.sat>=70?'good':A.sat<40?'bad':'';
+    return `<h2>${T('Plantilla')} ${glBtn('smi')}</h2>
+    ${A.strikeNow?`<div class="card event"><span class="label">${T('Huelga en curso')}</span><h3>${T('¿Qué hacéis ante la huelga?')} ${glBtn('huelga')}</h3>
+      <div class="llist">${Object.entries(MEASURES).map(([m,M])=>`<button class="opt xopt lrow" data-measure="${m}" aria-pressed="${A.meas===m}"><span class="box" aria-hidden="true">${A.meas===m?'●':''}</span><span class="t">${M.n}</span><span class="s">${M.d}</span><span class="meta">${M.c&&m!=='sustitutos'?eur(M.c):''}</span></button>`).join('')}</div></div>`:''}
+    <div class="grid3">
+      <label class="numf" for="aw"><b>${T('Personas en plantilla')}</b><span class="inwrap"><input type="number" id="aw" data-advnum="workers" min="0" step="1" inputmode="numeric" value="${A.N}"><span>${T('personas')}</span></span>
+        <span class="hint">${T('Cada persona fabrica unos {0} móviles {1} a la semana.',Math.round(PER_WORKER*(MODEL_PROD[d.model]||1)),MODELS[d.model].n)}${A.P.workers?' '+T('Despedir cuesta {0} por persona.',eur(DISMISS_COST)):''}</span></label>
+      <label class="numf" for="asal"><b>${T('Sueldo bruto al mes')}</b><span class="inwrap"><input type="number" id="asal" data-advnum="salary" min="${SMI}" step="10" inputmode="numeric" value="${A.sal}"><span>€</span></span>
+        <span class="hint">${T('14 pagas. Mínimo legal en 2026: {0} (SMI). A la empresa cada persona le cuesta {1} a la semana con la Seguridad Social (≈ 32 %).',eur(SMI),eur(per))}</span></label>
+      <label class="numf" for="arob"><b>${T('Puestos automatizados con IA')}</b><span class="inwrap"><input type="number" id="arob" data-advnum="robots" min="0" step="1" inputmode="numeric" value="${A.R}"><span>${T('puestos')}</span></span>
+        <span class="hint">${T('Cada puesto fabrica {0} móviles y cuesta {1} a la semana. No hace huelga, pero muchos clientes ven peor a las empresas que sustituyen personas.',PER_ROBOT,eur(ROBOT_WEEK))}</span></label>
+    </div><p class="err" id="adverr"></p>
+    <div class="card"><span class="label">${T('Previsión para esta semana')}</span>
+      <div class="rows"><div class="r"><span>${T('Capacidad de la fábrica')}</span><b>${T('{0} móviles',int(A.cap))}</b></div>
+      <div class="r"><span>${T('Coste semanal de la plantilla')}</span><b>${eur(A.wage)}</b></div>
+      <div class="r"><span>${T('Satisfacción de la plantilla')}</span><b class="${lvl==='good'?'pos':lvl==='bad'?'neg':''}">${A.sat}/100</b></div></div>
+      <span class="prog sat"><i style="width:${A.sat}%;background:var(--${lvl==='bad'?'bad':lvl==='good'?'good':'event'})"></i></span>
+      <p class="hint">${A.strikeRisk>=.25?T('Riesgo alto de huelga: subid el sueldo, no despidáis o reducid la automatización.'):A.sat<50?T('La plantilla podría empezar a quejarse si bajan sus condiciones.'):T('Con buena satisfacción la plantilla fabrica hasta un 10 % más.')}${A.share?' '+T('Automatización: {0} de los puestos.',pctS(A.share)):''}</p></div>`;
+  }
+  if(k==='mach') return `<h2>${T('Maquinaria')}</h2>
+    <p class="hint">${T('Ahora tenéis maquinaria {0}. Una máquina mejor fabrica más y se avería menos, pero su precio sube un 3 % cada semana: esperar sale más caro.',MACH[A.P.mach].n.toLowerCase())}</p>
+    <div class="grid3">${[1,2,3].map(l=>{const own=l<=A.P.mach;return `<button class="opt" data-mach="${l}" aria-pressed="${A.mach===l}" ${l<A.P.mach?'disabled':''}><span class="t">${MACH[l].n}</span><span class="s">${MACH[l].d}</span>
+      <span class="meta">${own?(l===A.P.mach?T('La tenéis'):T('Ya la superáis')):T('Comprar: {0}',eur(machPrice(l,w)))} · ${T('capacidad ×{0}',MACH[l].mul)}</span></button>`}).join('')}</div>
+    <h3>${T('Mantenimiento semanal')}</h3>
+    <div class="grid3">${Object.entries(MAINT).map(([m,M])=>`<button class="opt" data-maint="${m}" aria-pressed="${a.maint===m}"><span class="t">${M.n}</span><span class="meta">${M.c?T('{0} a la semana',eur(M.c)):T('Gratis')}</span></button>`).join('')}</div>
+    <p class="hint">${T('Probabilidad de avería esta semana: {0}. Una avería quita el 40 % de la capacidad y cuesta {1} repararla.',pctS(A.breakRisk),eur(REPAIR))}</p>`;
+  if(k==='ai') return `<h2>${T('Mejoras del teléfono: inteligencia artificial')}</h2>
+    <p class="hint">${T('La IA sube el coste de cada móvil. Atrae mucho a unos clientes y poco a otros.')}</p>
+    <div class="grid3">${[0,1,2].map(l=>{const e=l?(AI_NICHE[d.niche]||[0,0])[l-1]:0;return `<button class="opt" data-ai="${l}" aria-pressed="${(+a.ai||0)===l}"><span class="t">${AIF[l].n}</span><span class="s">${AIF[l].d}</span>
+      <span class="meta">${l?T('+{0} € por móvil',AIF[l].c)+' · '+T('{0}: {1} de demanda',N.n,(e>=0?'+':'')+pctS(e)):T('Sin coste extra')}</span></button>`}).join('')}</div>
+    ${(+a.ai===2&&d.comps.cpu===1)?`<p class="warn">${T('Con un procesador normal, la IA avanzada va lenta y convence la mitad. Mejorad el procesador en «Componentes».')}</p>`:''}
+    ${d.model==='C'&&!+a.ai?`<p class="warn">${T('Los clientes de gama alta esperan funciones de IA: sin ellas venderéis algo menos.')}</p>`:''}`;
+  if(k==='ads'){
+    return `<h2>${T('Publicidad')} ${glBtn('publicidad')}</h2>
+    <h3>${T('¿En qué se centra vuestro anuncio?')}</h3>
+    <div class="grid3">${Object.entries(FOCUS).map(([f,F])=>{const v=focusFit(f,d.niche,d.model);return `<button class="opt" data-focus="${f}" aria-pressed="${a.focus===f}"><span class="t">${F.n}</span><span class="s">${F.d}</span>
+      <span class="meta">${T('Para {0}: {1}',N.n.toLowerCase(),T(v>=1.15?'encaja muy bien':v<.9?'encaja poco':'encaje normal'))}</span></button>`}).join('')}</div>
+    <h3>${T('¿En qué medios os anunciáis?')}</h3><p class="hint">${T('Podéis elegir varios. Cada medio tiene un precio por semana y llega mejor a unos clientes que a otros.')}</p>
+    <div class="llist">${Object.entries(MEDIA).map(([m,M])=>{const on=A.media.includes(m), v=mediaFit(m,d.niche);return `<button class="opt xopt lrow" data-media="${m}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="t">${M.n}</span>
+      <span class="s">${T('Llega a {0}: {1}',N.n.toLowerCase(),T(v>=1.3?'muy bien':v>=1?'bien':v>=.7?'regular':'mal'))}</span><span class="meta">${T('{0} a la semana',eur(M.c))}</span></button>`}).join('')}</div>
+    <p class="hint"><b>${T('Total en publicidad: {0}',eur(A.mediaC))}</b></p>`;
+  }
+  if(k==='tax'){
+    const K=costs(d,w,t), gross=d.price, net=gross/(1+K.iva), iv=gross-net, tr=net*K.tariff, guess=Math.min(d.prod,A.cap)*(net-tr), kind=guess*52<1e6?'micro':guess*52<1e7?'erd':'general';
+    return `<h2>${T('Impuestos')}</h2>
+    <div class="grid3">
+      <div class="card"><span class="label">IVA ${glBtn('iva')}</span><p>${K.iva?T('En Europa el precio de venta incluye el IVA del 21 %. De cada móvil a {0}, {1} son IVA: lo pagan los clientes y vosotros se lo entregáis a Hacienda. Os quedáis {2}.',eur(gross),eurd(iv),eurd(net)):T('Las ventas fuera de Europa son exportaciones: no llevan IVA español. Os quedáis el precio completo (menos los aranceles).')}</p></div>
+      <div class="card"><span class="label">${T('Aranceles')} ${glBtn('arancel')}</span><p>${K.tariff?T('Para vender en {0} pagáis un arancel del {1} sobre el valor de cada móvil: {2} por móvil.',CONTS[d.cont].n,pctS(K.tariff),eurd(tr)):T('Dentro de la Unión Europea no se pagan aranceles.')}</p><p class="hint">${T('Los aranceles base del juego son orientativos: América 10 %, Asia 8 %, África 15 %, Oceanía 5 %. Algunos eventos los suben.')}</p></div>
+      <div class="card"><span class="label">${T('Impuesto de sociedades')} ${glBtn('sociedades')}</span><p>${T('Se paga sobre el beneficio, solo si ganáis dinero. El tipo depende del tamaño de la empresa (lo que factura en un año):')}</p>
+        <ul class="taxl"><li class="${kind==='micro'?'me':''}">${T('Menos de 1 millón: 19 % los primeros 50.000 € y 21 % el resto')}</li><li class="${kind==='erd'?'me':''}">${T('De 1 a 10 millones: 23 %')}</li><li class="${kind==='general'?'me':''}">${T('10 millones o más: 25 %')}</li></ul>
+        <p class="hint">${T('Si vendéis todo lo previsto, facturaríais unos {0} al año: seríais {1}. Las pérdidas de una semana se restan de los beneficios de las siguientes.',eur(guess*52),T(TAXK[kind]))}</p></div>
+    </div>`;
+  }
+  return '';
+}
+function advSummaryHTML(t){
+  const d=draft, w=G.week, K=costs(d,w,t), A=K.A, ev=teamEvent(t,w), m=MODELS[d.model];
+  const net=d.price/(1+K.iva), keep=net*(1-K.tariff), margin=keep-K.per, prodOk=Math.min(d.prod,A.cap), invest=prodOk*K.per+A.fixedTot, after=t.cash-invest;
+  const low=A.sal<SMI, ok=after>=0&&!low&&modeOK(d.cont,d.mode,ev)&&!blockedCont(ev,d.cont);
+  const F=A.fixed, row=(l,v,c='')=>`<div class="r"><span>${l}</span><b class="${c}">${v}</b></div>`;
+  return `<div class="fit"><div class="card"><span class="label">${T('Resumen')}</span><h3>${m.n} · ${T('{0} de {1}',NICHES[d.niche].n.toLowerCase(),CONTS[d.cont].n)}</h3>
+    <div class="rows"><span class="label sub">${T('Costes variables (por móvil)')} ${glBtn('variable')}</span>
+      ${row(T('Fabricar un móvil'),eur(K.unit))}${row(T('Transporte ({0})',MODES[d.mode].n.toLowerCase()),eur(K.ship))}${row(T('Hasta el puerto o aeropuerto'),eurd(K.zoneV))}
+      ${row(T('Coste por móvil'),eurd(K.per))}
+      ${row(T('Precio de venta'),eur(d.price))}${K.iva?row(T('IVA (21 %)'),'−'+eurd(d.price-net),'neg'):''}${K.tariff?row(T('Arancel ({0})',pctS(K.tariff)),'−'+eurd(net*K.tariff),'neg'):''}
+      ${row(T('Ganancia por móvil'),eurd(margin),margin<0?'neg':'pos')}
+      <span class="label sub">${T('Costes fijos de la semana')} ${glBtn('fijo')}</span>
+      ${row(T('Alquiler y suministros ({0})',A.Z.n),eur(F.rent))}${row(T('Sueldos y Seguridad Social'),eur(F.wage))}${F.robots?row(T('Puestos con IA'),eur(F.robots)):''}${F.maint?row(T('Mantenimiento'),eur(F.maint)):''}${row(T('Publicidad'),eur(F.media))}
+      ${F.machine?row(T('Compra de maquinaria'),eur(F.machine)):''}${F.move?row(T('Mudanza'),eur(F.move)):''}${F.dismiss?row(T('Despidos'),eur(F.dismiss)):''}${F.measure?row(T('Medida ante la huelga'),eur(F.measure)):''}
+      ${row(T('Capacidad de la fábrica'),T('{0} móviles',int(A.cap)),d.prod>A.cap?'neg':'')}
+      <div class="r total"><span>${T('Inversión total')} ${glBtn('inversion')}</span><b>${eur(invest)}</b></div>
+      ${row(T('Presupuesto que os queda'),eur(after),after<0?'neg':'')}
+    </div>
+    ${d.prod>A.cap?`<p class="warn">${T('Solo podéis fabricar {0} móviles: contratad más personas o mejorad la maquinaria.',int(A.cap))}</p>`:''}
+    ${low?`<p class="warn">${T('El sueldo no puede ser menor que el salario mínimo ({0}).',eur(SMI))}</p>`:''}
+    ${after<0?`<p class="warn">${T('No tenéis presupuesto suficiente.')}</p>`:''}
+    ${blockedCont(ev,d.cont)?`<p class="warn">${T('Ese continente está cerrado esta semana.')}</p>`:''}
+    <button class="go ${sendArmed?'armed':''}" id="send" ${ok?'':'disabled'}>${T(sendArmed?'Confirmar y enviar':'Enviar decisiones')}</button>
+    <p class="hint" id="sendmsg">${T(sendArmed?'<b>¿Seguro?</b> Después de enviar no podréis cambiar nada esta semana.':'Revisad todas las secciones del menú: una vez enviadas, no se pueden cambiar.')}</p></div></div>`;
+}
+function plHTML(h){
+  const x=h.adv, f=x.fixed||{}, fixedT=Object.values(f).reduce((a,b)=>a+(+b||0),0), row=(l,v,c='')=>`<div class="r"><span>${l}</span><b class="${c}">${v}</b></div>`;
+  return `<div class="card pl"><span class="label">${T('Cuenta de resultados de la semana')}</span><div class="rows">
+    ${row(T('Ventas (sin IVA ni aranceles)'),eur(x.revenue))}${x.outlet?row(T('Venta en outlet de lo que sobró'),eur(x.outlet)):''}
+    ${row(T('− Costes variables ({0} móviles fabricados)',int(x.produced)),'−'+eur(x.varCost),'neg')}
+    ${row(T('− Costes fijos (alquiler, sueldos, publicidad…)'),'−'+eur(fixedT),'neg')}
+    <div class="r total"><span>${T('Beneficio antes de impuestos')}</span><b class="${x.pbt<0?'neg':'pos'}">${eur(x.pbt)}</b></div>
+    ${row(T('− Impuesto de sociedades{0}',x.tax?' ('+pctS(x.taxRate)+')':''),x.tax?'−'+eur(x.tax):eur(0),x.tax?'neg':'')}
+    <div class="r total"><span>${T('Beneficio después de impuestos')}</span><b class="${h.profit<0?'neg':'pos'}">${eur(h.profit)}</b></div>
+    ${row(T('IVA entregado a Hacienda (no era vuestro)'),eur(x.iva))}
+    ${row(T('Plantilla'),T('{0} personas · satisfacción {1}/100',x.workers,x.sat)+(x.strike?' · '+T('huelga'):''),x.strike?'neg':'')}
+    ${x.broke?row(T('Maquinaria'),T('avería'),'neg'):''}
+  </div></div>`;
 }
 
 /* ================= Navegación ================= */
@@ -1571,6 +1918,7 @@ function resultsScreen(t,ended){
       <div class="stat key"><span class="label">${T('Presupuesto siguiente')} ${glBtn('presupuesto')}</span><b class="${h.cash<0?'neg':''}" data-n="${h.cash}" data-f="eur">${eur(h.cash)}</b><small>${T('acumulado: {0}',eur(total))}</small></div>
     </div>
     ${sdHTML(h)}
+    ${h.adv?plHTML(h):''}
     ${latestFb(t)?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(latestFb(t).text)}</p></div>`:''}
     <h3>${T('¿Qué ha pasado?')}</h3><ul class="msgs">${msgsOf(h).map(m=>`<li class="${m.c}">${esc(m.t)}</li>`).join('')}</ul>`
     :`<section class="panel flat" id="board"></section>`;
@@ -1674,46 +2022,48 @@ function resultsHTML(t){
 const TABS=[[1,'Noticias'],[2,'Diseño'],[3,'Componentes'],[4,'Caja'],[5,'Continente'],[6,'Nicho'],[7,'Transporte'],[8,'Precio']];
 let editing=false, sendArmed=false;
 function decideHTML(t){
-  const w=G.week, ev=teamEvent(t,w), d=fixDec(draft,ev), m=MODELS[d.model];
-  const tabs=`<div class="tabs" role="tablist">${TABS.map(([n,l])=>`<button role="tab" data-tab="${n}" aria-selected="${TAB===n}"><span class="step-n">${n}</span>${T(l)}</button>`).join('')}</div>`;
+  const w=G.week, ev=teamEvent(t,w), d=fixDec(draft,ev), m=MODELS[d.model], SECS=secList(); if(TAB>SECS.length) TAB=1;
+  const KEY=SECS[TAB-1][0];
+  const tabs=isAdv()?advNavHTML(SECS,t):`<div class="tabs" role="tablist">${SECS.map(([k,l],i)=>`<button role="tab" data-tab="${i+1}" aria-selected="${TAB===i+1}"><span class="step-n">${i+1}</span>${T(l)}</button>`).join('')}</div>`;
   let body='';
-  if(TAB===1) body=newsHTML(t);
-  if(TAB===2) body=designHTML(t);
-  if(TAB===3) body=`<h2>${T('Componentes de vuestro {0}',m.n)}</h2>
+  if(KEY==='news') body=newsHTML(t);
+  if(KEY==='design') body=designHTML(t);
+  if(KEY==='comps') body=`<h2>${T('Componentes de vuestro {0}',m.n)}</h2>
       <ol class="clist">${Object.keys(COMPS).map(k=>`<li class="crow"><b>${COMPS[k].n}</b>
       <div class="seg" style="grid-template-columns:repeat(3,1fr)">${COMPS[k].o.map(([L,c],i)=>`<button data-comp="${k}" data-lv="${i+1}" aria-pressed="${d.comps[k]===i+1}"><span>${T(L)}</span><small>+${c} €</small></button>`).join('')}</div></li>`).join('')}</ol>`;
-  if(TAB===4) body=`<h2>${T('¿Qué incluís en la caja?')}</h2><p class="hint">${T('Cada extra sube el coste de cada móvil.')}</p>
+  if(KEY==='box') body=`<h2>${T('¿Qué incluís en la caja?')}</h2><p class="hint">${T('Cada extra sube el coste de cada móvil.')}</p>
       <div class="llist">${Object.entries(EXTRAS).map(([k,x])=>{const on=!!d.extras[k];
       return `<button class="opt xopt lrow" data-extra="${k}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="t">${x.n}</span>
         <span class="s">${x.why}</span><span class="meta">${T('+{0} € por móvil',x.c)}</span></button>`}).join('')}</div>`;
-  if(TAB===5) body=`<h2>${T('¿En qué continente vendéis?')}</h2>
+  if(KEY==='cont') body=`<h2>${T('¿En qué continente vendéis?')}</h2>
       <div class="llist">${Object.entries(CONTS).map(([k,c])=>{
         const top=Object.entries(c.w).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([a])=>`<span class="chip">${ATTR[a]}</span>`).join(''), bl=blockedCont(ev,k);
         return `<button class="opt crow2" data-cont="${k}" aria-pressed="${d.cont===k}" ${bl?'disabled':''}><span class="t">${c.n}${bl?`<br><span class="neg s"><b>${T('Cerrado por conflicto')}</b></span>`:''}</span><span class="s">${c.d}</span>
           <span class="vals"><span class="label">${T('Suelen valorar')}</span><span class="chips">${top}</span></span></button>`}).join('')}</div>`;
-  if(TAB===6) body=`<h2>${T('¿A qué nicho de {0} se lo vendéis?',CONTS[d.cont].n)} ${glBtn('nicho')}</h2>
+  if(KEY==='niche') body=`<h2>${T('¿A qué nicho de {0} se lo vendéis?',CONTS[d.cont].n)} ${glBtn('nicho')}</h2>
       <div class="grid4">${Object.entries(NICHES).map(([k,N])=>{
         const pref=Object.entries(N.w).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([a])=>`<span class="chip">${ATTR[a]}</span>`).join('');
         return `<button class="opt" data-niche="${k}" aria-pressed="${d.niche===k}"><span class="t">${N.n}</span><span class="s">${N.d}</span>
           <span class="chips">${pref}</span>
           <span class="meta">${T('{0} en {1}',sizeLabel(N.size[d.cont]),CONTS[d.cont].n)} · ${T(N.el>0.2?'miran mucho el precio':N.el<-0.1?'pagan más por calidad':'miran el precio lo normal')}</span></button>`}).join('')}</div>`;
-  if(TAB===7) body=`<h2>${T('¿Cómo llegan los móviles a {0}?',CONTS[d.cont].n)}</h2>
+  if(KEY==='mode') body=`<h2>${T('¿Cómo llegan los móviles a {0}?',CONTS[d.cont].n)}</h2>
       <div class="grid3">${Object.entries(MODES).map(([k,md])=>{
         const ok=modeOK(d.cont,k,ev), K=ok?costs({...d,mode:k},w,t):null;
         const why=SHIP[d.cont][k]===undefined?T('No llega a {0}',CONTS[d.cont].n):ev&&ev.blockMode===k?T('Bloqueado por el evento'):'';
         return `<button class="opt" data-mode="${k}" aria-pressed="${d.mode===k}" ${ok?'':'disabled'}><span class="label">${md.via}</span><span class="t">${md.n}</span>
           <span class="s">${md.d}</span><span class="meta">${ok?T('{0} por móvil · llega a tiempo el {1} %',eur(K.ship),Math.round(K.onTime*100)):why}</span></button>`}).join('')}</div>
       <p class="hint">${T('Los móviles que llegan tarde solo se venden a mitad de precio.')}</p>`;
-  if(TAB===8) body=`<h2>${T('Precio, cantidad y publicidad')}</h2><p class="hint">${T('Escribid la cifra exacta.')}</p>
+  if(KEY==='price') body=`<h2>${T(isAdv()?'Precio y producción':'Precio, cantidad y publicidad')}</h2><p class="hint">${T('Escribid la cifra exacta.')}</p>
       <div class="grid3">
         <label class="numf" for="price"><b>${T('Precio de cada móvil')} ${glBtn('precio')}</b><span class="inwrap"><input type="number" id="price" min="1" step="1" inputmode="numeric" value="${d.price}"><span>€</span></span>
           <span class="hint">${T('Precio habitual de un {0} en {1}: {2}',m.n,CONTS[d.cont].n,eur(habitual(d.model,d.cont)))}</span></label>
         <label class="numf" for="prod"><b>${T('Móviles a fabricar')} ${glBtn('oferta')}</b><span class="inwrap"><input type="number" id="prod" min="0" step="1" inputmode="numeric" value="${d.prod}"><span>${T('uds')}</span></span>
           <span class="hint">${T('Pocos: os quedáis sin stock. Muchos: los que sobran se malvenden.')}</span></label>
-        <label class="numf" for="ad"><b>${T('Publicidad esta semana')} ${glBtn('publicidad')}</b><span class="inwrap"><input type="number" id="ad" min="0" step="1" inputmode="numeric" value="${d.ad}"><span>€</span></span>
-          <span class="hint">${T('Cada euro extra rinde un poco menos que el anterior.')}</span></label>
+        ${isAdv()?`<div class="numf"><b>${T('Capacidad de vuestra fábrica')}</b><span class="big num">${T('{0} móviles',int(advCalc(d,w,t).cap))}</span><span class="hint">${T('Depende de la plantilla, la maquinaria y la satisfacción. La publicidad se decide en «Publicidad».')}</span></div>`:`<label class="numf" for="ad"><b>${T('Publicidad esta semana')} ${glBtn('publicidad')}</b><span class="inwrap"><input type="number" id="ad" min="0" step="1" inputmode="numeric" value="${d.ad}"><span>€</span></span>
+          <span class="hint">${T('Cada euro extra rinde un poco menos que el anterior.')}</span></label>`}
       </div><p class="err" id="numerr"></p>`;
-  const nav=`<div class="tabnav">${TAB>1?`<button class="ghost" data-go="${TAB-1}">${T('← {0}',T(TABS[TAB-2][1]))}</button>`:'<span></span>'}${TAB<TABS.length?`<button class="go small" data-go="${TAB+1}">${T('Siguiente: {0} →',T(TABS[TAB][1]))}</button>`:''}</div>`;
+  if(!body&&isAdv()) body=advSection(KEY,d,t,ev,w);
+  const nav=`<div class="tabnav">${TAB>1?`<button class="ghost" data-go="${TAB-1}">${T('← {0}',T(SECS[TAB-2][1]))}</button>`:'<span></span>'}${TAB<SECS.length?`<button class="go small" data-go="${TAB+1}">${T('Siguiente: {0} →',T(SECS[TAB][1]))}</button>`:''}</div>`;
   return `<div class="work"><section class="panel tabpanel">${tabs}<div class="tabbody fitbox" id="design"><div class="fit">${body}</div></div>${nav}</section>
     <aside class="side fitbox" id="summary">${summaryHTML(t)}</aside></div>`;
 }
@@ -1721,7 +2071,7 @@ function newsHTML(t){
   const w=G.week, ev=teamEvent(t,w), next=(period(w)+1)*2+1, nextEv=w+1<=WEEKS&&w+1>=EV_FROM;
   const tr=Object.keys(MODELS).map(m=>`<li class="${m===draft.model?'me':''}"><span>${MODELS[m].n} (${MODELS[m].g.toLowerCase()})</span><b>${ATTR[trend(m,w)]}</b></li>`).join('');
   const fb=latestFb(t);
-  return `<h2>${T('Noticias de la semana {0}',w)}</h2>${fb?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(fb.text)}</p></div>`:''}<div class="grid2">
+  return `<h2>${T('Noticias de la semana {0}',w)}</h2>${isAdv()?advAlerts(t):''}${fb?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(fb.text)}</p></div>`:''}<div class="grid2">
     ${ev?`<div class="card event"><span class="label">${T('Evento inesperado · semana {0}',w)}</span><h3>${ev.title}</h3><p>${ev.text}</p></div>`
       :`<div class="card"><span class="label">${T('Evento inesperado')}</span><p class="muted">${T('Semana tranquila.')} ${T(nextEv?'Atentos: la semana que viene puede pasar algo.':'No hay eventos especiales.')}</p></div>`}
     <div class="card"><span class="label">${T('Lo que más buscan los clientes de cada móvil')}</span><ul class="trend-list">${tr}</ul>
@@ -1744,6 +2094,7 @@ function designHTML(t){
         <p class="err" id="imgerr"></p></div></div></div></div>`;
 }
 function summaryHTML(t){
+  if(isAdv()) return advSummaryHTML(t);
   const d=draft, w=G.week, K=costs(d,w,t), ev=teamEvent(t,w), m=MODELS[d.model];
   const keep=d.price*(1-K.tariff), margin=keep-K.per, after=t.cash-K.invest, ok=after>=0&&modeOK(d.cont,d.mode,ev)&&!blockedCont(ev,d.cont);
   return `<div class="fit"><div class="card"><span class="label">${T('Resumen')}</span><h3>${m.n} · ${T('{0} de {1}',NICHES[d.niche].n.toLowerCase(),CONTS[d.cont].n)}</h3>
@@ -1775,6 +2126,7 @@ function sentHTML(t){
       ${Object.keys(COMPS).map(k=>`<div class="sitem"><span class="label">${COMPS[k].n}</span><b>${oName(k,d.comps[k])}</b></div>`).join('')}
       ${item('Extras en la caja',inc)}${item('Continente',CONTS[d.cont].n)}${item('Nicho',NICHES[d.niche].n)}${item('Transporte',MODES[d.mode].n)}
       ${item('Precio',eur(d.price))}${item('Móviles a fabricar',int(d.prod))}${item('Publicidad',eur(d.ad))}${item('Inversión total',eur(K.invest))}
+      ${isAdv()?(()=>{const A=K.A;return item('Fábrica',A.Z.n)+item('Plantilla',T('{0} personas · {1}/mes',A.N,eur(A.sal)))+item('Puestos con IA',String(A.R))+item('Maquinaria',MACH[A.mach].n+' · '+MAINT[A.a.maint].n.toLowerCase())+item('IA en el móvil',AIF[+A.a.ai||0].n)+item('Enfoque de la publicidad',FOCUS[A.a.focus].n)+item('Medios',A.media.map(k=>MEDIA[k].n).join(SEP())||T('Ninguno'))+(A.meas?item('Medida ante la huelga',MEASURES[A.meas].n):'')})():''}
     </div>
     <p class="hint">${T('Las decisiones ya no se pueden cambiar.')}</p></section>`;
 }
@@ -1782,7 +2134,7 @@ function rerenderKeep(){renderTeam()}
 function bindDecide(){
   const d=draft, t=myTeam();
   const refresh=()=>{sendArmed=false;document.getElementById('summary').innerHTML=summaryHTML(myTeam());bindSend()};
-  app.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{TAB=+b.dataset.tab;rerenderKeep()}));
+  app.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{TAB=+b.dataset.tab;MENU=false;rerenderKeep()}));
   app.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{TAB=+b.dataset.go;rerenderKeep()}));
   app.querySelectorAll('[data-cont]').forEach(b=>b.addEventListener('click',()=>{d.cont=b.dataset.cont;d.price=habitual(d.model,d.cont);fixDec(d,teamEvent(t,G.week));rerenderKeep()}));
   app.querySelectorAll('[data-niche]').forEach(b=>b.addEventListener('click',()=>{d.niche=b.dataset.niche;rerenderKeep()}));
@@ -1796,9 +2148,41 @@ function bindDecide(){
       if(v>1e7){err.textContent=T('Esa cifra es demasiado grande.');return}
       err.textContent=''; d[id]=v; refresh()});
   });
-  if(TAB===2) bindDesign();
+  if(KEY_OF()==='design') bindDesign();
+  if(isAdv()) bindAdv2(d,refresh);
   bindSend();
 }
+const KEY_OF=()=>(secList()[TAB-1]||secList()[0])[0];
+function bindAdv2(d,refresh){
+  const a=d.adv, set=(k,v)=>{a[k]=v;rerenderKeep()};
+  const bur=document.getElementById('burger');
+  bur&&bur.addEventListener('click',()=>drawerSet(!MENU));
+  ['drawerOv','drawerX'].forEach(id=>{const e=document.getElementById(id);e&&e.addEventListener('click',()=>drawerSet(false))});
+  app.querySelectorAll('[data-zone]').forEach(b=>b.addEventListener('click',()=>set('zone',b.dataset.zone)));
+  app.querySelectorAll('[data-mach]').forEach(b=>b.addEventListener('click',()=>set('mach',+b.dataset.mach)));
+  app.querySelectorAll('[data-maint]').forEach(b=>b.addEventListener('click',()=>set('maint',b.dataset.maint)));
+  app.querySelectorAll('[data-ai]').forEach(b=>b.addEventListener('click',()=>set('ai',+b.dataset.ai)));
+  app.querySelectorAll('[data-focus]').forEach(b=>b.addEventListener('click',()=>set('focus',b.dataset.focus)));
+  app.querySelectorAll('[data-measure]').forEach(b=>b.addEventListener('click',()=>set('measure',b.dataset.measure)));
+  app.querySelectorAll('[data-media]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.media;a.media=a.media.includes(k)?a.media.filter(x=>x!==k):[...a.media,k];fixDec(d,null);rerenderKeep()}));
+  app.querySelectorAll('[data-advnum]').forEach(el=>{
+    const k=el.dataset.advnum, err=document.getElementById('adverr');
+    const read=()=>{const v=Math.floor(Number(el.value));
+      if(el.value===''||!isFinite(v)||v<0){err.textContent=T('Escribid un número igual o mayor que 0.');return null}
+      if(k==='salary'&&v<SMI){err.textContent=T('El sueldo no puede ser menor que el salario mínimo ({0}).',eur(SMI));a.salary=v;refresh();return null}
+      if(v>(k==='salary'?20000:500)){err.textContent=T('Esa cifra es demasiado grande.');return null}
+      err.textContent='';return v};
+    el.addEventListener('input',()=>{const v=read();if(v!==null){a[k]=v;refresh()}});
+    el.addEventListener('change',()=>{const v=read();if(v!==null){a[k]=v;rerenderKeep()}});
+  });
+}
+/* Abre o cierra el menú lateral sin repintar la pantalla, para que se deslice */
+function drawerSet(open){
+  MENU=open; const dr=document.getElementById('drawer'), ov=document.getElementById('drawerOv'), bu=document.getElementById('burger'); if(!dr) return;
+  dr.classList.toggle('open',open); ov&&ov.classList.toggle('open',open); bu&&bu.setAttribute('aria-expanded',open);
+  if(open){dr.removeAttribute('inert');const f=dr.querySelector('[aria-current="true"]');f&&f.focus()} else {dr.setAttribute('inert','');bu&&bu.focus()}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&MENU&&VIEW==='team') drawerSet(false)});
 async function saveDesign(patch){
   const t=myTeam(), design={...(t.design||{}),...patch}, nt={...t,design}, i=TEAMS.findIndex(x=>x.id===t.id);
   if(i>=0) TEAMS[i]=nt; lastSig=''; rerenderKeep();
@@ -1830,6 +2214,7 @@ function bindSend(){
   b.addEventListener('click',async()=>{
     if(!sendArmed){sendArmed=true;document.getElementById('summary').innerHTML=summaryHTML(myTeam());bindSend();return}
     sendArmed=false; b.disabled=true; b.textContent=T('Enviando…'); const t=myTeam(); if(t.decWeek===G.week) return renderTeam();
+    if(isAdv()&&(draft.adv.salary<SMI)){b.disabled=false;b.textContent=T('Enviar decisiones');return}
     try{
       const dec=JSON.parse(JSON.stringify(draft)), nt={...t,dec,decWeek:G.week};
       await Store.patchTeam(CODE,t.id,{dec,decWeek:G.week}); const i=TEAMS.findIndex(x=>x.id===t.id); if(i>=0) TEAMS[i]=nt;
@@ -1902,7 +2287,7 @@ async function loadGames(){try{GAMES=(await Store.listGames()).sort((a,b)=>Strin
 async function selectGame(code){Store.stop();G=null;TEAMS=[];await enterCode(code,true)}
 function courseBar(){
   if(!GAMES.length) return '<p class="muted">Todavía no hay cursos.</p>';
-  return `<div class="coursebar"><span class="label">Curso</span>${GAMES.map(g=>`<button class="opt pick" data-game="${esc(g.code)}" aria-pressed="${!!G&&G.code===g.code}"><b>${esc(g.curso||'Sin curso')}</b><span class="hint">${esc(g.code)} · ${g.week>gW(g)?'terminada':'semana '+g.week+' de '+gW(g)}</span></button>`).join('')}</div>`;
+  return `<div class="coursebar"><span class="label">Curso</span>${GAMES.map(g=>`<button class="opt pick" data-game="${esc(g.code)}" aria-pressed="${!!G&&G.code===g.code}"><b>${esc(g.curso||'Sin curso')}</b><span class="hint">${esc(g.code)} · ${g.week>gW(g)?'terminada':'semana '+g.week+' de '+gW(g)}${isAdv(g)?' · avanzado':''}</span></button>`).join('')}</div>`;
 }
 function bindCourseBar(){app.querySelectorAll('[data-game]').forEach(b=>b.addEventListener('click',async()=>{await selectGame(b.dataset.game);FBTEAM=null;renderTeacher()}))}
 function renderTeacher(){
@@ -2020,21 +2405,25 @@ function bindReset(){
 /* ================= Panel del profesor/a (v2): crear curso, cursos y resultados ================= */
 let TFLASH='', RVIEW='general', RMETRIC='profit', ALLT=null, ALLT_BUSY=false;
 const DAY_OPTS=[[1,'1 día'],[2,'2 días'],[3,'3 días'],[7,'1 semana'],[14,'2 semanas']];
-const rulesTxt=r=>{r={...RULE_DEF,...(r||{})};return `${r.rounds} rondas · `+(r.roundMs?`cada ${(DAY_OPTS.find(o=>o[0]===Math.round(r.roundMs/864e5))||[0,Math.round(r.roundMs/864e5)+' días'])[1]}${r.endTime?' a las '+r.endTime:''}`:'publicación manual')};
+const rulesTxt=r=>{r={...RULE_DEF,...(r||{})};return `${r.level==='avanzado'?'Avanzado':'Básico'} · ${r.rounds} rondas · `+(r.roundMs?`cada ${(DAY_OPTS.find(o=>o[0]===Math.round(r.roundMs/864e5))||[0,Math.round(r.roundMs/864e5)+' días'])[1]}${r.endTime?' a las '+r.endTime:''}`:'publicación manual')};
 /* Campos de reglas (los usan «Crear curso» y «Cursos») */
-function rulesFields(p,r,minR){
+function rulesFields(p,r,minR,lock){
   r={...RULE_DEF,...(r||{})}; const manual=!r.roundMs, days=r.roundMs?Math.round(r.roundMs/864e5):1, tm=r.endTime||'09:00';
   return `<div class="rules-grid">
+    <label for="${p}-level"><b>Dificultad</b><select id="${p}-level" ${lock?'disabled':''}><option value="basico" ${r.level!=='avanzado'?'selected':''}>Básico</option><option value="avanzado" ${r.level==='avanzado'?'selected':''}>Avanzado</option></select></label>
     <label for="${p}-rounds"><b>Duración de la partida</b><select id="${p}-rounds">${[3,4,5,6,7,8,9,10].map(n=>`<option value="${n}" ${n===r.rounds?'selected':''} ${n<(minR||3)?'disabled':''}>${n} rondas</option>`).join('')}</select></label>
     <label for="${p}-days"><b>Cada cuánto cambia de ronda</b><select id="${p}-days" ${manual?'disabled':''}>${DAY_OPTS.map(([v,l])=>`<option value="${v}" ${v===days?'selected':''}>${l}</option>`).join('')}</select></label>
     <label for="${p}-time"><b>Hora de cierre y publicación</b><input type="time" id="${p}-time" value="${esc(tm)}" ${manual?'disabled':''}></label>
   </div>
   <label class="check" for="${p}-manual"><input type="checkbox" id="${p}-manual" ${manual?'checked':''}> Publicar los resultados manualmente</label>
+  <p class="hint" id="${p}-lvhint">${LEVEL_HINT}${lock?' La dificultad ya no se puede cambiar porque hay resultados publicados.':''}</p>
   <p class="hint" id="${p}-prev"></p>`;
 }
+const LEVEL_HINT='Básico: diseño, componentes, mercado, transporte, precio y publicidad. Avanzado: añade plantilla y sueldos (con huelgas y automatización con IA), maquinaria y averías, IA en el móvil, ubicación de la fábrica en Andalucía con costes fijos y variables, IVA, aranceles e impuesto de sociedades, y publicidad por enfoque y medios. Las secciones aparecen en un menú lateral (☰).';
 function readRules(p){
   const manual=document.getElementById(p+'-manual').checked;
-  const r={rounds:+document.getElementById(p+'-rounds').value,roundMs:manual?0:(+document.getElementById(p+'-days').value)*864e5};
+  const lv=document.getElementById(p+'-level');
+  const r={rounds:+document.getElementById(p+'-rounds').value,roundMs:manual?0:(+document.getElementById(p+'-days').value)*864e5,level:lv?lv.value:'basico'};
   if(!manual) r.endTime=document.getElementById(p+'-time').value||'09:00';
   return r;
 }
@@ -2059,7 +2448,7 @@ function tCrear(){
         <label for="n-letra"><b>Letra</b><select id="n-letra">${LETRAS.map(l=>`<option>${l}</option>`).join('')}</select></label>
       </div>
       <h3>Reglas de la partida</h3>
-      ${rulesFields('n',{rounds:5,roundMs:864e5,endTime:'09:00'})}
+      ${rulesFields('n',{rounds:5,roundMs:864e5,endTime:'09:00',level:'basico'})}
       <div class="btns"><button class="go small" type="submit">Crear curso</button></div><p class="hint" id="nmsg"></p>
     </form>
     ${GAMES.length?`<p class="hint">Cursos creados: ${GAMES.map(g=>esc(g.curso||g.code)).join(', ')}.</p>`:''}`;
@@ -2083,7 +2472,7 @@ function tCursos2(){
   const minR=Math.max(3,G.week-(ended?1:0));
   return `${TFLASH?`<p class="flash" role="status">${esc(TFLASH)}</p>`:''}${tCursos()}
     <details class="card fold"><summary><b>Reglas de la partida</b><span class="hint">${esc(rulesTxt(r))}</span></summary>
-      <form class="form" id="frules2">${rulesFields('e',r,minR)}
+      <form class="form" id="frules2">${rulesFields('e',r,minR,TEAMS.some(x=>(x.history||[]).length))}
         <div class="btns"><button class="go small" type="submit">Guardar reglas</button></div><p class="hint" id="emsg"></p></form></details>
     <details class="card fold danger-card"><summary><b>Reiniciar o borrar el curso</b><span class="hint">Acciones que no se pueden deshacer</span></summary>
       <p class="hint">Reiniciar borra sus empresas y resultados y vuelve a la semana 1 (se mantienen las reglas). Borrar elimina el curso entero.</p>
@@ -2096,7 +2485,7 @@ function bindCursos2(){
   if(resetArmed||DELARM) {const d=document.querySelector('.danger-card');d&&(d.open=true)}
   const f=document.getElementById('frules2'); if(!f) return;
   f.addEventListener('submit',async e=>{
-    e.preventDefault(); const rules=readRules('e'), ng={...G,rules};
+    e.preventDefault(); const rules=readRules('e'); if(TEAMS.some(x=>(x.history||[]).length)) rules.level=(G.rules&&G.rules.level)||'basico'; const ng={...G,rules};
     if(dueAt(ng)<=Date.now()+60000||(G.week>gW(G)&&G.week<=rules.rounds)) ng.openedAt=Date.now();
     try{await Store.setGame(ng);G=ng;syncRules(G);await loadGames();TFLASH=`Reglas guardadas: ${rulesTxt(rules)}.`;renderTeacher()}
     catch(err){document.getElementById('emsg').textContent='No se pudieron guardar. Inténtalo otra vez.'}
