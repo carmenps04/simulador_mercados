@@ -1,54 +1,83 @@
 rules_version = '2';
 
-// Reglas de Firestore del proyecto «simulador-maes» (Mercado Móvil).
+// Reglas de Firestore del proyecto «simulador-maes» (Mercado Móvil). Versión 3 (noviembre 2026).
 // Este archivo NO se aplica solo: hay que pegarlo en la consola de Firebase
 // (Firestore Database → Reglas → Publicar). Antes, cambia TU_CORREO@ejemplo.com
-// por el correo de la cuenta de profesor/a creada en Authentication.
-// En este repositorio el correo se deja sin poner a propósito, porque el repositorio es público.
-// Versión 2 (noviembre 2026): añade la colección «imagenes».
+// por tu correo de administradora, EN MINÚSCULAS. En el repositorio se deja sin poner
+// a propósito, porque el repositorio es público.
 //
-// - Profesorado (correo y contraseña): puede hacer de todo.
-// - Alumnado (sesión anónima): puede leer, crear su empresa y guardar sus decisiones.
-//   No puede borrar nada, ni cambiar el nivel, las recomendaciones o los resultados pasados.
-//   Solo puede pasar de ronda y añadir resultados cuando ya ha llegado la hora de cierre.
+// - Administradora (el correo de abajo): puede hacer de todo y decide qué docentes tienen acceso.
+// - Profesorado con acceso (lista en ajustes/profesorado, solo con el correo verificado):
+//   gestiona sus propios cursos y su perfil.
+// - Alumnado (sesión anónima): lee los datos de la partida, crea su empresa y solo modifica
+//   la suya desde los dispositivos que la profesora ha aceptado. Puede pasar de ronda y añadir
+//   resultados solo cuando ya ha llegado la hora de cierre.
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
-    function isTeacher() {
-      return signedIn()
-        && request.auth.token.firebase.sign_in_provider == 'password'
-        && request.auth.token.email in ['TU_CORREO@ejemplo.com'];
+    function hasEmail() { return signedIn() && request.auth.token.get('email', null) != null; }
+    function myEmail() { return request.auth.token.email.lower(); }
+    function isAdmin() { return hasEmail() && myEmail() == 'TU_CORREO@ejemplo.com'; }
+    function staff() { return get(/databases/$(database)/documents/mercado-movil/v1/ajustes/profesorado).data; }
+    function isStaff() {
+      return hasEmail() && request.auth.token.email_verified == true && myEmail() in staff().emails;
     }
+    function isTeacher() { return isAdmin() || isStaff(); }
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
 
-    match /mercado-movil/v1/{document=**} {
+    // Datos visibles para cualquier dispositivo con sesión
+    match /mercado-movil/v1/ajustes/centro {
       allow read: if signedIn();
-    }
-    match /mercado-movil/v1/ajustes/{doc} {
-      allow write: if isTeacher();
+      // La pantalla de inicio general solo la cambia la administradora; el resto, la de sus cursos
+      allow write: if isAdmin() || (isTeacher() && changed().hasOnly(['byCourse']));
     }
     match /mercado-movil/v1/bloqueos/{doc} {
-      allow write: if signedIn();
+      allow read, write: if signedIn();
     }
+
+    // Lista de profesorado con acceso: solo la administradora la cambia
+    match /mercado-movil/v1/ajustes/profesorado {
+      allow read: if isTeacher();
+      allow create: if isAdmin() && request.resource.data.admin == myEmail();
+      allow update, delete: if isAdmin();
+    }
+    // Perfil de cada docente (el documento se llama como su correo)
+    match /mercado-movil/v1/perfiles/{email} {
+      allow read: if isTeacher();
+      allow write: if isAdmin() || (isTeacher() && myEmail() == email);
+    }
+
     match /mercado-movil/v1/partidas/{code} {
-      allow create, delete: if isTeacher();
-      // Cualquier dispositivo puede pasar a la ronda siguiente, pero solo cuando ha llegado la hora
-      allow update: if isTeacher() || (signedIn()
-        && changed().hasOnly(['week', 'openedAt', 'dueAt'])
-        && request.resource.data.week == resource.data.week + 1
-        && resource.data.dueAt != null
-        && request.time.toMillis() >= resource.data.dueAt);
+      function canGame(g) { return isAdmin() || (isTeacher() && g.get('owner', '') == myEmail()); }
+      function game() { return get(/databases/$(database)/documents/mercado-movil/v1/partidas/$(code)).data; }
+
+      allow read: if signedIn();
+      allow create: if isAdmin() || (isTeacher() && request.resource.data.owner == myEmail());
+      allow delete: if canGame(resource.data);
+      allow update: if (canGame(resource.data) && (isAdmin() || request.resource.data.owner == resource.data.owner))
+        // Cualquier dispositivo puede pasar a la ronda siguiente, pero solo cuando ha llegado la hora
+        || (signedIn()
+          && changed().hasOnly(['week', 'openedAt', 'dueAt'])
+          && request.resource.data.week == resource.data.week + 1
+          && resource.data.dueAt != null
+          && request.time.toMillis() >= resource.data.dueAt);
 
       match /equipos/{team} {
-        function game() { return get(/databases/$(database)/documents/mercado-movil/v1/partidas/$(code)).data; }
-        allow delete: if isTeacher();
-        allow create: if isTeacher() || (signedIn()
+        function mine() { return request.auth.uid in resource.data.get('devices', []); }
+        function legacy() { return resource.data.get('devices', null) == null; }
+        allow read: if signedIn();
+        allow delete: if canGame(game());
+        allow create: if canGame(game()) || (signedIn()
           && request.resource.data.history.size() == 0
           && request.resource.data.cash == 100000
+          && request.resource.data.devices == [request.auth.uid]
           && !request.resource.data.keys().hasAny(['feedback', 'level']));
-        allow update: if isTeacher() || (signedIn() && (
-          // Decisiones, diseño, logo, factura…: sin tocar resultados, nivel ni recomendaciones
-          !changed().hasAny(['feedback', 'level', 'history', 'cash', 'rep', 'id', 'name', 'model', 'members'])
+        allow update: if canGame(game()) || (signedIn() && (
+          // Decisiones, diseño, logo, factura…: solo desde los dispositivos de la empresa
+          ((mine() || legacy())
+            && !changed().hasAny(['feedback', 'level', 'history', 'cash', 'rep', 'id', 'name', 'model', 'members', 'devices']))
+          // Empresas creadas antes de esta versión: el primer dispositivo que la abre se la queda
+          || (legacy() && changed().hasOnly(['devices']) && request.resource.data.devices == [request.auth.uid])
           // Cierre de semana: añadir exactamente un resultado, solo pasada la hora de cierre
           || (changed().hasOnly(['history', 'cash', 'rep'])
               && request.resource.data.history.size() == resource.data.history.size() + 1
@@ -56,13 +85,25 @@ service cloud.firestore {
               && request.time.toMillis() >= game().dueAt)));
       }
 
-      // Logo y diseño de cada empresa, aparte para que la app cargue menos datos (máx. ~200 KB por imagen)
+      // Logo y diseño de cada empresa (máx. ~200 KB por imagen)
       match /imagenes/{team} {
-        allow create, update: if signedIn()
+        function owner() {
+          let t = get(/databases/$(database)/documents/mercado-movil/v1/partidas/$(code)/equipos/$(team)).data;
+          return t.get('devices', null) == null || request.auth.uid in t.devices;
+        }
+        allow read: if signedIn();
+        allow create, update: if (canGame(game()) || (signedIn() && owner()))
           && request.resource.data.keys().hasOnly(['logo', 'img'])
           && (request.resource.data.get('logo', null) == null || request.resource.data.logo.size() < 200000)
           && (request.resource.data.get('img', null) == null || request.resource.data.img.size() < 200000);
-        allow delete: if isTeacher();
+        allow delete: if canGame(game());
+      }
+
+      // Peticiones para entrar en una empresa desde otro dispositivo (las acepta la profesora)
+      match /solicitudes/{uid} {
+        allow read: if signedIn();
+        allow create, update: if signedIn() && uid == request.auth.uid && request.resource.data.uid == uid;
+        allow delete: if canGame(game()) || (signedIn() && uid == request.auth.uid);
       }
     }
   }
