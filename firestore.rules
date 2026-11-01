@@ -4,6 +4,8 @@ rules_version = '2';
 // Este archivo NO se aplica solo: hay que pegarlo en la consola de Firebase
 // (Firestore Database → Reglas → Publicar). Antes, cambia TU_CORREO@ejemplo.com
 // por el correo de la cuenta de profesor/a creada en Authentication.
+// En este repositorio el correo se deja sin poner a propósito, porque el repositorio es público.
+// Versión 2 (noviembre 2026): añade la colección «imagenes».
 //
 // - Profesorado (correo y contraseña): puede hacer de todo.
 // - Alumnado (sesión anónima): puede leer, crear su empresa y guardar sus decisiones.
@@ -52,6 +54,15 @@ service cloud.firestore {
               && request.resource.data.history.size() == resource.data.history.size() + 1
               && game().dueAt != null
               && request.time.toMillis() >= game().dueAt)));
+      }
+
+      // Logo y diseño de cada empresa, aparte para que la app cargue menos datos (máx. ~200 KB por imagen)
+      match /imagenes/{team} {
+        allow create, update: if signedIn()
+          && request.resource.data.keys().hasOnly(['logo', 'img'])
+          && (request.resource.data.get('logo', null) == null || request.resource.data.logo.size() < 200000)
+          && (request.resource.data.get('img', null) == null || request.resource.data.img.size() < 200000);
+        allow delete: if isTeacher();
       }
     }
   }
