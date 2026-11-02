@@ -666,6 +666,10 @@ tr.pend td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
 
 .rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .rules-grid label{display:flex;flex-direction:column;gap:6px}
+/* Los títulos pueden ocupar una o dos líneas: los campos se alinean abajo */
+.rules-grid>label>:last-child{margin-top:auto}
+.rules-grid select,.rules-grid input{height:46px;box-sizing:border-box}
+.mtab>.rules-grid,.mtab>label.check{margin-top:12px}
 .rules-grid select,.rules-grid input,.res-bar select{font:inherit;width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:400}
 .rules-grid select:disabled,.rules-grid input:disabled{opacity:.45}
 .form label.check{flex-direction:row;align-items:center;gap:10px}
@@ -3390,7 +3394,7 @@ function tCrear(){
       <div class="rules-grid">
         <label for="n-nivel"><b>Curso</b><select id="n-nivel">${NIVELES.map(n=>`<option>${n}</option>`).join('')}</select></label>
         <label for="n-letra"><b>Letra</b><select id="n-letra">${LETRAS.map(l=>`<option>${l}</option>`).join('')}</select></label>
-        <label for="n-pass"><b>Código para que entre el alumnado</b><span class="pass-row"><input id="n-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Ej.: OLIVO24" value="${esc(newPass())}"><button type="button" class="ghost" id="n-gen">Otro</button></span></label>
+        <label for="n-pass" style="grid-column:1/-1"><b>Código para que entre el alumnado</b><span class="pass-row"><input id="n-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Ej.: OLIVO24" value="${esc(newPass())}"><button type="button" class="ghost" id="n-gen">Otro</button></span></label>
       </div>
       <div class="btns"><button class="go small" type="submit">Crear curso</button></div><p class="hint" id="nmsg"></p></section>
       <section class="nc-col"><h3>Reglas de la partida</h3>
