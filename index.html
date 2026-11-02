@@ -2934,8 +2934,21 @@ const teamLogo=t=>imgOf(t,'logo');
 /* Guarda una imagen aparte y devuelve lo que debe quedar en la empresa (la marca o, si no se puede, la imagen) */
 async function storeImg(code,id,k,v){
   if(!Store.db||!isData(v)) return v;
-  try{await Store.db.doc('partidas/'+code+'/imagenes/'+id).merge({[k]:v});IMGS[code+'/'+id]={...(IMGS[code+'/'+id]||{}),[k]:v};return IMG}
-  catch(e){RULES_OLD=true;return v} // reglas antiguas: se guarda dentro de la empresa, como antes
+  if(v.length>190000) v=await shrinkData(v,190000); // las reglas no admiten imágenes de más de ~200 KB
+  try{await Store.db.doc('partidas/'+code+'/imagenes/'+id).merge({[k]:v});IMGS[code+'/'+id]={...(IMGS[code+'/'+id]||{}),[k]:v};RULES_OLD=false;return IMG}
+  catch(e){console.error('imagenes',e);RULES_OLD=(e&&e.code)||'error';return v} // si no se puede, se guarda dentro de la empresa, como antes
+}
+/* Reduce una imagen hasta que ocupe menos de max caracteres */
+function shrinkData(v,max){
+  return new Promise(ok=>{const im=new Image();im.onload=()=>{
+    let w=im.width,h=im.height,out=v,q=.8;
+    for(let i=0;i<8&&out.length>max;i++){
+      const s=Math.min(1,480/Math.max(w,h))*Math.pow(.8,i), cv=document.createElement('canvas');
+      cv.width=Math.max(1,Math.round(w*s)); cv.height=Math.max(1,Math.round(h*s));
+      const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height); cx.drawImage(im,0,0,cv.width,cv.height);
+      out=cv.toDataURL('image/jpeg',q); q=Math.max(.5,q-.05);
+    }
+    ok(out)};im.onerror=()=>ok(v);im.src=v});
 }
 /* Profesorado: saca de las empresas de este curso las imágenes que aún estén dentro (una vez por curso y sesión) */
 const MIGRATED=new Set();
@@ -3123,9 +3136,10 @@ function renderTeacher(){
   if(TTAB===7&&ROLE&&ROLE.admin) body=tStaff();
   app.innerHTML=`<div class="app"><header class="top"><div class="brand"><h1>Panel del profesor/a</h1><span class="team">${ROLE?esc((PROF&&PROF.nombre)||ROLE.email)+(ROLE.admin?' · administradora':'')+' · ':''}${GAMES.length} ${GAMES.length===1?'curso':'cursos'}</span></div>
     <div class="btns"><button class="mini" id="logout">Salir del modo profesor</button><button class="mini" id="homeBtn">Inicio</button></div></header>
-    <div class="main">${RULES_OLD?`<p class="warn" role="status">Las reglas de Firestore están sin actualizar: las imágenes nuevas se siguen guardando como antes. Sigue el paso «Reglas de Firestore» del README.</p>`:''}<section class="panel tabpanel">${tabs}<div class="tabbody fitbox tfit" data-minz=".5"><div class="fit">${body}</div></div></section></div></div>${secModalHTML()}${restoreModalHTML()}`;
+    <div class="main">${RULES_OLD?`<p class="warn" role="status">No se pudieron guardar las imágenes aparte (${esc(String(RULES_OLD))}). ${RULES_OLD==='permission-denied'?'Firebase no lo permite: revisa que las reglas publicadas sean las del README y que hayas entrado con el correo de las reglas.':'Revisa la conexión.'} <button class="mini" id="imgRetry">Reintentar</button></p>`:''}<section class="panel tabpanel">${tabs}<div class="tabbody fitbox tfit" data-minz=".5"><div class="fit">${body}</div></div></section></div></div>${secModalHTML()}${restoreModalHTML()}`;
   {const m=document.getElementById('tmodal'); if(m) app.appendChild(m);} // la ventana emergente no se reduce con el ajuste
   bindTop(); bindSecModal(); bindRestore();
+  {const r=document.getElementById('imgRetry'); r&&r.addEventListener('click',async()=>{r.disabled=true;r.textContent='Comprobando…';RULES_OLD=false;MIGRATED.clear();await migrateImgs().catch(()=>{});renderTeacher()})}
   app.querySelectorAll('[data-ttab]').forEach(b=>b.addEventListener('click',()=>{TTAB=+b.dataset.ttab;resetArmed=false;ADVARM=false;FBMSG='';TFLASH='';TMODAL=null;SECM=null;renderTeacher()}));
   document.getElementById('logout').addEventListener('click',goBack);
   bindCourseBar();
