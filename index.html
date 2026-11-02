@@ -43,6 +43,9 @@ p{margin:0}
 .label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+/* Dentro de los paneles el contorno exterior se recorta: se dibuja por dentro del recuadro */
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+button:focus-visible,[role=tab]:focus-visible,a:focus-visible,summary:focus-visible{outline-offset:-3px}
 .hint{font-size:.85rem;color:var(--muted)}
 .pos{color:var(--good)} .neg{color:var(--bad)}
 
