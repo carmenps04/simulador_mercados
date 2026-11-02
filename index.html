@@ -3120,6 +3120,8 @@ async function enterPanel(){
   try{const p=await Store.db.doc('perfiles/'+ROLE.email).get();PROF=p.exists?p.data()||{}:{}}catch(e){PROF={}}
   teacherOK=true; VIEW='teacher'; G=null; TEAMS=[]; Store.stop(); CODE=null;
   await loadGames(); if(GAMES[0]) await selectGame(GAMES[0].code);
+  /* Si este navegador recordaba un curso de otro docente, se olvida: la portada pasa a ser la de esta docente */
+  {const ss=sess(); if(ss.code&&!ROLE.admin&&!GAMES.some(g=>g.code===ss.code)) sess({})}
   TTAB=GAMES.length?3:(PROF&&PROF.nombre?1:6); render();
 }
 function renderTLoginFB(){
