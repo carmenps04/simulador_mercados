@@ -730,6 +730,12 @@ details.fold[open]{gap:12px}
 @media (max-width:900px){.nc-cols{grid-template-columns:minmax(0,1fr)}.nc-col+.nc-col{border-top:2px solid var(--line);padding-top:16px}}
 
 .tactions{align-items:center}
+.tactions2{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.act-col{display:flex;flex-direction:column;align-items:flex-start;gap:8px}.act-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.menu>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none}
+.menu>summary::-webkit-details-marker{display:none}
+.menu>summary::after{content:'▾';font-size:.8em;color:var(--muted)}.menu[open]>summary::after{content:'▴'}
+.menu-ops{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;padding-inline-start:14px;border-inline-start:2px solid var(--accent-soft)}
 .tactions .hint{flex:1;min-width:160px}
 .tmodal .gloss-box{max-width:760px}
 @media (min-width:901px){
@@ -3277,14 +3283,10 @@ function tCursos(){
       <div><h2>${esc(G.curso||'Sin curso')} · ${ended?'partida terminada':`semana ${G.week} de ${WEEKS}`}</h2></div>
       <div class="btns"><button class="ghost" id="projBtn" ${TEAMS.length?'':'disabled'}>Proyectar clasificación</button>${ended?'':advBtn()}</div>
     </div>
-    ${ended||!TEAMS.length?'':`<div class="card progress-card"><div class="prog-row"><b>${sentN} de ${TEAMS.length} empresas han enviado sus decisiones</b></div>
-      <span class="prog"><i style="width:${pct}%"></i></span>
-      <p class="hint">${pend.length?`Faltan: <b>${pend.map(t=>esc(t.name)).join(', ')}</b>`:'Ya han enviado todas.'}</p></div>`}
     <div class="course-grid one">
       <div class="tbl-wrap"><table class="stack"><thead><tr><th class="rt">Pos.</th><th>Grupo</th><th>Integrantes</th><th>Móvil</th><th>Dificultad</th><th>Semana ${Math.min(G.week,WEEKS)}</th><th>Evento</th><th class="rt">Vendidos</th><th class="rt">Beneficio</th><th class="rt">Presupuesto</th><th></th></tr></thead>
       <tbody>${rows||`<tr><td colspan="11" class="muted">Todavía no hay grupos.</td></tr>`}</tbody></table></div>
     </div>
-    <div class="btns"><button class="go small" id="pdfbtn" ${TEAMS.length?'':'disabled'}>Exportar resultados en PDF</button><button class="ghost" id="xlsbtn" ${TEAMS.length?'':'disabled'}>Decisiones en Excel</button><button class="ghost" id="bakbtn">Descargar copia de seguridad</button>${restoreBtn()}<span class="hint" id="pdfmsg"></span></div>
 `;
 }
 /* Códigos de las empresas (solo los lee el profesorado) */
@@ -3421,7 +3423,12 @@ function tCursos2(){
   const ended=G.week>WEEKS, r={...RULE_DEF,...(G.rules||{})};
   const minR=Math.max(3,G.week-(ended?1:0));
   return `${TFLASH?`<p class="flash" role="status">${esc(TFLASH)}</p>`:''}${tCursos()}
-    <div class="btns tactions"><button class="ghost" id="openRules">Reglas y código del curso</button><span class="hint">${esc(rulesTxt(r))}</span><button class="ghost danger" id="openDanger">Reiniciar o borrar el curso</button></div>`
+    <div class="tactions2"><div class="act-col">
+      <div class="act-row"><button class="ghost" id="openRules">Reglas y código del curso</button><span class="hint">${esc(rulesTxt(r))}</span></div>
+      <details class="menu"><summary class="ghost">Exportar</summary><div class="menu-ops"><button class="ghost" id="pdfbtn" ${TEAMS.length?'':'disabled'}>PDF</button><button class="ghost" id="xlsbtn" ${TEAMS.length?'':'disabled'}>Excel</button></div></details>
+      <details class="menu"><summary class="ghost">Copia de seguridad</summary><div class="menu-ops"><button class="ghost" id="bakbtn">Descargar copia de seguridad</button>${restoreBtn()}</div></details>
+      <span class="hint" id="pdfmsg"></span></div>
+      <button class="ghost danger" id="openDanger">Reiniciar o borrar el curso</button></div>`
     +(TMODAL?`<div class="gloss-ov tmodal" id="tmodal"><div class="gloss-box" role="dialog" aria-modal="true" aria-label="${TMODAL==='rules'?'Reglas y código del curso':'Reiniciar o borrar el curso'}">
       <div class="gloss-head"><h2>${TMODAL==='rules'?'Reglas y código del curso':'Reiniciar o borrar el curso'}</h2><button class="mini" id="tmodalX">Cerrar</button></div>`+(TMODAL==='rules'?`
       <div class="tabs mtabs" role="tablist"><button type="button" role="tab" data-mt="1" aria-selected="true"><span class="step-n">1</span>Reglas y código</button><button type="button" role="tab" data-mt="2" aria-selected="false"><span class="step-n">2</span>Apartados del curso</button></div>
@@ -3779,7 +3786,7 @@ async function backupCourse(btn,msgId){
   btn.disabled=false; btn.textContent=old;
 }
 let RESTORE=null, RESTBUSY=false;
-const restoreBtn=()=>`<button class="ghost" type="button" data-rst>Restaurar una copia</button><input type="file" class="rstfile" accept=".json,application/json" hidden>`;
+const restoreBtn=()=>`<button class="ghost" type="button" data-rst>Restaurar copia de seguridad</button><input type="file" class="rstfile" accept=".json,application/json" hidden>`;
 function restoreModalHTML(){
   if(!RESTORE) return '';
   const d=RESTORE.data, g=d.game, exists=GAMES.some(x=>x.code===g.code), when=new Date(d.savedAt||0).toLocaleString('es-ES',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
