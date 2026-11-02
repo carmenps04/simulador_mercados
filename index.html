@@ -634,6 +634,9 @@ tr.pend td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
 .perfil{gap:14px}
 .reqs{border-color:var(--accent);background:var(--accent-soft);gap:8px}.req-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.req-row>span{flex:1;min-width:200px}
 .have{gap:8px}.have-l{display:flex;flex-wrap:wrap;gap:8px}.have-l .opt{display:flex;flex-direction:column;align-items:flex-start;min-width:150px}
+.clave{display:block;font-size:.82rem;color:var(--muted);margin-top:2px}.clave .passchip{font-size:.85rem}
+.clave-ed{display:flex;gap:6px;align-items:center;margin-top:4px}.clave-ed input{width:120px;padding:4px 8px}
+#fclave{align-items:flex-end;gap:8px;margin-top:6px}#fclave label{display:flex;flex-direction:column;gap:4px}
 .wait{gap:12px;max-width:560px}.wait-dot{width:14px;height:14px;border-radius:50%;background:var(--accent);animation:wpulse 1.2s ease-in-out infinite}
 @keyframes wpulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
 .proj #mkt h2{font-size:1.8rem}.proj #mkt .hint{font-size:1rem}.mkt{width:100%;height:auto;max-height:68vh}
@@ -1308,6 +1311,23 @@ for(const r of [
 ["Esperando a vuestro profesor o profesora","Waiting for your teacher","في انتظار الأستاذ أو الأستاذة"],
 ["Habéis pedido entrar en «{0}» desde este dispositivo. Cuando lo acepte, la empresa se abrirá sola.","You asked to enter “{0}” from this device. When your teacher accepts, the company will open by itself.","طلبتم الدخول إلى «{0}» من هذا الجهاز. عندما يُقبل الطلب، ستُفتح الشركة تلقائيًا."],
 ["Cancelar","Cancel","إلغاء"]]) if(!TR.some(x=>x[0]===r[0])) TR.push(r);
+for(const r of [
+["Entrad en vuestra empresa","Enter your company","ادخلوا إلى شركتكم"],
+["← Cambiar de curso","← Change class","← تغيير الصف"],
+["Elegid vuestra empresa","Choose your company","اختاروا شركتكم"],
+["Código de «{0}»","Code for “{0}”","رمز «{0}»"],
+["¿Sois un grupo nuevo?","Are you a new group?","هل أنتم مجموعة جديدة؟"],
+["Crear una empresa nueva","Create a new company","إنشاء شركة جديدة"],
+["Código para entrar en vuestra empresa","Code to enter your company","رمز الدخول إلى شركتكم"],
+["Ej.: OLIVO7","E.g. OLIVO7","مثال: OLIVO7"],
+["De 4 a 12 letras o números. Os lo pedirá cada vez que entréis. No se lo digáis a otros grupos.","4 to 12 letters or numbers. You will need it every time you enter. Do not tell other groups.","من 4 إلى 12 حرفًا أو رقمًا. ستحتاجونه في كل مرة تدخلون. لا تخبروا به المجموعات الأخرى."],
+["Escribid el código de vuestra empresa.","Write your company code.","اكتبوا رمز شركتكم."],
+["No se pudo comprobar el código. Revisad la conexión.","The code could not be checked. Check the connection.","تعذّر التحقق من الرمز. تحقّقوا من الاتصال."],
+["Ese código no es el de esta empresa. Si no lo recordáis, pedídselo a vuestro profesor o profesora.","That is not this company's code. If you do not remember it, ask your teacher.","هذا ليس رمز هذه الشركة. إذا لم تتذكّروه، اطلبوه من الأستاذ أو الأستاذة."],
+["El código debe tener de 4 a 12 letras o números, sin espacios ni símbolos.","The code must have 4 to 12 letters or numbers, with no spaces or symbols.","يجب أن يتكوّن الرمز من 4 إلى 12 حرفًا أو رقمًا، دون مسافات أو رموز."],
+["Ya existe una empresa llamada «{0}». Si es la vuestra, elegidla arriba y escribid vuestro código.","There is already a company called “{0}”. If it is yours, choose it above and write your code.","توجد شركة باسم «{0}». إذا كانت شركتكم، اختاروها في الأعلى واكتبوا رمزكم."],
+["Salir de la empresa","Leave the company","الخروج من الشركة"],
+["El código de vuestra empresa ha cambiado. Escribid el nuevo para seguir.","Your company code has changed. Write the new one to continue.","تغيّر رمز شركتكم. اكتبوا الرمز الجديد للمتابعة."]]) if(!TR.some(x=>x[0]===r[0])) TR.push(r);
 for(const r of [["Ingresos","Income","المداخيل"],["Precio","Price","السعر"],["Préstamo","Loan","القرض"]]) if(!TR.some(x=>x[0]===r[0])) TR.push(r);
 const I18N={en:{},ar:{}}; TR.forEach(([es,en,ar])=>{I18N.en[es]=en;I18N.ar[es]=ar});
 let LANG=(()=>{try{const l=localStorage.getItem('mm-lang');return LANGS[l]?l:'es'}catch(e){return 'es'}})();
@@ -1465,12 +1485,23 @@ const compact=n=>{const a=Math.abs(n);return (n<0?'−':'')+(a>=1000?new Intl.Nu
 
 /* ================= Estado ================= */
 let G=null;          // partida actual {code, week, openedAt, pin}
-let REQS=[];         // solicitudes para entrar en una empresa desde otro dispositivo
+let ACCESS=null;     // empresa en la que ha entrado este dispositivo con su código (solo esta vez que se abre la app)
 let ROLE=null;       // docente con sesión: {email, admin}
 /* Dispositivos de cada empresa: la empresa solo se puede usar desde los que la profesora ha aceptado */
 const myUid=()=>FBAUTH&&FBAUTH.currentUser?FBAUTH.currentUser.uid:null;
 const myMail=()=>FBAUTH&&FBAUTH.currentUser&&FBAUTH.currentUser.email?FBAUTH.currentUser.email.toLowerCase():'';
-const canUse=t=>!!t&&(!Store.db||!Array.isArray(t.devices)||t.devices.includes(myUid()));
+const canUse=t=>!!t&&(!Store.db||ACCESS===t.id);
+const CLAVE_OK=c=>/^[A-Z0-9Ñ]{4,12}$/.test(c);
+/* Entra en una empresa con su código: lo comprueban las reglas de Firebase (el alumnado no puede leer los códigos) */
+async function enterWithCode(id,clave){
+  if(!Store.db){ACCESS=id;return true}
+  try{await Store.db.doc('partidas/'+CODE+'/claves/'+id).set({clave})}catch(e){} // empresa sin código: este pasa a ser el suyo
+  try{await Store.db.doc('accesos/'+myUid()).set({uid:myUid(),curso:CODE,team:id,clave,at:Date.now()});ACCESS=id;return true}
+  catch(e){if(/permission/.test((e&&e.code)||''))return false;throw e}
+}
+/* Al abrir la app o salir de la empresa se borra el acceso: el siguiente grupo tendrá que poner su código */
+function dropAccess(){ACCESS=null;if(Store.db&&myUid())Store.db.doc('accesos/'+myUid()).delete().catch(()=>{})}
+function leaveTeam(){dropAccess();ME=null;sess({code:CODE});VIEW='company';lastSig='';render();window.scrollTo({top:0})}
 const okTeam=id=>{const t=TEAMS.find(x=>x.id===id);return !!t&&canUse(t)};
 let TEAMS=[];        // empresas de la partida
 let PREVIEW=false, ADVARM=false, SEEFROM=null, FBMSG='';
@@ -1513,7 +1544,11 @@ const Store={
     const o=lread();o.settings=v;lwrite(o);
   },
   async patchTeam(code,id,patch){
-    if(this.db){await this.db.doc('partidas/'+code+'/equipos/'+id).update(patch);return}
+    if(this.db){try{await this.db.doc('partidas/'+code+'/equipos/'+id).update(patch)}
+      catch(e){ // el código de la empresa ha cambiado: este dispositivo tiene que volver a entrar
+        if(/permission/.test((e&&e.code)||'')&&!teacherOK&&!PREVIEW&&VIEW==='team'&&id===ME){setTimeout(()=>{PICKED=id;PICKMSG=T('El código de vuestra empresa ha cambiado. Escribid el nuevo para seguir.');leaveTeam()},0)}
+        throw e}
+      return}
     const o=lread();const t=o.games[code]&&o.games[code].teams[id];if(!t)return;Object.assign(t,patch);lwrite(o);this.localPush(code);
   },
   async delGame(code){
@@ -1521,7 +1556,7 @@ const Store={
     const o=lread();delete o.games[code];lwrite(o);
   },
   async delTeam(code,id){
-    if(this.db){await this.db.doc('partidas/'+code+'/equipos/'+id).delete();this.db.doc('partidas/'+code+'/imagenes/'+id).delete().catch(()=>{});return}
+    if(this.db){await this.db.doc('partidas/'+code+'/equipos/'+id).delete();this.db.doc('partidas/'+code+'/imagenes/'+id).delete().catch(()=>{});this.db.doc('partidas/'+code+'/claves/'+id).delete().catch(()=>{});return}
     const o=lread();if(o.games[code])delete o.games[code].teams[id];lwrite(o);this.localPush(code);
   },
   watch(code,onChange){
@@ -1529,7 +1564,6 @@ const Store={
     if(this.db){
       this.unsub.push(this.db.doc('partidas/'+code).onSnapshot(s=>{G=s.exists?{...s.data()}:null;onChange()},()=>{}));
       this.unsub.push(this.db.collection('partidas/'+code+'/equipos').onSnapshot(q=>{TEAMS=q.docs.map(d=>({...d.data()}));onChange()},()=>{}));
-      this.unsub.push(this.db.collection('partidas/'+code+'/solicitudes').onSnapshot(q=>{REQS=q.docs.map(d=>({...d.data()}));onChange()},()=>{}));
     }else{
       this.onLocal=onChange; this.localPush(code);
     }
@@ -2245,7 +2279,7 @@ async function enterCode(code,keepSess){
 const NIVELES=['4º ESO','1º Bachillerato','2º Bachillerato'], LETRAS=['A','B','C','D'];
 let joinMembers=['','',''], joinNivel='', joinLetra='';
 const courseCode=curso=>codeOf(curso.replace('Bachillerato','BACH'));
-let splashNext='home', codeTyped=false, joinLogo=null, joinName='', joinPick='B';
+let splashNext='home', codeTyped=false, joinLogo=null, joinName='', joinPick='B', joinClave='';
 function renderSplash(){
   const empty=!logoOK()&&!VS().centro&&!VS().curso;
   app.innerHTML=`<div class="schoolbar"><span class="sp"></span>${langSel()}${profBtn()}</div>
@@ -2257,7 +2291,7 @@ function renderSplash(){
     <button class="go splash-go" id="start">${T('Inicio@splash')}</button>
     ${DBERR?`<p class="err" role="alert" style="max-width:46ch">${esc(DBERR)}</p>`:''}
   </div>`;
-  document.getElementById('start').addEventListener('click',()=>{VIEW=ME&&G&&myTeam()?'team':'home';lastSig='';render();window.scrollTo({top:0})});
+  document.getElementById('start').addEventListener('click',()=>{VIEW=ME&&G&&myTeam()&&canUse(myTeam())?'team':G&&codeTyped?'company':'home';lastSig='';render();window.scrollTo({top:0})});
   bindProf();
 }
 let scrollKey='', scrollMem=[];
@@ -2275,7 +2309,6 @@ function renderInner(){
   if(VIEW==='splash') return renderSplash();
   if(VIEW==='company'&&G) return renderCompany();
   if(VIEW==='access'&&G) return renderAccess();
-  if(VIEW==='wait'&&G) return renderWait();
   if(VIEW==='tlogin') return renderTLogin();
   if(VIEW==='teacher') return renderTeacher();
   if(VIEW==='proj') return renderProj();
@@ -2360,20 +2393,27 @@ function renderAccess(){
     homeMsg=''; accessTyped=''; codeTyped=true; sess({...sess(),code:G.code}); VIEW='company'; render();
   });
 }
+let PICKED=null, PICKMSG='';
 function renderCompany(){
-  if(!joinMembers.some(m=>m.trim())){VIEW='home';return renderHome()}
-  const ended=G.week>WEEKS;
+  const ended=G.week>WEEKS, mem=joinMembers.some(m=>m.trim());
+  const list=[...TEAMS].sort((a,b)=>a.name.localeCompare(b.name));
+  const pk=PICKED&&TEAMS.find(t=>t.id===PICKED);
   app.innerHTML=`${topBar()}<div class="pagebox fitbox"><div class="fit"><div class="setup company">
     <div class="hero">${logoOK()?`<img class="logo-big" src="${esc(VS().logo)}" alt="${T('Logo del centro')}">`:''}
-      <div><p class="label">${esc(G.curso||G.code)} · ${joinMembers.filter(m=>m.trim()).map(m=>esc(m.trim())).join(', ')}</p><h1>${T('Cread vuestra empresa')}</h1></div>
-      <button class="mini" id="backmem" style="margin-inline-start:auto">${T('← Cambiar integrantes o curso')}</button></div>
-    ${!ended&&TEAMS.length?`<div class="panel have"><b>${T('¿Ya tenéis empresa en este curso?')}</b><span class="hint">${T('Si la creasteis en otro dispositivo, elegidla y vuestro profesor o profesora os dará acceso.')}</span>
-      <div class="have-l">${[...TEAMS].sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<button type="button" class="opt" data-have="${esc(t.id)}"><b>${esc(t.name)}</b><span class="hint">${canUse(t)?T('Entrar'):T('Pedir entrar')}</span></button>`).join('')}</div></div>`:''}
-    ${ended?`<div class="panel"><h2>${T('Esta partida ya ha terminado')}</h2><p class="muted">${T('Pedid a vuestro profesor o profesora el código de una partida nueva.')}</p></div>`:`
+      <div><p class="label">${esc(G.curso||G.code)}${mem?' · '+joinMembers.filter(m=>m.trim()).map(m=>esc(m.trim())).join(', '):''}</p><h1>${T(mem?'Cread vuestra empresa':'Entrad en vuestra empresa')}</h1></div>
+      <button class="mini" id="backmem" style="margin-inline-start:auto">${T(mem?'← Cambiar integrantes o curso':'← Cambiar de curso')}</button></div>
+    ${!ended&&list.length?`<div class="panel have"><b>${T(mem?'¿Ya tenéis empresa en este curso?':'Elegid vuestra empresa')}</b>
+      <div class="have-l">${list.map(t=>`<button type="button" class="opt" data-have="${esc(t.id)}" aria-pressed="${t.id===PICKED}"><b>${esc(t.name)}</b><span class="hint">${MODELS[t.model].n}</span></button>`).join('')}</div>
+      ${pk?`<form class="pass-row" id="fclave"><label for="clave"><b>${T('Código de «{0}»',esc(pk.name))}</b><input id="clave" class="code-in" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false"></label><button class="go small" type="submit">${T('Entrar')}</button></form>
+        ${PICKMSG?`<p class="err" role="alert">${esc(PICKMSG)}</p>`:''}`:''}</div>`:''}
+    ${ended?`<div class="panel"><h2>${T('Esta partida ya ha terminado')}</h2><p class="muted">${T('Pedid a vuestro profesor o profesora el código de una partida nueva.')}</p></div>`:!mem?`
+    <div class="panel"><b>${T('¿Sois un grupo nuevo?')}</b><button class="ghost" id="newgroup" style="align-self:flex-start">${T('Crear una empresa nueva')}</button></div>`:`
     <form class="panel form" id="fjoin">
       <div class="grid2">
         <div class="field">
           <label for="team"><b>${T('Nombre de la empresa')}</b></label><input id="team" required maxlength="30" placeholder="${T('Ej.: Olivo Tech')}" value="${esc(joinName)}">
+          <label for="jclave"><b>${T('Código para entrar en vuestra empresa')}</b></label><input id="jclave" class="code-in" required maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${esc(joinClave)}" placeholder="${T('Ej.: OLIVO7')}">
+          <span class="hint">${T('De 4 a 12 letras o números. Os lo pedirá cada vez que entréis. No se lo digáis a otros grupos.')}</span>
           <b style="margin-top:6px">${T('Logo de la empresa (opcional)')}</b>
           <div class="design-row"><label class="drop small-drop" for="jlogo">${joinLogo?`<img src="${joinLogo}" alt="${T('Logo de la empresa')}">`:`<span><b>${T('Subir logo')}</b></span>`}</label>
             <input type="file" id="jlogo" accept="image/*" class="sr"><p class="note" style="flex:1;min-width:160px">${T(LOGO_NOTE)}</p></div>
@@ -2389,49 +2429,37 @@ function renderCompany(){
     </form>`}
   </div></div></div>`;
   bindTop();
-  document.getElementById('backmem').addEventListener('click',()=>{homeMsg='';VIEW='home';render()});
-  app.querySelectorAll('[data-have]').forEach(b=>b.addEventListener('click',async()=>{
-    const t=TEAMS.find(x=>x.id===b.dataset.have); if(!t) return;
-    if(canUse(t)) return openTeam(t.id);
-    b.disabled=true;
-    try{await Store.db.doc('partidas/'+CODE+'/solicitudes/'+myUid()).set({uid:myUid(),team:t.id,at:Date.now(),members:joinMembers.map(m=>shortName(m)).filter(Boolean)});
-      WAITFOR=t.id; WAITSEEN=false; VIEW='wait'; render()}
-    catch(e){b.disabled=false;homeMsg=T('No se pudo enviar la petición. Comprobad la conexión.');renderCompany()}
-  }));
-  if(ended) return;
+  document.getElementById('backmem').addEventListener('click',()=>{homeMsg='';PICKED=null;PICKMSG='';VIEW='home';render()});
+  app.querySelectorAll('[data-have]').forEach(b=>b.addEventListener('click',()=>{PICKED=b.dataset.have;PICKMSG='';renderCompany();const c=document.getElementById('clave');c&&c.focus()}));
+  const fc=document.getElementById('fclave');
+  fc&&fc.addEventListener('submit',async e=>{e.preventDefault();
+    const c=normPass(document.getElementById('clave').value), bt=fc.querySelector('button');
+    if(!c){PICKMSG=T('Escribid el código de vuestra empresa.');return renderCompany()}
+    bt.disabled=true;
+    let ok=false;try{ok=await enterWithCode(PICKED,c)}catch(x){PICKMSG=T('No se pudo comprobar el código. Revisad la conexión.');return renderCompany()}
+    if(!ok){PICKMSG=T('Ese código no es el de esta empresa. Si no lo recordáis, pedídselo a vuestro profesor o profesora.');return renderCompany()}
+    const id=PICKED;PICKED=null;PICKMSG='';openTeam(id)});
+  const ng=document.getElementById('newgroup'); ng&&ng.addEventListener('click',()=>{homeMsg='';PICKED=null;VIEW='home';render()});
+  if(ended||!mem) return;
   const nm=document.getElementById('team'); nm.addEventListener('input',()=>{joinName=nm.value});
+  const jc=document.getElementById('jclave'); jc.addEventListener('input',()=>{joinClave=jc.value});
   const jl=document.getElementById('jlogo'); jl.addEventListener('change',()=>readLogo(jl,180,url=>{joinLogo=url;renderCompany()},()=>{homeMsg=T('No se pudo abrir la imagen del logo.');renderCompany()}));
   app.querySelectorAll('[data-pick]').forEach(b=>b.addEventListener('click',()=>{joinPick=b.dataset.pick;app.querySelectorAll('[data-pick]').forEach(x=>x.setAttribute('aria-pressed',x===b))}));
   document.getElementById('fjoin').addEventListener('submit',async e=>{
-    e.preventDefault(); const name=nm.value.trim(); const id=slug(name);
+    e.preventDefault(); const name=nm.value.trim(); const id=slug(name), clave=normPass(jc.value);
     if(!id){homeMsg=T('Escribid un nombre con letras o números.');return renderCompany()}
-    if(TEAMS.some(t=>t.id===id)){homeMsg=T('Ya existe una empresa llamada «{0}». Si es la vuestra, elegidla arriba en «¿Ya tenéis empresa?».',name);return renderCompany()}
+    if(!CLAVE_OK(clave)){homeMsg=T('El código debe tener de 4 a 12 letras o números, sin espacios ni símbolos.');return renderCompany()}
+    if(TEAMS.some(t=>t.id===id)){homeMsg=T('Ya existe una empresa llamada «{0}». Si es la vuestra, elegidla arriba y escribid vuestro código.',name);return renderCompany()}
     const t={id,name,model:joinPick,cash:START_CASH,rep:50,dec:defaultDec(joinPick),decWeek:0,history:[],joinedWeek:G.week,logo:null,
       members:joinMembers.map(m=>shortName(m)).filter(Boolean),curso:G.curso||''};
-    if(Store.db&&myUid()) t.devices=[myUid()];
-    try{await Store.setTeam(CODE,t)}catch(err){homeMsg=T('No se pudo guardar la empresa. Comprobad la conexión e intentadlo otra vez.');return renderCompany()}
+    try{await Store.setTeam(CODE,t);if(!(await enterWithCode(id,clave)))throw new Error('clave')}
+    catch(err){homeMsg=T('No se pudo guardar la empresa. Comprobad la conexión e intentadlo otra vez.');return renderCompany()}
     if(joinLogo){try{const v=await storeImg(CODE,id,'logo',joinLogo);await Store.patchTeam(CODE,id,{logo:v});t.logo=v}catch(err){}}
     if(!TEAMS.some(x=>x.id===id)) TEAMS.push(t);
-    homeMsg=''; joinLogo=null; joinName=''; joinPick='B'; joinMembers=['','','']; joinNivel=''; joinLetra=''; openTeam(id);
+    homeMsg=''; joinLogo=null; joinName=''; joinClave=''; joinPick='B'; joinMembers=['','','']; joinNivel=''; joinLetra=''; openTeam(id);
   });
 }
-/* Esperando a que la profesora acepte este dispositivo */
-let WAITFOR=null, WAITSEEN=false;
-function renderWait(){
-  const t=TEAMS.find(x=>x.id===WAITFOR), mine=REQS.some(r=>r.uid===myUid());
-  if(t&&canUse(t)){Store.db.doc('partidas/'+CODE+'/solicitudes/'+myUid()).delete().catch(()=>{});return openTeam(t.id)}
-  if(mine) WAITSEEN=true;
-  if(!t||(WAITSEEN&&!mine)){homeMsg=t?T('Vuestro profesor o profesora no ha aceptado la entrada en «{0}».',t.name):'';VIEW='company';return renderCompany()}
-  app.innerHTML=`${topBar()}<div class="setup"><div class="panel wait"><span class="label">${esc(G.curso||G.code)}</span>
-    <h2>${T('Esperando a vuestro profesor o profesora')}</h2>
-    <p>${T('Habéis pedido entrar en «{0}» desde este dispositivo. Cuando lo acepte, la empresa se abrirá sola.',esc(t.name))}</p>
-    <div class="wait-dot" aria-hidden="true"></div>
-    <button class="ghost" id="wcancel" style="align-self:flex-start">${T('Cancelar')}</button></div></div>`;
-  bindTop();
-  document.getElementById('wcancel').addEventListener('click',async()=>{try{await Store.db.doc('partidas/'+CODE+'/solicitudes/'+myUid()).delete()}catch(e){}WAITFOR=null;VIEW='company';render()});
-}
 function openTeam(id){
-  {const t=TEAMS.find(x=>x.id===id);if(Store.db&&t&&!Array.isArray(t.devices)&&myUid()){t.devices=[myUid()];Store.patchTeam(CODE,id,{devices:t.devices}).catch(()=>{})}}
   ME=id;VIEW='team';draft=null;TAB=1;editing=false;sess({code:CODE,team:id});lastSig='';render();window.scrollTo({top:0})}
 
 /* ================= Pantalla de la empresa ================= */
@@ -2443,7 +2471,7 @@ function headerHTML(){
     <div class="kpi"><span class="label">${T('Semana')}</span><b id="kpiWeek">${G.week>WEEKS?T('Fin'):wk+' / '+WEEKS}</b></div>
     <div class="kpi"><span class="label">${T('Presupuesto')}</span><b id="kpiCash" class="${t.cash<0?'neg':''}" data-n="${t.cash}" data-f="eur">${eur(t.cash)}</b></div>
     <div class="kpi"><span class="label">${T('Reputación')} ${glBtn('reputacion')}</span><b>${Math.round(t.rep)} / 100</b></div>
-    <div class="btns"><button class="mini" data-gl="">${T('Glosario')}</button>${langSel()}${teacherOK&&!PREVIEW?`<button class="mini" id="switch">${T('Cambiar de empresa')}</button>`:''}<button class="mini" id="homeBtn">${T('Inicio')}</button>${profBtn()}</div>
+    <div class="btns"><button class="mini" data-gl="">${T('Glosario')}</button>${langSel()}${teacherOK&&!PREVIEW?`<button class="mini" id="switch">${T('Cambiar de empresa')}</button>`:''}${!teacherOK&&!PREVIEW?`<button class="mini" id="leave">${T('Salir de la empresa')}</button>`:''}<button class="mini" id="homeBtn">${T('Inicio')}</button>${profBtn()}</div>
   </div>`;
 }
 function renderTeam(){
@@ -2534,6 +2562,7 @@ function bindResults(t){
 function paintHeader(){const h=document.getElementById('hdr');if(h){h.innerHTML=headerHTML();bindHeader();bindTop()}}
 function bindHeader(){
   const sw=document.getElementById('switch'); sw&&sw.addEventListener('click',()=>{ME=null;VIEW='company';sess({code:CODE});render()});
+  const lv=document.getElementById('leave'); lv&&lv.addEventListener('click',leaveTeam);
 }
 
 /* ¿Por qué ha cambiado el beneficio? Reparte la diferencia con la semana anterior entre sus causas */
@@ -3119,7 +3148,7 @@ const TTABS_BASE=[[1,'Crear curso'],[2,'Pantalla de inicio'],[3,'Cursos'],[4,'Re
 const ttabs=()=>ROLE?[...TTABS_BASE,[6,'Perfil'],...(ROLE.admin?[[7,'Profesorado con acceso']]:[])]:TTABS_BASE;
 let GAMES=[], FBTEAM=null;
 async function loadGames(){try{GAMES=(await Store.listGames()).filter(g=>!ROLE||ROLE.admin||g.owner===ROLE.email).sort((a,b)=>String(a.curso||a.code).localeCompare(String(b.curso||b.code),'es'))}catch(e){GAMES=[]}}
-async function selectGame(code){Store.stop();G=null;TEAMS=[];await enterCode(code,true);migrateImgs().catch(()=>{})}
+async function selectGame(code){Store.stop();G=null;TEAMS=[];CLAVES={};CLAVES_OF=null;CLAVEEDIT=null;await enterCode(code,true);migrateImgs().catch(()=>{})}
 function courseBar(){
   if(!GAMES.length) return '<p class="muted">Todavía no hay cursos.</p>';
   return `<div class="coursebar"><span class="label">Curso</span>${GAMES.map(g=>`<button class="opt pick" data-game="${esc(g.code)}" aria-pressed="${!!G&&G.code===g.code}"><b>${esc(g.curso||'Sin curso')}</b><span class="hint">${esc(g.code)} · ${g.week>gW(g)?'terminada':'semana '+g.week+' de '+gW(g)}${gameLevel(g)!=='basico'?' · '+LEVELS[gameLevel(g)].toLowerCase():''}</span></button>`).join('')}</div>`;
@@ -3205,7 +3234,7 @@ function tCursos(){
   if(!G) return courseSelect()+addCourseForm();
   const ended=G.week>WEEKS, sentN=TEAMS.filter(t=>t.decWeek===G.week).length, pend=TEAMS.filter(t=>t.decWeek!==G.week);
   const ranked=[...TEAMS].sort((a,b)=>profitOf(b)-profitOf(a));
-  const rows=ranked.map((t,i)=>`<tr class="${!ended&&t.decWeek!==G.week?'pend':''}"><td class="num">${i+1}º</td><td><b>${esc(t.name)}</b></td><td class="memcol">${(t.members||[]).map(esc).join(', ')||'—'}</td><td>${MODELS[t.model].n}</td>
+  const rows=ranked.map((t,i)=>`<tr class="${!ended&&t.decWeek!==G.week?'pend':''}"><td class="num">${i+1}º</td><td><b>${esc(t.name)}</b>${claveHTML(t)}</td><td class="memcol">${(t.members||[]).map(esc).join(', ')||'—'}</td><td>${MODELS[t.model].n}</td>
     <td><select class="lvsel lv-${levelOf(t)}" data-tlevel="${esc(t.id)}" aria-label="Dificultad de ${esc(t.name)}">${Object.entries(LEVELS).map(([k,n])=>`<option value="${k}" ${levelOf(t)===k?'selected':''}>${n}</option>`).join('')}</select><button type="button" class="ghost eye" data-teye="${esc(t.id)}" title="Ver y elegir apartados de ${esc(t.name)}" aria-label="Ver y elegir apartados de ${esc(t.name)}">${EYE}<span>${secCount(levelOf(t),offFor(t))}</span></button></td>
     <td>${ended?'—':t.decWeek===G.week?'<span class="pos">Enviado</span>':'<span class="neg">Pendiente</span>'}</td>
     <td>${ended?'—':esc((teamEvent(t,G.week)||{}).title||'Ninguno')}</td>
@@ -3214,7 +3243,6 @@ function tCursos(){
   const pct=TEAMS.length?Math.round(sentN/TEAMS.length*100):0;
   const due=dueAt(G)===Infinity?'Los resultados solo se publican cuando tú pulses el botón.':`Si no publicas antes, se publican solos el ${fmtDate(dueAt(G))}.`;
   return `${courseSelect()}
-    ${reqsHTML()}
     <div class="class-head">
       <div><h2>${esc(G.curso||'Sin curso')} · ${ended?'partida terminada':`semana ${G.week} de ${WEEKS}`}</h2></div>
       <div class="btns"><button class="ghost" id="projBtn" ${TEAMS.length?'':'disabled'}>Proyectar clasificación</button>${ended?'':advBtn()}</div>
@@ -3229,27 +3257,34 @@ function tCursos(){
     <div class="btns"><button class="go small" id="pdfbtn" ${TEAMS.length?'':'disabled'}>Exportar resultados en PDF</button><button class="ghost" id="xlsbtn" ${TEAMS.length?'':'disabled'}>Decisiones en Excel</button><button class="ghost" id="bakbtn">Descargar copia de seguridad</button>${restoreBtn()}<span class="hint" id="pdfmsg"></span></div>
 `;
 }
-function reqsHTML(){
-  const R=REQS.filter(r=>TEAMS.some(t=>t.id===r.team)).sort((a,b)=>a.at-b.at); if(!R.length) return '';
-  const ago=ms=>{const m=Math.round((Date.now()-ms)/60000);return m<1?'ahora':m<60?`hace ${m} min`:`hace ${Math.round(m/60)} h`};
-  return `<div class="card reqs" role="status"><b>${R.length===1?'Un grupo quiere':'Hay grupos que quieren'} entrar desde otro dispositivo</b>
-    ${R.map(r=>{const t=TEAMS.find(x=>x.id===r.team);return `<div class="req-row"><span><b>${esc(t.name)}</b>${(r.members||[]).length?' · '+(r.members||[]).map(esc).join(', '):''} · ${ago(r.at)}</span>
-      <button class="go small" data-acc="${esc(r.uid)}">Aceptar</button><button class="ghost" data-rej="${esc(r.uid)}">Rechazar</button></div>`}).join('')}</div>`;
+/* Códigos de las empresas (solo los lee el profesorado) */
+let CLAVES={}, CLAVES_OF=null, CLAVEEDIT=null;
+async function loadClaves(force){
+  const key=CODE+'|'+TEAMS.map(t=>t.id).sort().join(',');
+  if(!Store.db||!CODE||(!force&&CLAVES_OF===key)) return; CLAVES_OF=key;
+  try{CLAVES={};
+    const r=await Promise.all(TEAMS.map(t=>Store.db.doc('partidas/'+CODE+'/claves/'+t.id).get().then(x=>[t.id,x.exists?(x.data()||{}).clave:null]).catch(()=>[t.id,undefined])));
+    r.forEach(([k,v])=>{CLAVES[k]=v})}catch(e){CLAVES={}}
+  if(VIEW==='teacher'&&TTAB===3) renderTeacher();
 }
-function bindReqs(){
-  app.querySelectorAll('[data-acc]').forEach(b=>b.addEventListener('click',async()=>{
-    const r=REQS.find(x=>x.uid===b.dataset.acc), t=r&&TEAMS.find(x=>x.id===r.team); if(!t) return; b.disabled=true;
-    try{const dv=[...new Set([...(t.devices||[]),r.uid])];await Store.patchTeam(CODE,t.id,{devices:dv});t.devices=dv;
-      await Store.db.doc('partidas/'+CODE+'/solicitudes/'+r.uid).delete();TFLASH=`${t.name}: dispositivo aceptado.`}
-    catch(e){TFLASH='No se pudo aceptar. Inténtalo otra vez.'}
-    renderTeacher()}));
-  app.querySelectorAll('[data-rej]').forEach(b=>b.addEventListener('click',async()=>{
-    b.disabled=true;try{await Store.db.doc('partidas/'+CODE+'/solicitudes/'+b.dataset.rej).delete()}catch(e){} renderTeacher()}));
+function claveHTML(t){
+  if(!Store.db) return '';
+  if(CLAVEEDIT===t.id) return `<form class="clave-ed" data-cform="${esc(t.id)}"><input class="code-in" maxlength="12" value="${esc(CLAVES[t.id]||'')}" aria-label="Nuevo código de ${esc(t.name)}" autocomplete="off"><button class="go small">Guardar</button><button type="button" class="linkbtn" data-ccancel>Cancelar</button></form>`;
+  const c=CLAVES[t.id];
+  return `<span class="clave">${c===undefined?'Código: …':c?`Código: <b class="passchip">${esc(c)}</b>`:'<span class="neg">Sin código</span>'} <button type="button" class="linkbtn" data-cedit="${esc(t.id)}">${c?'Cambiar':'Poner código'}</button></span>`;
 }
 function bindCursos(){
   bindAddCourse(1);
   if(!G) return;
-  bindReqs();
+  loadClaves();
+  app.querySelectorAll('[data-cedit]').forEach(b=>b.addEventListener('click',()=>{CLAVEEDIT=b.dataset.cedit;renderTeacher();const i=app.querySelector('[data-cform] input');i&&i.focus()}));
+  app.querySelectorAll('[data-ccancel]').forEach(b=>b.addEventListener('click',()=>{CLAVEEDIT=null;renderTeacher()}));
+  app.querySelectorAll('[data-cform]').forEach(f=>f.addEventListener('submit',async e=>{e.preventDefault();
+    const id=f.dataset.cform, c=normPass(f.querySelector('input').value), t=TEAMS.find(x=>x.id===id);
+    if(!CLAVE_OK(c)){TFLASH='El código debe tener de 4 a 12 letras o números, sin espacios ni símbolos.';return renderTeacher()}
+    try{await Store.db.doc('partidas/'+CODE+'/claves/'+id).set({clave:c});CLAVES[id]=c;CLAVEEDIT=null;TFLASH=`${t?t.name:'Empresa'}: nuevo código ${c}. Los dispositivos que estaban dentro tendrán que entrar con este código.`}
+    catch(x){TFLASH='No se pudo cambiar el código. Inténtalo otra vez.'}
+    renderTeacher()}));
   paintBoard();
   bindAdv(async a=>{a.disabled=true;a.textContent='Calculando resultados…';await closeWeek();if(!Store.db)Store.localPush(CODE);await loadGames();renderTeacher()});
   app.querySelectorAll('[data-see]').forEach(b=>b.addEventListener('click',()=>openPreview(b.dataset.see)));
@@ -3701,7 +3736,8 @@ async function backupCourse(btn,msgId){
       if(t.logo===IMG) t.logo=isData(d.logo)?d.logo:null;
       if(t.design&&t.design.img===IMG) t.design.img=isData(d.img)?d.img:null;
     }
-    const data={app:'mercado-movil',version:1,savedAt:Date.now(),game:g,teams,portada:(SET.byCourse||{})[CODE]||null};
+    const claves={};if(Store.db)for(const t of teams){try{const c=await Store.db.doc('partidas/'+CODE+'/claves/'+t.id).get();if(c.exists)claves[t.id]=(c.data()||{}).clave}catch(e){}}
+    const data={app:'mercado-movil',version:1,savedAt:Date.now(),game:g,teams,claves,portada:(SET.byCourse||{})[CODE]||null};
     const day=new Date().toISOString().slice(0,10);
     download(new Blob([JSON.stringify(data)],{type:'application/json'}),`MercadoMovil_${fileName(g.curso||g.code)}_copia_${day}.json`);
     if(msg) msg.textContent=`Copia descargada (${teams.length} ${teams.length===1?'empresa':'empresas'}). Guárdala en tu ordenador o en Drive.`;
@@ -3749,6 +3785,7 @@ async function restoreCourse(d){
     if(isData(t.logo)) t.logo=await storeImg(code,t.id,'logo',t.logo);
     if(t.design&&isData(t.design.img)) t.design.img=await storeImg(code,t.id,'img',t.design.img);
     await Store.setTeam(code,t);
+    if(Store.db&&d.claves&&d.claves[t.id]){try{await Store.db.doc('partidas/'+code+'/claves/'+t.id).set({clave:d.claves[t.id]})}catch(e){}}
   }
   if(d.portada){SET={...SET,byCourse:{...(SET.byCourse||{}),[code]:d.portada}};try{await Store.setSettings(SET)}catch(e){}}
   await loadGames(); await selectGame(code);
@@ -4068,7 +4105,7 @@ async function boot(){
 async function useDB(db){
     Store.stop(); Store.db=db;
     SET=await Store.getSettings();
-    const s=sess(); ME=null; VIEW='home'; G=null; TEAMS=[];
+    const s=sess(); ME=null; VIEW='home'; G=null; TEAMS=[]; dropAccess();
     if(s.code){await enterCode(s.code); if(G) codeTyped=true; if(s.team&&okTeam(s.team)){ME=s.team;VIEW='team'}}
     if(G&&G.week<=WEEKS&&Date.now()>=dueAt(G)) await closeWeek();
     splashNext=VIEW; VIEW='splash'; lastSig=''; render();

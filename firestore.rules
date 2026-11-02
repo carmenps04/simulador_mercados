@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Reglas de Firestore del proyecto «simulador-maes» (Mercado Móvil). Versión 3 (noviembre 2026).
+// Reglas de Firestore del proyecto «simulador-maes» (Mercado Móvil). Versión 4 (noviembre 2026).
 // Este archivo NO se aplica solo: hay que pegarlo en la consola de Firebase
 // (Firestore Database → Reglas → Publicar). Antes, cambia TU_CORREO@ejemplo.com
 // por tu correo de administradora, EN MINÚSCULAS. En el repositorio se deja sin poner
@@ -9,9 +9,9 @@ rules_version = '2';
 // - Administradora (el correo de abajo): puede hacer de todo y decide qué docentes tienen acceso.
 // - Profesorado con acceso (lista en ajustes/profesorado, solo con el correo verificado):
 //   gestiona sus propios cursos y su perfil.
-// - Alumnado (sesión anónima): lee los datos de la partida, crea su empresa y solo modifica
-//   la suya desde los dispositivos que la profesora ha aceptado. Puede pasar de ronda y añadir
-//   resultados solo cuando ya ha llegado la hora de cierre.
+// - Alumnado (sesión anónima): lee los datos de la partida, crea su empresa con un código y solo
+//   modifica la suya después de entrar con ese código. No puede leer los códigos. Puede pasar de
+//   ronda y añadir resultados solo cuando ya ha llegado la hora de cierre.
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
@@ -30,6 +30,14 @@ service cloud.firestore {
       allow read: if signedIn();
       // La pantalla de inicio general solo la cambia la administradora; el resto, la de sus cursos
       allow write: if isAdmin() || (isTeacher() && changed().hasOnly(['byCourse']));
+    }
+    // Empresa en la que ha entrado cada dispositivo (con el código correcto de esa empresa)
+    match /mercado-movil/v1/accesos/{uid} {
+      allow read, delete: if signedIn() && uid == request.auth.uid;
+      allow create, update: if signedIn() && uid == request.auth.uid
+        && request.resource.data.uid == uid
+        && request.resource.data.keys().hasOnly(['uid', 'curso', 'team', 'clave', 'at'])
+        && get(/databases/$(database)/documents/mercado-movil/v1/partidas/$(request.resource.data.curso)/claves/$(request.resource.data.team)).data.clave == request.resource.data.clave;
     }
     match /mercado-movil/v1/bloqueos/{doc} {
       allow read, write: if signedIn();
@@ -50,6 +58,13 @@ service cloud.firestore {
     match /mercado-movil/v1/partidas/{code} {
       function canGame(g) { return isAdmin() || (isTeacher() && g.get('owner', '') == myEmail()); }
       function game() { return get(/databases/$(database)/documents/mercado-movil/v1/partidas/$(code)).data; }
+      // El dispositivo ha entrado en esta empresa con su código actual (las empresas sin código quedan abiertas)
+      function hasAccess(t) {
+        let k = /databases/$(database)/documents/mercado-movil/v1/partidas/$(code)/claves/$(t);
+        let a = /databases/$(database)/documents/mercado-movil/v1/accesos/$(request.auth.uid);
+        return !exists(k) || (exists(a) && get(a).data.curso == code && get(a).data.team == t
+          && get(a).data.clave == get(k).data.clave);
+      }
 
       allow read: if signedIn();
       allow create: if isAdmin() || (isTeacher() && request.resource.data.owner == myEmail());
@@ -63,21 +78,16 @@ service cloud.firestore {
           && request.time.toMillis() >= resource.data.dueAt);
 
       match /equipos/{team} {
-        function mine() { return request.auth.uid in resource.data.get('devices', []); }
-        function legacy() { return resource.data.get('devices', null) == null; }
         allow read: if signedIn();
         allow delete: if canGame(game());
         allow create: if canGame(game()) || (signedIn()
           && request.resource.data.history.size() == 0
           && request.resource.data.cash == 100000
-          && request.resource.data.devices == [request.auth.uid]
           && !request.resource.data.keys().hasAny(['feedback', 'level']));
         allow update: if canGame(game()) || (signedIn() && (
-          // Decisiones, diseño, logo, factura…: solo desde los dispositivos de la empresa
-          ((mine() || legacy())
-            && !changed().hasAny(['feedback', 'level', 'history', 'cash', 'rep', 'id', 'name', 'model', 'members', 'devices']))
-          // Empresas creadas antes de esta versión: el primer dispositivo que la abre se la queda
-          || (legacy() && changed().hasOnly(['devices']) && request.resource.data.devices == [request.auth.uid])
+          // Decisiones, diseño, logo, factura…: solo quien ha entrado con el código de la empresa
+          (hasAccess(team)
+            && !changed().hasAny(['feedback', 'level', 'history', 'cash', 'rep', 'id', 'name', 'model', 'members']))
           // Cierre de semana: añadir exactamente un resultado, solo pasada la hora de cierre
           || (changed().hasOnly(['history', 'cash', 'rep'])
               && request.resource.data.history.size() == resource.data.history.size() + 1
@@ -85,25 +95,23 @@ service cloud.firestore {
               && request.time.toMillis() >= game().dueAt)));
       }
 
+      // Código de cada empresa: lo elige el grupo al crearla; solo lo ve y lo cambia el profesorado
+      match /claves/{team} {
+        allow read, update, delete: if canGame(game());
+        allow create: if canGame(game()) || (signedIn()
+          && request.resource.data.keys().hasOnly(['clave'])
+          && request.resource.data.clave is string
+          && request.resource.data.clave.size() >= 4 && request.resource.data.clave.size() <= 12);
+      }
+
       // Logo y diseño de cada empresa (máx. ~200 KB por imagen)
       match /imagenes/{team} {
-        function owner() {
-          let t = get(/databases/$(database)/documents/mercado-movil/v1/partidas/$(code)/equipos/$(team)).data;
-          return t.get('devices', null) == null || request.auth.uid in t.devices;
-        }
         allow read: if signedIn();
-        allow create, update: if (canGame(game()) || (signedIn() && owner()))
+        allow create, update: if (canGame(game()) || (signedIn() && hasAccess(team)))
           && request.resource.data.keys().hasOnly(['logo', 'img'])
           && (request.resource.data.get('logo', null) == null || request.resource.data.logo.size() < 200000)
           && (request.resource.data.get('img', null) == null || request.resource.data.img.size() < 200000);
         allow delete: if canGame(game());
-      }
-
-      // Peticiones para entrar en una empresa desde otro dispositivo (las acepta la profesora)
-      match /solicitudes/{uid} {
-        allow read: if signedIn();
-        allow create, update: if signedIn() && uid == request.auth.uid && request.resource.data.uid == uid;
-        allow delete: if canGame(game()) || (signedIn() && uid == request.auth.uid);
       }
     }
   }

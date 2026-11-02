@@ -17,17 +17,15 @@ Enlace: https://carmenps04.github.io/simulador_mercados/
 - Quien entra con correo y contraseña por primera vez crea su cuenta en «Es mi primera vez» y tiene que confirmar el correo con el enlace que recibe.
 - En **Perfil** cada docente pone su nombre, de qué es profesor/a, si es tutor/a y de qué curso, y los cursos a los que da clase.
 
-## Entrar en una empresa desde otro dispositivo
+## Código de cada empresa
 
-Cada empresa queda ligada al dispositivo donde se creó. Si un grupo cambia de dispositivo:
+Los dispositivos se comparten entre grupos, así que cada empresa tiene un **código** que elige el grupo al crearla (de 4 a 12 letras o números).
 
-1. El grupo entra en su curso como siempre y, en «¿Ya tenéis empresa en este curso?», pulsa su empresa → «Pedir entrar».
-2. En el panel, pestaña **Cursos**, aparece la petición: **Aceptar** o **Rechazar**.
-3. Al aceptar, la empresa se abre sola en el dispositivo nuevo. El anterior sigue funcionando.
-
-Conviene aceptar desde tu propio dispositivo: si inicias sesión de profesora en la tablet de un grupo, al salir esa tablet deja de estar ligada a su empresa y tendrá que pedir entrar otra vez.
-
-Las empresas creadas antes de esta versión se ligan al primer dispositivo que las abra.
+- Cada vez que se abre la web, o al pulsar **Salir de la empresa**, el grupo tiene que elegir su empresa y escribir su código. El dispositivo no recuerda la empresa.
+- El alumnado no puede ver los códigos. Los comprueba Firebase.
+- En **Cursos**, debajo del nombre de cada grupo, aparece su código con el botón **Cambiar**. Si otro grupo lo ha descubierto, cámbialo y dale el nuevo al grupo. Los dispositivos que estaban dentro tendrán que volver a entrar con el código nuevo.
+- Las empresas creadas antes de esta versión aparecen como **Sin código**. Ponles uno desde **Cursos**. Si no, el primer grupo que entre en ella fijará el código que escriba.
+- Las copias de seguridad incluyen los códigos.
 
 ## Tareas habituales
 
@@ -85,7 +83,8 @@ La app es un único `index.html` sin paso de compilación. Los datos se guardan 
 - `ajustes/centro`: pantalla de inicio (logo y nombre del centro).
 - `ajustes/profesorado`: administradora y lista de correos con acceso.
 - `perfiles/{correo}`: perfil de cada docente.
-- `partidas/{curso}/solicitudes/{dispositivo}`: peticiones para entrar en una empresa desde otro dispositivo.
+- `partidas/{curso}/claves/{empresa}`: código de cada empresa (solo lo lee el profesorado).
+- `accesos/{dispositivo}`: empresa en la que ha entrado cada dispositivo con su código.
 - `bloqueos/…`: evita que dos dispositivos cierren la misma semana a la vez.
 
 Cada dispositivo guarda una copia local de los datos, así que la app aguanta cortes breves de la wifi y sincroniza al volver la conexión.
