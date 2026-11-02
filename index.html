@@ -3122,6 +3122,7 @@ async function enterPanel(){
 function renderTLoginFB(){
   const u=FBAUTH.currentUser, signed=fbTeacher(), up=TLMODE==='signup';
   const state=TLSTATE==='verify'?`<p>Te hemos enviado un enlace a <b>${esc(u&&u.email||'')}</b> para confirmar el correo. Ábrelo y después pulsa «Ya lo he confirmado».</p>
+      <p class="hint">Si el enlace dice que ha caducado o que ya se ha usado, pulsa igualmente «Ya lo he confirmado»: muchas veces el correo ya está confirmado. Usa siempre el último correo recibido. Con una cuenta de Google es más sencillo «Entrar con Google», que no necesita confirmación.</p>
       <div class="btns"><button class="go small" id="tgo">Ya lo he confirmado</button><button class="ghost" id="tverify">Reenviar el enlace</button><button class="ghost" id="tout">Cerrar sesión</button></div>`
     :TLSTATE==='denied'?`<p><b>${esc(u&&u.email||'')}</b> todavía no tiene acceso. Pide a la administradora que añada este correo en «Profesorado con acceso».</p>
       <div class="btns"><button class="go small" id="tgo">Volver a comprobar</button><button class="ghost" id="tout">Cerrar sesión</button></div>`
