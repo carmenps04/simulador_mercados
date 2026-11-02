@@ -3017,11 +3017,13 @@ function readLogo(inp,max,ok,fail){
     ok(smallURL(cv));
   };im.onerror=fail;im.src=rd.result}; rd.onerror=fail; rd.readAsDataURL(f);
 }
-/* Portada según el curso: si el curso tiene título o logo propios se usan; si no, los generales */
+/* Portada según el curso. Cada docente tiene la suya: la portada general de la administradora
+   solo sirve de respaldo para sus propios cursos. Sin curso elegido, la portada sale neutra. */
 function VS(){
-  const code=(G&&G.code)||sess().code, c=code&&SET.byCourse&&SET.byCourse[code];
-  if(!c) return G&&G.code===code&&G.curso?{...SET,curso:G.curso}:SET;
-  return {logo:c.logo||SET.logo, centro:c.titulo||SET.centro, curso:(G&&G.code===code&&G.curso)||c.curso||SET.curso};
+  const code=(G&&G.code)||sess().code; if(!code) return {};
+  const c=(SET.byCourse&&SET.byCourse[code])||{}, owner=G&&G.code===code?G.owner:c.owner;
+  const base=!owner||owner===SET.admin?SET:{};
+  return {logo:c.logo||base.logo, centro:c.titulo||base.centro, curso:(G&&G.code===code&&G.curso)||c.curso||''};
 }
 function logoOK(){const l=VS().logo;return typeof l==='string'&&l.startsWith('data:image/')}
 function topBar(){
@@ -3114,6 +3116,7 @@ async function enterPanel(){
   const r=await checkStaff();
   if(!r.ok){TLSTATE=r.reason;TLMSG='';return renderTLoginFB()}
   ROLE={email:myMail(),admin:r.admin}; TLSTATE=null; VIEWAS=null;
+  if(ROLE.admin&&SET.admin!==ROLE.email){SET={...SET,admin:ROLE.email};Store.setSettings(SET).catch(()=>{})}
   try{const p=await Store.db.doc('perfiles/'+ROLE.email).get();PROF=p.exists?p.data()||{}:{}}catch(e){PROF={}}
   teacherOK=true; VIEW='teacher'; G=null; TEAMS=[]; Store.stop(); CODE=null;
   await loadGames(); if(GAMES[0]) await selectGame(GAMES[0].code);
@@ -3967,37 +3970,39 @@ function bindEmpresas(){
   });
 }
 let TLC=null; // curso elegido en «Pantalla de inicio» ('' = sin curso elegido)
-function tlcData(){return TLC?{...((SET.byCourse||{})[TLC]||{})}:{titulo:SET.centro,logo:SET.logo,curso:SET.curso}}
+const adminView=()=>!ROLE||(ROLE.admin&&!VIEWAS);
+function tlcData(){return TLC?{...((SET.byCourse||{})[TLC]||{})}:adminView()?{titulo:SET.centro,logo:SET.logo}:{}}
 function tLogo(){
-  if(TLC===null||(TLC&&!GAMES.some(g=>g.code===TLC))||(TLC===''&&ROLE&&!ROLE.admin)) TLC=(G&&GAMES.some(g=>g.code===G.code)&&G.code)||(GAMES[0]&&GAMES[0].code)||'';
+  if(!adminView()&&!GAMES.length) return `<h2>Pantalla de inicio</h2><p class="muted">Primero crea un curso en «Crear curso». Después podrás poner aquí su logo y su título.</p>`;
+  if(TLC===null||(TLC&&!GAMES.some(g=>g.code===TLC))||(TLC===''&&!adminView())) TLC=(G&&GAMES.some(g=>g.code===G.code)&&G.code)||(GAMES[0]&&GAMES[0].code)||'';
   const cur=tlcData(), lg=typeof cur.logo==='string'&&cur.logo.startsWith('data:image/')?cur.logo:null;
   const gname=TLC?((GAMES.find(g=>g.code===TLC)||{}).curso||TLC):'';
   return `<h2>Pantalla de inicio</h2>
     <label class="tlc" for="tlc"><b>Curso</b><select id="tlc">
       ${GAMES.map(g=>`<option value="${esc(g.code)}" ${g.code===TLC?'selected':''}>${esc(g.curso||g.code)}</option>`).join('')}
-      ${ROLE&&!ROLE.admin?'':`<option value="" ${TLC===''?'selected':''}>Sin curso elegido (dispositivos que aún no han entrado en un curso)</option>`}</select></label>
+      ${adminView()?`<option value="" ${TLC===''?'selected':''}>Por defecto para mis cursos que no tengan pantalla propia</option>`:''}</select></label>
     <div class="design-row">
       <label class="drop logo-drop" for="logoin">${lg?`<img src="${esc(lg)}" alt="Logo">`:'<span><b>Subir logo</b><br><span class="hint">PNG o JPG</span></span>'}</label>
       <input type="file" id="logoin" accept="image/*" class="sr">
       <form class="form" id="fcentro" style="flex:1;min-width:220px">
         <label for="titulo">Título de la pantalla de inicio<input id="titulo" maxlength="60" value="${esc(cur.titulo||'')}" placeholder="Ej.: IES Hiponova (Montefrío)"></label>
-        ${TLC?'':`<label for="curso">Curso que aparece en la portada<input id="curso" maxlength="40" value="${esc(cur.curso||'')}" placeholder="Ej.: 4º ESO"></label>`}
         <div class="btns"><button class="go small" type="submit">Guardar</button>${lg?'<button class="ghost" type="button" id="rmlogo">Quitar logo</button>':''}</div>
         <p class="hint" id="logomsg"></p></form>
     </div>`;
 }
-async function saveSet(patch,msg){SET={...SET,...patch};try{await Store.setSettings(SET)}catch(e){msg='No se pudo guardar. Inténtalo otra vez.'}renderTeacher();const m=document.getElementById('logomsg');if(m)m.textContent=msg||''}
+async function saveSet(patch,msg){SET={...SET,...patch};if(ROLE&&ROLE.admin&&!VIEWAS)SET.admin=ROLE.email;try{await Store.setSettings(SET)}catch(e){msg='No se pudo guardar. Inténtalo otra vez.'}renderTeacher();const m=document.getElementById('logomsg');if(m)m.textContent=msg||''}
 /* Guarda en el curso elegido, o en la portada general si no hay curso */
 function saveTlc(patch,msg){
   if(!TLC){const g={};if('titulo' in patch)g.centro=patch.titulo;if('logo' in patch)g.logo=patch.logo;if('curso' in patch)g.curso=patch.curso;return saveSet(g,msg)}
   const gm=GAMES.find(g=>g.code===TLC);
-  return saveSet({byCourse:{...(SET.byCourse||{}),[TLC]:{...tlcData(),...patch,curso:gm&&gm.curso||''}}},msg);
+  return saveSet({byCourse:{...(SET.byCourse||{}),[TLC]:{...tlcData(),...patch,curso:gm&&gm.curso||'',owner:(gm&&gm.owner)||null}}},msg);
 }
 function bindLogo(){
+  if(!document.getElementById('tlc')) return;
   document.getElementById('tlc').addEventListener('change',e=>{TLC=e.target.value;renderTeacher()});
   document.getElementById('fcentro').addEventListener('submit',e=>{e.preventDefault();const c=document.getElementById('curso');
     saveTlc({titulo:document.getElementById('titulo').value.trim(),...(c?{curso:c.value.trim()}:{})},'Guardado.')});
-  const rm=document.getElementById('rmlogo'); rm&&rm.addEventListener('click',()=>saveTlc({logo:null},'Logo quitado.'));
+  const rm=document.getElementById('rmlogo'); rm&&rm.addEventListener('click',()=>saveTlc({logo:null,titulo:document.getElementById('titulo').value.trim()},'Logo quitado.'));
   const inp=document.getElementById('logoin');
   inp.addEventListener('change',()=>{
     const f=inp.files&&inp.files[0]; if(!f) return; const msg=document.getElementById('logomsg');
@@ -4006,7 +4011,7 @@ function bindLogo(){
       const sc=Math.min(1,240/Math.max(im.width,im.height)), cv=document.createElement('canvas');
       cv.width=Math.round(im.width*sc); cv.height=Math.round(im.height*sc);
       cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
-      saveTlc({logo:smallURL(cv)},'Logo guardado.');
+      saveTlc({logo:smallURL(cv),titulo:document.getElementById('titulo').value.trim()},'Logo guardado.');
     };im.onerror=()=>{msg.textContent='No se pudo abrir la imagen.'};im.src=rd.result}; rd.readAsDataURL(f);
   });
 }
