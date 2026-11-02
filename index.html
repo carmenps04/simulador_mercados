@@ -3045,7 +3045,7 @@ async function checkStaff(){
   try{await u.reload()}catch(e){} try{await u.getIdToken(true)}catch(e){}
   const em=myMail(), pw=(u.providerData||[]).some(p=>p&&p.providerId==='password');
   let snap;
-  try{snap=await Store.db.doc('ajustes/profesorado').get()}
+  try{const ref=Store.db.doc('ajustes/profesorado');snap=await (ref.getServer?ref.getServer():ref.get())}
   catch(e){if(pw&&!u.emailVerified)return {ok:false,reason:'verify'};return {ok:false,reason:/permission/.test((e&&e.code)||'')?'denied':'net'}}
   if(!snap.exists){
     try{await Store.db.doc('ajustes/profesorado').set({admin:em,emails:[],updatedAt:Date.now()});STAFF={admin:em,emails:[]};return {ok:true,admin:true}}
@@ -3136,7 +3136,7 @@ function renderTeacher(){
   if(TTAB===7&&ROLE&&ROLE.admin) body=tStaff();
   app.innerHTML=`<div class="app"><header class="top"><div class="brand"><h1>Panel del profesor/a</h1><span class="team">${ROLE?esc((PROF&&PROF.nombre)||ROLE.email)+(ROLE.admin?' · administradora':'')+' · ':''}${GAMES.length} ${GAMES.length===1?'curso':'cursos'}</span></div>
     <div class="btns"><button class="mini" id="logout">Salir del modo profesor</button><button class="mini" id="homeBtn">Inicio</button></div></header>
-    <div class="main">${RULES_OLD?`<p class="warn" role="status">No se pudieron guardar las imágenes aparte (${esc(String(RULES_OLD))}). ${RULES_OLD==='permission-denied'?'Firebase no lo permite: revisa que las reglas publicadas sean las del README y que hayas entrado con el correo de las reglas.':'Revisa la conexión.'} <button class="mini" id="imgRetry">Reintentar</button></p>`:''}<section class="panel tabpanel">${tabs}<div class="tabbody fitbox tfit" data-minz=".5"><div class="fit">${body}</div></div></section></div></div>${secModalHTML()}${restoreModalHTML()}`;
+    <div class="main">${RULES_OLD?`<p class="warn" role="status">No se pudieron guardar las imágenes aparte (${esc(String(RULES_OLD))}). ${RULES_OLD==='permission-denied'?'Firebase no lo permite. '+esc(authInfo()):'Revisa la conexión.'} <button class="mini" id="imgRetry">Reintentar</button></p>`:''}<section class="panel tabpanel">${tabs}<div class="tabbody fitbox tfit" data-minz=".5"><div class="fit">${body}</div></div></section></div></div>${secModalHTML()}${restoreModalHTML()}`;
   {const m=document.getElementById('tmodal'); if(m) app.appendChild(m);} // la ventana emergente no se reduce con el ajuste
   bindTop(); bindSecModal(); bindRestore();
   {const r=document.getElementById('imgRetry'); r&&r.addEventListener('click',async()=>{r.disabled=true;r.textContent='Comprobando…';RULES_OLD=false;MIGRATED.clear();await migrateImgs().catch(()=>{});renderTeacher()})}
@@ -3577,6 +3577,8 @@ function renderProj(){
 const REFL_Q=['¿Qué decisión os hizo ganar más dinero? ¿Por qué?','¿Qué decisión os hizo perder dinero? ¿Por qué?','Si volvierais a jugar, ¿qué haríais distinto?'];
 function reflHTML(t){const r=t.reflection;if(!r||!(r.a0||r.a1||r.a2))return '';
   return `<div class="card"><span class="label">Reflexión final del grupo</span>${REFL_Q.map((q,i)=>`<p><b>${q}</b><br>${esc(r['a'+i]||'—')}</p>`).join('')}</div>`}
+/* Con qué sesión está hablando esta pestaña con Firebase (para diagnosticar permisos) */
+function authInfo(){const u=FBAUTH&&FBAUTH.currentUser;return !u?'Sin sesión.':u.isAnonymous?'Esta pestaña tiene una sesión de alumno, no de profesora: vuelve a entrar.':'Sesión: '+(u.email||'sin correo')+'.'}
 /* ===== Perfil del docente ===== */
 const ESPEC=['Economía','Informática','FOL'];
 const GRUPOS=NIVELES.flatMap(n=>LETRAS.map(l=>n+' '+l));
@@ -3610,7 +3612,7 @@ function bindPerfil(){
   $('fperfil').addEventListener('submit',async e=>{e.preventDefault();keep();
     if(P.tutora&&!P.tutoraDe){$('pf-msg').textContent='Elige el curso del que eres tutor/a.';return}
     const v={nombre:P.nombre,especialidad:P.especialidad,tutora:!!P.tutora,tutoraDe:P.tutoraDe||'',cursos:P.cursos||[],correo:ROLE.email,updatedAt:Date.now()};
-    try{await Store.db.doc('perfiles/'+ROLE.email).set(v);PROF=v;PDRAFT=null;TFLASH='Perfil guardado.'}catch(x){TFLASH='No se pudo guardar el perfil. Inténtalo otra vez.'}
+    try{await Store.db.doc('perfiles/'+ROLE.email).set(v);PROF=v;PDRAFT=null;TFLASH='Perfil guardado.'}catch(x){console.error(x);TFLASH='No se pudo guardar el perfil ('+((x&&x.code)||'error')+'). '+authInfo()}
     renderTeacher();TFLASH=''});
 }
 /* ===== Profesorado con acceso (solo administradora) ===== */
@@ -4099,7 +4101,7 @@ function fireDB(fs){
   const wrapQ=q=>({docs:q.docs.map(d=>({data:()=>d.data()}))});
   return {
     doc(p){const r=fs.doc(FB_ROOT+p);return {
-      get:()=>r.get().then(snap), set:v=>r.set(v), merge:v=>r.set(v,{merge:true}), update:v=>r.update(v), delete:()=>r.delete(),
+      get:()=>r.get().then(snap), getServer:()=>r.get({source:'server'}).then(snap), set:v=>r.set(v), merge:v=>r.set(v,{merge:true}), update:v=>r.update(v), delete:()=>r.delete(),
       onSnapshot:(cb,err)=>r.onSnapshot(s=>cb(snap(s)),err),
       /* Cerrojo para que solo un dispositivo calcule el cierre de semana */
       acquire:async({holder,ttlMs})=>{const L=fs.doc(FB_ROOT+'bloqueos/'+p.replace(/\//g,'_'));
@@ -4137,8 +4139,14 @@ async function initFirebase2(){
     const fapp=firebase.apps.find(a=>a.name==='mercado-movil')||firebase.initializeApp(FIREBASE_CONFIG,'mercado-movil');
     const fs=fapp.firestore(); try{fs.settings({ignoreUndefinedProperties:true,merge:true})}catch(e){}
     /* Copia local de los datos: si la wifi se corta un momento, la app sigue funcionando y sincroniza al volver */
-    try{await fs.enablePersistence({synchronizeTabs:true})}catch(e){}
+    try{await fs.enablePersistence()}catch(e){}
     FBAUTH=fapp.auth();
+    /* Si la sesión de profesora cambia en otra pestaña (por ejemplo, al salir), este panel deja de valer */
+    FBAUTH.onAuthStateChanged(u=>{
+      if(!teacherOK||!ROLE) return;
+      const em=u&&!u.isAnonymous&&u.email?u.email.toLowerCase():'';
+      if(em!==ROLE.email){teacherOK=false;ROLE=null;PROF=null;TLSTATE=null;TLMSG='La sesión de profesora se cerró en otra pestaña o ventana. Vuelve a entrar.';VIEW='tlogin';render()}
+    });
     const cur=await new Promise(ok=>{const u=FBAUTH.onAuthStateChanged(x=>{u();ok(x)})});
     if(!cur) await FBAUTH.signInAnonymously();
     await fs.doc(FB_ROOT+'ajustes/centro').get();
