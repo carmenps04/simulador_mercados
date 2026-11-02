@@ -17,7 +17,7 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function hasEmail() { return signedIn() && request.auth.token.get('email', null) != null; }
     function myEmail() { return request.auth.token.email.lower(); }
-    function isAdmin() { return hasEmail() && myEmail() == 'TU_CORREO@ejemplo.com'; }
+    function isAdmin() { return hasEmail() && myEmail() == 'carmenperezcr4@gmail.com'; }
     function staff() { return get(/databases/$(database)/documents/mercado-movil/v1/ajustes/profesorado).data; }
     function isStaff() {
       return hasEmail() && request.auth.token.email_verified == true && myEmail() in staff().emails;
