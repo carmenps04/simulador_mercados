@@ -1328,6 +1328,8 @@ const GLOSS=[
 const LANGS={es:'Español',en:'English',ar:'العربية'};
 /* Textos nuevos: «¿Por qué?» */
 TR.push(
+["Interés al año", "Interest per year", "الفائدة السنوية"],
+["El cliente paga intereses a la financiera. Atrae algo menos, la financiera asume los impagos y os cobra un 2 % de comisión.", "The customer pays interest to the finance company. It attracts a little less, the company takes the bad-debt risk and charges you 2 %.", "يدفع الزبون فوائد لشركة التمويل. يجذب أقل قليلًا، وتتحمّل الشركة خطر عدم السداد وتأخذ منكم عمولة 2 %."],
 ["Ver información de la empresa", "See company information", "عرض معلومات الشركة"],
 ["Resultados", "Results", "النتائج"],
 ["Decisiones anteriores", "Previous decisions", "القرارات السابقة"],
@@ -1841,12 +1843,21 @@ const msgsOf=h=>(LANG!=='es'&&h.msgsI18n&&h.msgsI18n[LANG])||h.msgs;
 function evTitle(h){if(h.evId){const e=EVENTS.find(x=>x.id===h.evId);if(e)return e.t(h.evTarget)}return h.event||''}
 const glBtn=k=>`<button type="button" class="gl" data-gl="${k}" aria-label="${T('¿Qué significa?')}" title="${T('¿Qué significa?')}">?</button>`;
 function syncLock(){try{document.documentElement.classList.toggle('lock',!!document.querySelector('.gloss-ov, .drawer.open'))}catch(e){}}
+/* Términos que dependen de un apartado: solo salen si el grupo lo tiene en su nivel (y el profesor/a no lo ha quitado).
+   Sin empresa (inicio, panel del profesor/a) se ve el glosario completo. */
+const GLOSS_NEED={prestamo:['finance'],tae:['@avanzado'],smi:['staff'],huelga:['staff'],sociedades:['tax'],iva:['tax','invoice'],fijo:['@adv'],variable:['@adv']};
+function glossFor(k){
+  const t=VIEW==='team'&&ME?myTeam():null; if(!t) return [...GLOSS];
+  const lv=levelOf(t), off=offFor(t), secs=secsOfLevel(lv).map(x=>x[0]).filter(x=>!off.includes(x));
+  const has=n=>n==='@adv'?lv!=='basico':n==='@avanzado'?lv==='avanzado'&&secs.includes('finance'):secs.includes(n);
+  return GLOSS.filter(g=>g.k===k||!GLOSS_NEED[g.k]||GLOSS_NEED[g.k].some(has));
+}
 function closeGloss(){const o=document.getElementById('gloss');if(o)o.remove();syncLock()}
 function openGloss(k){
   closeGloss(); const L=LANG;
   const ov=document.createElement('div'); ov.id='gloss'; ov.className='gloss-ov'; ov.dir=L==='ar'?'rtl':'ltr';
   ov.innerHTML=`<div class="gloss-box" role="dialog" aria-modal="true" aria-label="${T('Glosario')}"><div class="gloss-head"><h2>${T('Glosario')}</h2><button class="mini" id="glclose">${T('Cerrar')}</button></div>
-    <dl>${[...GLOSS].sort((a,b)=>a[L][0].localeCompare(b[L][0],L,{sensitivity:'base'})).map(g=>`<div class="gl-item ${g.k===k?'hit':''}" id="gl-${g.k}"><dt>${g[L][0]}</dt><dd>${g[L][1]}</dd><dd class="ex"><b>${T('Ejemplo')}:</b> ${g[L][2]}</dd></div>`).join('')}</dl></div>`;
+    <dl>${glossFor(k).sort((a,b)=>a[L][0].localeCompare(b[L][0],L,{sensitivity:'base'})).map(g=>`<div class="gl-item ${g.k===k?'hit':''}" id="gl-${g.k}"><dt>${g[L][0]}</dt><dd>${g[L][1]}</dd><dd class="ex"><b>${T('Ejemplo')}:</b> ${g[L][2]}</dd></div>`).join('')}</dl></div>`;
   document.body.appendChild(ov); syncLock();
   ov.addEventListener('click',e=>{if(e.target===ov)closeGloss()});
   document.getElementById('glclose').addEventListener('click',closeGloss); document.getElementById('glclose').focus();
@@ -2233,7 +2244,7 @@ function financeHTML(d,t,w){
       <div class="r"><span>${T('Cuota semanal (desde la semana que viene)')}</span><b>${eur(c)}</b></div>
       <div class="r"><span>${T('Total a devolver')}</span><b>${eur(tot)}</b></div>
       <div class="r"><span>${T('Intereses (lo que os cuesta el préstamo)')}</span><b class="neg">${eur(tot-(+f.loan))}</b></div>
-      <div class="r"><span>TIN · TAE ${glBtn('tae')}</span><b>${Math.round(tin*100)} % · ${(Math.round((Math.pow(1+i,52)-1)*1000)/10).toLocaleString(LOCALE())} %</b></div></div></div>`})():'';
+      ${levelOf(t)==='basico'?`<div class="r"><span>${T('Interés al año')}</span><b>${Math.round(tin*100)} %</b></div>`:`<div class="r"><span>TIN · TAE ${glBtn('tae')}</span><b>${Math.round(tin*100)} % · ${(Math.round((Math.pow(1+i,52)-1)*1000)/10).toLocaleString(LOCALE())} %</b></div>`}</div></div>`})():'';
   return `<h2>${T('Financiación')} ${glBtn('prestamo')}</h2>
     ${t.cash<0?`<div class="card event"><span class="label">${T('Cuenta en negativo')}</span><p>${T('Tenéis {0} de presupuesto. El banco cobra un 0,5 % semanal por el descubierto y solo os ofrece un préstamo de rescate al {1} %.',eur(t.cash),Math.round(RESCUE_TIN*100))}${t.cash<BANKRUPT?' <b>'+T('Estáis en quiebra técnica: debéis más de lo que podéis pagar.')+'</b>':''}</p></div>`:''}
     <h3>${T('Préstamo bancario')}</h3>
@@ -2242,7 +2253,7 @@ function financeHTML(d,t,w){
       <div class="grid4">${LOAN_OPTS.map(v=>opt(v,v?eur(v):T('Sin préstamo'),+f.loan===v,'data-loan')).join('')}</div>
       ${+f.loan>0?`<h3>${T('¿En cuántas semanas lo devolvéis?')}</h3><div class="grid4">${LOAN_TERMS.map(n=>opt(n,T('{0} semanas',n),(+f.term||8)===n,'data-term')).join('')}</div>`:''}${prev}`}
     <h3>${T('¿Ofrecéis pago a plazos a los clientes?')}</h3>
-    <div class="grid3">${Object.entries(PLAZOS).map(([k,x])=>`<button class="opt" data-plazos="${k}" aria-pressed="${(f.plazos||'no')===k}"><span class="t">${T(x.n)}</span><span class="s">${T(x.d)}</span></button>`).join('')}</div>`;
+    <div class="grid3">${Object.entries(PLAZOS).map(([k,x])=>`<button class="opt" data-plazos="${k}" aria-pressed="${(f.plazos||'no')===k}"><span class="t">${T(x.n)}</span><span class="s">${T(levelOf(t)==='basico'&&x.db?x.db:x.d)}</span></button>`).join('')}</div>`;
 }
 function invoiceHTML(t,w){
   const o=invOrder(t,w), st=invOf(t,w)||{}, done=!!st.ok, v=INVTRY[w]||{}, chk=INVCHK[w]||{};
@@ -2314,7 +2325,7 @@ function plHTML(h){
 const LOAN_OPTS=[0,10000,25000,50000], LOAN_TERMS=[4,8], LOAN_TIN=.09, RESCUE_TIN=.15, OVERDRAFT_W=.005, BANKRUPT=-30000;
 const PLAZOS={no:{n:'Sin pago a plazos',d:'Los clientes pagan el móvil entero al comprarlo.'},
   propia:{n:'Plazos sin intereses que financiáis vosotros',d:'Atrae a muchos más clientes, pero una parte no termina de pagar (impagos: se pierde un 8 % de esas ventas).'},
-  financiera:{n:'Plazos con una financiera',d:'El cliente paga intereses a la financiera (TAE 15 %). Atrae algo menos, la financiera asume los impagos y os cobra un 2 % de comisión.'}};
+  financiera:{n:'Plazos con una financiera',d:'El cliente paga intereses a la financiera (TAE 15 %). Atrae algo menos, la financiera asume los impagos y os cobra un 2 % de comisión.',db:'El cliente paga intereses a la financiera. Atrae algo menos, la financiera asume los impagos y os cobra un 2 % de comisión.'}};
 const ECO={reciclado:{n:'Embalaje reciclado y sin plástico',d:'Caja de cartón reciclado, sin plásticos de un solo uso.',c:1,rep:.5},
   recogida:{n:'Recogida y reciclaje del móvil viejo',d:'Recogéis el móvil antiguo del cliente y lo lleváis a reciclar.',c:3,rep:1},
   co2:{n:'Compensar el CO₂ del transporte',d:'Pagáis proyectos que absorben el CO₂ que emite el transporte (unos 40 € por tonelada).',c:0,rep:.5}};
