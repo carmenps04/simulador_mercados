@@ -198,6 +198,11 @@ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
 .llist{display:flex;flex-direction:column;gap:6px}
 .lrow{display:grid;grid-template-columns:24px 200px minmax(0,1fr) 120px;gap:12px;align-items:center;padding:8px 12px}
 .lrow .meta{text-align:right}
+.medrow{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 12px}
+.medrow .s{font-size:.82rem;line-height:1.3}
+.medrow .mtx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.medrow .meta{display:flex;flex-direction:column;align-items:flex-end;text-align:right;white-space:nowrap}
+.medrow .meta b{font-size:.92rem;color:var(--ink);font-weight:600}
 .crow2{display:grid;grid-template-columns:110px minmax(0,1fr) 230px;gap:14px;align-items:center;padding:8px 12px}
 .crow2 .s{font-size:.84rem;line-height:1.35}
 .crow2 .vals{display:flex;flex-direction:column;gap:3px}
@@ -452,7 +457,7 @@ th{white-space:nowrap}
 [dir=rtl] .rules ol{padding-left:0;padding-right:20px}
 [dir=rtl] .opt{text-align:right}
 [dir=rtl] th,[dir=rtl] td{text-align:right}
-[dir=rtl] th.rt,[dir=rtl] td.num,[dir=rtl] .rank .val,[dir=rtl] .lrow .meta,[dir=rtl] .mrow .meta{text-align:left}
+[dir=rtl] th.rt,[dir=rtl] td.num,[dir=rtl] .rank .val,[dir=rtl] .lrow .meta,[dir=rtl] .medrow .meta,[dir=rtl] .mrow .meta{text-align:left}
 [dir=rtl] .sw-in{margin-right:0;margin-left:8px}
 [dir=rtl] .chart svg{direction:ltr}
 [dir=rtl] .label{letter-spacing:0;text-transform:none}
@@ -1301,6 +1306,7 @@ const GLOSS=[
 const LANGS={es:'Español',en:'English',ar:'العربية'};
 /* Textos nuevos: «¿Por qué?» */
 TR.push(
+["a la semana","per week","في الأسبوع"],
 ["¿Por qué?","Why?","لماذا؟"],
 ["Mismo precio que la semana anterior ({0}).","Same price as the week before ({0}).","السعر نفسه كالأسبوع السابق ({0})."],
 ["Cambiasteis el precio de {0} a {1}.","You changed the price from {0} to {1}.","غيّرتم السعر من {0} إلى {1}."],
@@ -1813,7 +1819,7 @@ function defaultDec(model){const l=model==='A'?1:model==='C'?3:2;return {model,n
 /* Ajusta una decisión a lo que permite el evento de esta semana */
 function fixDec(d,ev,t){
   const df=defaultDec(d.model); if(!NICHES[d.niche]) d.niche=df.niche; d.comps={...df.comps,...(d.comps||{})}; d.extras={...df.extras,...(d.extras||{})};
-  {const off=offAt(t);if(off.includes('box'))d.eco={};if(off.includes('finance'))d.fin={loan:0,term:8,plazos:'no'};
+  {const off=offAt(t);if(off.includes('eco'))d.eco={};if(off.includes('finance'))d.fin={loan:0,term:8,plazos:'no'};
    if(off.includes('cont')){d.cont='europa';d.price=d.price||habitual(d.model,'europa')}if(off.includes('mode'))d.mode='camion';
    if(off.includes('ads')){d.ad=0;d.adv={...(d.adv||{}),media:[]}}
    if(off.includes('niche'))d.niche=df.niche;if(off.includes('comps'))d.comps={...df.comps};if(off.includes('box'))d.extras={...df.extras}}
@@ -2040,8 +2046,8 @@ function advMessages(r){
 
 
 /* ================= Modo avanzado: secciones, menú lateral y resúmenes ================= */
-const BASIC_SECS=[['news','Noticias'],['design','Diseño'],['comps','Componentes'],['box','Caja'],['cont','Continente'],['niche','Nicho'],['mode','Transporte'],['ads','Publicidad'],['price','Precio'],['finance','Financiación'],['invoice','Factura']];
-const ADV_SECS=[['news','Noticias','Semana'],['design','Diseño','Producto'],['comps','Componentes','Producto'],['ai','Mejoras con IA','Producto'],['box','Caja','Producto'],
+const BASIC_SECS=[['news','Noticias'],['design','Diseño'],['comps','Componentes'],['box','Caja'],['eco','Medidas sostenibles'],['cont','Continente'],['niche','Nicho'],['mode','Transporte'],['ads','Publicidad'],['price','Precio'],['finance','Financiación'],['invoice','Factura']];
+const ADV_SECS=[['news','Noticias','Semana'],['design','Diseño','Producto'],['comps','Componentes','Producto'],['ai','Mejoras con IA','Producto'],['box','Caja','Producto'],['eco','Medidas sostenibles','Producto'],
   ['zone','Ubicación en Andalucía','Empresa'],['staff','Plantilla','Empresa'],['mach','Maquinaria','Empresa'],
   ['cont','Continente','Mercado'],['niche','Nicho','Mercado'],['mode','Transporte','Mercado'],['ads','Publicidad','Mercado'],
   ['price','Precio y producción','Números'],['finance','Financiación','Números'],['tax','Impuestos','Números'],['invoice','Factura','Números']];
@@ -2126,8 +2132,8 @@ function advSection(k,d,t,ev,w){
       <span class="meta">${T('Para {0}: {1}',N.n.toLowerCase(),T(v>=1.15?'encaja muy bien':v<.9?'encaja poco':'encaje normal'))}</span></button>`}).join('')}</div>`:''}
     
     <h3>${T('¿En qué medios os anunciáis?')}</h3><p class="hint">${T('Podéis elegir varios. Cada medio tiene un precio por semana y llega mejor a unos clientes que a otros.')}</p>
-    <div class="llist two">${Object.entries(MEDIA).map(([m,M])=>{const on=A.media.includes(m), v=mediaFit(m,d.niche);return `<button class="opt xopt lrow" data-media="${m}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="t">${M.n}</span>
-      <span class="s">${T('Llega a {0}: {1}',N.n.toLowerCase(),T(v>=1.3?'muy bien':v>=1?'bien':v>=.7?'regular':'mal'))}</span><span class="meta">${T('{0} a la semana',eur(M.c))}</span></button>`}).join('')}</div>
+    <div class="llist two">${Object.entries(MEDIA).map(([m,M])=>{const on=A.media.includes(m), v=mediaFit(m,d.niche);return `<button class="opt xopt medrow" data-media="${m}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="mtx"><span class="t">${M.n}</span>
+      <span class="s">${T('Llega a {0}: {1}',N.n.toLowerCase(),T(v>=1.3?'muy bien':v>=1?'bien':v>=.7?'regular':'mal'))}</span></span><span class="meta"><b>${eur(M.c)}</b><span>${T('a la semana')}</span></span></button>`}).join('')}</div>
     <p class="hint"><b>${T('Total en publicidad: {0}',eur(A.mediaC))}</b></p>`;
   }
   if(k==='tax'){
@@ -2724,8 +2730,8 @@ function decideHTML(t){
   if(KEY==='box') body=`<h2>${T('¿Qué incluís en la caja?')}</h2><p class="hint">${T('Cada extra sube el coste de cada móvil.')}</p>
       <div class="llist">${Object.entries(EXTRAS).map(([k,x])=>{const on=!!d.extras[k];
       return `<button class="opt xopt lrow" data-extra="${k}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="t">${x.n}</span>
-        <span class="s">${x.why}</span><span class="meta">${T('+{0} € por móvil',x.c)}</span></button>`}).join('')}</div>
-      <h3>${T('Medidas sostenibles')}</h3><p class="hint">${T('Cuestan algo más, pero muchos clientes las valoran y mejoran vuestra reputación.')}</p>
+        <span class="s">${x.why}</span><span class="meta">${T('+{0} € por móvil',x.c)}</span></button>`}).join('')}</div>`;
+  if(KEY==='eco') body=`<h2>${T('Medidas sostenibles')}</h2><p class="hint">${T('Cuestan algo más, pero muchos clientes las valoran y mejoran vuestra reputación.')}</p>
       <div class="llist">${Object.entries(ECO).map(([k,x])=>{const on=!!ecoOf(d)[k], c=k==='co2'?co2g(d.cont,d.mode)/1000*.04:x.c;
       return `<button class="opt xopt lrow" data-eco="${k}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="t">${T(x.n)}</span>
         <span class="s">${T(x.d)}</span><span class="meta">${T('+{0} por móvil',eurd(c))}</span></button>`}).join('')}</div>`;
