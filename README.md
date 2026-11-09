@@ -44,7 +44,7 @@ La app no tiene servidor: la ronda se cierra cuando alguien tiene la app abierta
 ### Exportar
 En **Cursos**:
 - **Exportar resultados en PDF**: informe del curso.
-- **Decisiones en Excel**: una fila por empresa y semana con todas las decisiones, la previsión de ventas y los resultados, y una hoja de resumen. Las semanas jugadas antes de noviembre de 2026 no tienen componentes, extras ni previsión.
+- **Decisiones en Excel**: una fila por empresa y semana con todas las decisiones y los resultados, y una hoja de resumen. Las semanas jugadas antes de noviembre de 2026 no tienen componentes ni extras.
 
 ### Copias de seguridad
 - **Descargar copia de seguridad** (en **Cursos** y en la ventana de reiniciar o borrar) guarda el curso entero en un archivo `.json`, con imágenes. Guárdalo en el ordenador o en Drive.

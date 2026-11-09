@@ -430,11 +430,7 @@ th{white-space:nowrap}
 .gl-item dd{margin:4px 0 0}.gl-item dd.ex{color:var(--muted);font-size:.9rem}
 .sd{gap:6px}.sd-row{display:grid;grid-template-columns:minmax(120px,190px) 1fr 60px;gap:10px;align-items:center;font-size:.88rem}
 .sd-bar{height:12px;background:var(--bg);border-radius:6px;overflow:hidden}.sd-bar i{display:block;height:100%;border-radius:6px}
-.sd-bar i.d{background:var(--c2)}.sd-bar i.o{background:var(--c1)}.sd-bar i.v{background:var(--good)}.sd-bar i.p{background:var(--c4)}
-.pred{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--accent-soft)}
-.pred span{display:flex;flex-direction:column;gap:2px;flex:1;min-width:180px}.pred small{color:var(--muted);font-size:.8rem}
-.pred input{width:120px;font:inherit;font-family:var(--f-data);font-size:1.05rem;text-align:end;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
-@media (min-width:901px){#summary .pred{padding:8px 10px;gap:6px}#summary .pred small{display:none}#summary .pred span{min-width:0}#summary .pred b{font-size:.88rem}#summary .pred input{width:100%;padding:6px 8px;font-size:.95rem}}
+.sd-bar i.d{background:var(--c2)}.sd-bar i.o{background:var(--c1)}.sd-bar i.v{background:var(--good)}
 .sd-row b{text-align:end}.sd-txt{font-size:.9rem}
 .reflect textarea{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);margin-top:4px}
 .reflect label{display:block}
@@ -712,6 +708,15 @@ details.fold[open]{gap:12px}
 .numf .big{font-size:1.6rem;font-weight:700}
 .card.pl .rows .r.total{border-top:1px solid var(--line);padding-top:6px}
 .card.pl .rows .r{gap:10px}
+/* Resumen lateral: líneas divisorias entre filas y bloques */
+#summary .card>h3{padding-bottom:8px;border-bottom:1px solid var(--line)}
+#summary .rows{gap:0}
+#summary .rows .r{padding:5px 0}
+#summary .rows .r+.r{border-top:1px solid var(--line);border-top-color:color-mix(in srgb,var(--line) 55%,transparent)}
+#summary .rows .label.sub{margin-top:10px;padding:10px 0 4px;border-top:1px solid var(--line)}
+#summary .rows>.label.sub:first-child{margin-top:0;padding-top:2px;border-top:0}
+#summary .rows .r.total{border-top:2px solid var(--line);margin-top:6px;padding-top:7px}
+#summary .card>.rows{padding-bottom:10px;border-bottom:1px solid var(--line)}
 .card.pl .rows .r b{white-space:normal;text-align:end;min-width:0;overflow-wrap:break-word}
 
 .code-in{font-family:var(--f-data);font-size:1.4rem;letter-spacing:.12em;text-transform:uppercase;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
@@ -1294,16 +1299,8 @@ const GLOSS=[
   ar:['السمعة','رأي الزبائن في شركتكم. إذا كانوا راضين ترتفع، فتبيعون أكثر في الأسابيع التالية.','إذا انتظر الزبائن جودة ولم يجدوها، تنخفض السمعة.']}
 ];
 const LANGS={es:'Español',en:'English',ar:'العربية'};
-/* Textos nuevos: previsión de ventas y «¿Por qué?» */
+/* Textos nuevos: «¿Por qué?» */
 TR.push(
-["¿Cuántos móviles creéis que venderéis?","How many phones do you think you will sell?","كم هاتفًا تعتقدون أنكم ستبيعون؟"],
-["Es vuestra previsión. Cuando salgan los resultados la compararéis con lo que vendáis de verdad.","This is your forecast. When the results come out you will compare it with what you really sell.","هذا توقّعكم. عندما تظهر النتائج ستقارنونه بما بعتموه فعلًا."],
-["Ej.: 250","E.g. 250","مثال: 250"],
-["Previsión de ventas","Sales forecast","توقّع المبيعات"],
-["Previsteis vender","You expected to sell","توقّعتم أن تبيعوا"],
-["Vuestra previsión fue muy buena: acertasteis casi exacto.","Your forecast was very good: you got it almost exactly right.","كان توقّعكم جيدًا جدًا: أصبتم تقريبًا بالضبط."],
-["Vendisteis {0} móviles más de los que previsteis.","You sold {0} more phones than you expected.","بعتم {0} هاتفًا أكثر مما توقّعتم."],
-["Vendisteis {0} móviles menos de los que previsteis.","You sold {0} fewer phones than you expected.","بعتم {0} هاتفًا أقل مما توقّعتم."],
 ["¿Por qué?","Why?","لماذا؟"],
 ["Mismo precio que la semana anterior ({0}).","Same price as the week before ({0}).","السعر نفسه كالأسبوع السابق ({0})."],
 ["Cambiasteis el precio de {0} a {1}.","You changed the price from {0} to {1}.","غيّرتم السعر من {0} إلى {1}."],
@@ -1779,17 +1776,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeGloss();if(VIE
 /* Oferta y demanda de una semana */
 function sdHTML(h){
   if(!h.sent) return '';
-  const hp=Number.isFinite(h.pred)?h.pred:null, mx=Math.max(h.demand,h.prod,hp||0,1), r=h.prod?h.demand/h.prod:(h.demand?9:1);
+  const mx=Math.max(h.demand,h.prod,1), r=h.prod?h.demand/h.prod:(h.demand?9:1);
   const row=(l,v,c)=>`<div class="sd-row"><span class="sd-l">${l}</span><span class="sd-bar"><i class="${c}" style="width:${Math.max(1.5,v/mx*100)}%"></i></span><b class="num" data-n="${v}" data-f="int">${int(v)}</b></div>`;
   const txt=r>1.1?'La demanda fue mayor que vuestra oferta: faltaron móviles. Podríais fabricar más o subir un poco el precio.':r<0.9?'Vuestra oferta fue mayor que la demanda: sobraron móviles. Podríais fabricar menos, bajar el precio o hacer más publicidad.':'Oferta y demanda estuvieron bastante equilibradas.';
   return `<div class="card sd"><span class="label">${T('Oferta y demanda')} ${glBtn('demanda')}</span>
-    ${row(T('Querían comprar (demanda)'),h.demand,'d')}${row(T('Fabricasteis (oferta)'),h.prod,'o')}${hp!==null?row(T('Previsteis vender'),hp,'p'):''}${row(T('Vendisteis'),h.sold,'v')}
-    <p class="sd-txt">${T(txt)}${hp!==null?' '+predTxt(hp,h.sold):''}</p></div>`;
-}
-function predTxt(p,s){
-  const d=s-p, tol=Math.max(5,Math.round(0.1*Math.max(p,s)));
-  if(Math.abs(d)<=tol) return T('Vuestra previsión fue muy buena: acertasteis casi exacto.');
-  return d>0?T('Vendisteis {0} móviles más de los que previsteis.',int(d)):T('Vendisteis {0} móviles menos de los que previsteis.',int(-d));
+    ${row(T('Querían comprar (demanda)'),h.demand,'d')}${row(T('Fabricasteis (oferta)'),h.prod,'o')}${row(T('Vendisteis'),h.sold,'v')}
+    <p class="sd-txt">${T(txt)}</p></div>`;
 }
 let REFL=null;
 function finalHTML(t){
@@ -1853,7 +1845,7 @@ async function closeWeek(){
       if(r.A) h.adv=advRecord(r);
       h.fin={...r.FIN.state,taken:r.FIN.taken,interest:Math.round(r.FIN.interest),principal:Math.round(r.FIN.principal),over:Math.round(r.FIN.over),plazos:r.PZ.k,pzLoss:Math.round(r.pzLoss||0)};
       h.eco=r.EC.on; h.inv=iv?{ok:!!iv.ok,tries:iv.tries||0}:null; if(cash<BANKRUPT) h.bankrupt=true;
-      if(sent){h.pred=predOK(dec)?dec.pred:null;h.dec={comps:dec.comps,extras:dec.extras,look:(t.design&&t.design.look)||null,logo:logoSet(t),level:levelOf(t),fin:dec.fin||null}}
+      if(sent){h.dec={comps:dec.comps,extras:dec.extras,look:(t.design&&t.design.look)||null,logo:logoSet(t),level:levelOf(t),fin:dec.fin||null}}
       jobs.push(Store.patchTeam(CODE,t.id,{cash:Math.round(cash),rep,history:[...(t.history||[]),h]}));
     }
     await Promise.all(jobs);
@@ -2215,8 +2207,7 @@ function advSummaryHTML(t){
     ${low?`<p class="warn">${T('El sueldo no puede ser menor que el salario mínimo ({0}).',eur(SMI))}</p>`:''}
     ${after<0?`<p class="warn">${T('No tenéis presupuesto suficiente.')}</p>`:''}
     ${blockedCont(ev,d.cont)?`<p class="warn">${T('Ese continente está cerrado esta semana.')}</p>`:''}
-    ${predHTML(d)}
-    <button class="go ${sendArmed?'armed':''}" id="send" data-ok="${ok?1:0}" ${ok&&predOK(d)?'':'disabled'}>${T(sendArmed?'Confirmar y enviar':'Enviar decisiones')}</button>
+    <button class="go ${sendArmed?'armed':''}" id="send" data-ok="${ok?1:0}" ${ok?'':'disabled'}>${T(sendArmed?'Confirmar y enviar':'Enviar decisiones')}</button>
     ${missingSecs(t).length?`<p class="hint pend-t">${T('Todavía no habéis revisado: {0}.',missingSecs(t).join(', '))}</p>`:`<p class="hint good-t">✓ ${T('Habéis revisado todas las secciones.')}</p>`}
     <p class="hint" id="sendmsg">${T(sendArmed?'<b>¿Seguro?</b> Después de enviar no podréis cambiar nada esta semana.':'Revisad todas las secciones del menú: una vez enviadas, no se pueden cambiar.')}</p></div></div>`;
 }
@@ -2818,16 +2809,9 @@ function summaryHTML(t){
     </div>
     ${after<0?`<p class="warn">${T('No tenéis presupuesto suficiente.')}</p>`:''}
     ${blockedCont(ev,d.cont)?`<p class="warn">${T('Ese continente está cerrado esta semana.')}</p>`:''}
-    ${predHTML(d)}
-    <button class="go ${sendArmed?'armed':''}" id="send" data-ok="${ok?1:0}" ${ok&&predOK(d)?'':'disabled'}>${T(sendArmed?'Confirmar y enviar':'Enviar decisiones')}</button>
+    <button class="go ${sendArmed?'armed':''}" id="send" data-ok="${ok?1:0}" ${ok?'':'disabled'}>${T(sendArmed?'Confirmar y enviar':'Enviar decisiones')}</button>
     ${missingSecs(t).length?`<p class="hint pend-t">${T('Todavía no habéis revisado: {0}.',missingSecs(t).join(', '))}</p>`:`<p class="hint good-t">✓ ${T('Habéis revisado todas las secciones.')}</p>`}
     <p class="hint" id="sendmsg">${T(sendArmed?'<b>¿Seguro?</b> Después de enviar no podréis cambiar nada esta semana.':'Revisad todas las pestañas: una vez enviadas, no se pueden cambiar.')}</p></div></div>`;
-}
-/* Previsión de ventas: el grupo apunta cuántos móviles cree que venderá y luego la compara con lo real */
-const predOK=d=>!!d&&Number.isFinite(d.pred)&&d.pred>=0;
-function predHTML(d){
-  return `<label class="pred" for="pred"><span><b>${T('¿Cuántos móviles creéis que venderéis?')}</b><small>${T('Es vuestra previsión. Cuando salgan los resultados la compararéis con lo que vendáis de verdad.')}</small></span>
-    <input id="pred" type="text" inputmode="numeric" autocomplete="off" maxlength="7" value="${predOK(d)?d.pred:''}" placeholder="${T('Ej.: 250')}"></label>`;
 }
 function sentHTML(t){
   const d=fixDec(JSON.parse(JSON.stringify(t.dec)),teamEvent(t,G.week)), K=costs(d,G.week,t), m=MODELS[d.model];
@@ -2841,7 +2825,7 @@ function sentHTML(t){
       ${item('Móvil',m.n+' ('+m.g.toLowerCase()+')')}${item('Diseño',look)}${item('Logo',T(logoSet(t)?'Sí':'No'))}
       ${Object.keys(COMPS).map(k=>`<div class="sitem"><span class="label">${COMPS[k].n}</span><b>${oName(k,d.comps[k])}</b></div>`).join('')}
       ${item('Extras en la caja',inc)}${item('Continente',CONTS[d.cont].n)}${item('Nicho',NICHES[d.niche].n)}${item('Transporte',MODES[d.mode].n)}
-      ${item('Precio',eur(d.price))}${item('Móviles a fabricar',int(d.prod))}${predOK(d)?item('Previsión de ventas',int(d.pred)):''}${item('Publicidad',eur(d.ad))}${item('Inversión total',eur(K.invest))}
+      ${item('Precio',eur(d.price))}${item('Móviles a fabricar',int(d.prod))}${item('Publicidad',eur(d.ad))}${item('Inversión total',eur(K.invest))}
       ${(()=>{const F=finCalc(d,G.week,t), e=ecoFx(d), iv=invOf(t,G.week);return item('Préstamo',F.taken?T('{0} en {1} semanas',eur(F.taken),F.state.left):F.P.balance>0.5?T('Pendiente: {0}',eur(F.P.balance)):T('No'))+item('Pago a plazos',T(PLAZOS[F.plazos].n))+item('Medidas sostenibles',e.on.map(k=>T(ECO[k].n)).join(SEP())||T('Ninguna'))+item('Factura',iv&&iv.ok?'✓':T('Sin hacer o con errores'))})()}
       ${isAdv()?(()=>{const A=K.A;return item('Fábrica',A.Z.n)+item('Plantilla',T('{0} personas · {1}/mes',A.N,eur(A.sal)))+item('Puestos con IA',String(A.R))+item('Maquinaria',MACH[A.mach].n+' · '+MAINT[A.a.maint].n.toLowerCase())+item('IA en el móvil',AIF[+A.a.ai||0].n)+item('Enfoque de la publicidad',FOCUS[A.a.focus].n)+item('Medios',A.media.map(k=>MEDIA[k].n).join(SEP())||T('Ninguno'))+(A.meas?item('Medida ante la huelga',MEASURES[A.meas].n):'')})():''}
     </div>
@@ -2950,11 +2934,8 @@ function bindDesign(){
 }
 function bindSend(){
   const b=document.getElementById('send'); if(!b) return;
-  const pi=document.getElementById('pred');
-  pi&&pi.addEventListener('input',()=>{const v=parseNum(pi.value);draft.pred=Number.isFinite(v)&&v>=0?Math.round(v):null;if(!PREVIEW)b.disabled=!(b.dataset.ok==='1'&&predOK(draft))});
   if(PREVIEW){b.disabled=true;b.textContent='Vista del profesor/a: solo el grupo puede enviar';return}
   b.addEventListener('click',async()=>{
-    if(!predOK(draft)){pi&&pi.focus();return}
     if(!sendArmed){sendArmed=true;document.getElementById('summary').innerHTML=summaryHTML(myTeam());bindSend();return}
     sendArmed=false; b.disabled=true; b.textContent=T('Enviando…'); const t=myTeam(); if(t.decWeek===G.week) return renderTeam();
     if(isAdv()&&(draft.adv.salary<SMI)){b.disabled=false;b.textContent=T('Enviar decisiones');return}
@@ -3740,9 +3721,9 @@ function decRow(t,w,h,d,state){
   const comps=Object.keys(COMPS).map(k=>d&&d.comps&&d.comps[k]?oName(k,d.comps[k]):'');
   const extras=d&&d.extras?Object.keys(EXTRAS).filter(k=>d.extras[k]).map(k=>EXTRAS[k].n).join(', ')||'Ninguno':'';
   const src=h||{cont:t.dec.cont,niche:t.dec.niche,mode:t.dec.mode,price:t.dec.price,prod:t.dec.prod,ad:t.dec.ad};
-  const sent=h?h.sent:true, pred=h?h.pred:(predOK(t.dec)?t.dec.pred:null);
+  const sent=h?h.sent:true;
   return [G.curso||G.code,t.name,(t.members||[]).join(', '),MODELS[t.model].n,LEVELS[(d&&d.level)||levelOf(t)]||'',w,state,
-    Number.isFinite(pred)?pred:'',sent?nm(CONTS,src.cont):'',sent?nm(NICHES,src.niche):'',sent?nm(MODES,src.mode):'',sent?src.price:'',sent?src.prod:'',sent?src.ad:'',
+    sent?nm(CONTS,src.cont):'',sent?nm(NICHES,src.niche):'',sent?nm(MODES,src.mode):'',sent?src.price:'',sent?src.prod:'',sent?src.ad:'',
     ...comps,extras,d&&d.look?LOOKS[d.look]||'':'',d?(d.logo?'Sí':'No'):'',fin&&fin.taken?fin.taken:'',fin&&fin.plazos&&PLAZOS[fin.plazos]?PLAZOS[fin.plazos].n:'',
     A?nm(ZONES,A.zone):'',A?A.workers:'',A?A.salary:'',A?nm(MACH,A.mach):'',A?nm(FOCUS,A.focus):'',A?(A.media||[]).map(k=>nm(MEDIA,k)).join(', '):'',
     h?h.demand:'',h?h.sold||0:'',h?h.revenue:'',h?h.costs:'',h?h.profit:'',h?h.cash:'',h?evTitle(h)||'':''];
@@ -3751,24 +3732,22 @@ async function exportXLSX(btn){
   const msg=document.getElementById('pdfmsg'), old=btn.textContent; btn.disabled=true; btn.textContent='Preparando el Excel…';
   try{
     await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
-    const head=['Curso','Empresa','Integrantes','Móvil','Dificultad','Semana','Estado','Previsión de ventas','Continente','Nicho','Transporte','Precio (€)','Fabricados','Publicidad (€)',
+    const head=['Curso','Empresa','Integrantes','Móvil','Dificultad','Semana','Estado','Continente','Nicho','Transporte','Precio (€)','Fabricados','Publicidad (€)',
       ...Object.keys(COMPS).map(k=>COMPS[k].n),'Extras en la caja','Diseño','Logo','Préstamo pedido (€)','Pago a plazos','Fábrica','Plantilla (personas)','Salario (€/mes)','Maquinaria','Enfoque de la publicidad','Medios',
       'Querían comprar','Vendidos','Ingresos (€)','Gastos (€)','Beneficio (€)','Presupuesto después (€)','Evento'];
-    const rows=[head], sum=[['Empresa','Integrantes','Móvil','Semanas enviadas','Móviles vendidos','Beneficio total (€)','Presupuesto actual (€)','Reputación (0-100)','Error medio de la previsión (móviles)']];
+    const rows=[head], sum=[['Empresa','Integrantes','Móvil','Semanas enviadas','Móviles vendidos','Beneficio total (€)','Presupuesto actual (€)','Reputación (0-100)']];
     for(const t of [...TEAMS].sort((a,b)=>a.name.localeCompare(b.name,'es'))){
       const H=(t.history||[]).slice().sort((a,b)=>a.week-b.week);
       for(const h of H) rows.push(decRow(t,h.week,h,h.dec||null,h.sent?'Enviada':'No envió'));
       if(G.week<=WEEKS&&t.decWeek===G.week&&!H.some(h=>h.week===G.week)) rows.push(decRow(t,G.week,null,{...t.dec,look:t.design&&t.design.look,logo:logoSet(t)},'Enviada, sin resultados todavía'));
-      const P=H.filter(h=>Number.isFinite(h.pred));
-      sum.push([t.name,(t.members||[]).join(', '),MODELS[t.model].n,H.filter(h=>h.sent).length,H.reduce((a,h)=>a+(h.sold||0),0),profitOf(t),Math.round(t.cash),Math.round(t.rep),
-        P.length?Math.round(P.reduce((a,h)=>a+Math.abs(h.pred-(h.sold||0)),0)/P.length):'']);
+      sum.push([t.name,(t.members||[]).join(', '),MODELS[t.model].n,H.filter(h=>h.sent).length,H.reduce((a,h)=>a+(h.sold||0),0),profitOf(t),Math.round(t.cash),Math.round(t.rep)]);
     }
     const wb=XLSX.utils.book_new(), mk=(aoa,w)=>{const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=aoa[0].map((x,i)=>({wch:w&&w[i]||Math.max(10,Math.min(28,String(x).length+2))}));ws['!autofilter']={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:aoa.length-1,c:aoa[0].length-1}})};return ws};
     XLSX.utils.book_append_sheet(wb,mk(rows,{1:18,2:30}),'Decisiones por semana');
     XLSX.utils.book_append_sheet(wb,mk(sum,{0:18,1:30}),'Resumen por empresa');
     const out=XLSX.write(wb,{bookType:'xlsx',type:'array'});
     download(new Blob([out],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),`MercadoMovil_${fileName(G.curso||G.code)}_decisiones.xlsx`);
-    if(msg) msg.textContent='Excel descargado. Las semanas anteriores a esta versión no tienen componentes, extras ni previsión.';
+    if(msg) msg.textContent='Excel descargado. Las semanas anteriores a esta versión no tienen componentes ni extras.';
   }catch(e){console.error(e);if(msg)msg.textContent='No se pudo crear el Excel. Comprueba la conexión e inténtalo otra vez.'}
   btn.disabled=false; btn.textContent=old;
 }
