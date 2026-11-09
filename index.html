@@ -375,6 +375,8 @@ th.rt{text-align:right}
 .tbar{display:flex;gap:12px 16px;align-items:center;flex-wrap:wrap;background:var(--event-soft);border:1px solid var(--event);border-radius:12px;padding:12px 16px}
 .tbar b{color:var(--event)}
 .danger{color:var(--bad);border-color:var(--bad)}
+.ghost.danger.armed{background:var(--bad);color:#fff}
+.ghost.danger:disabled{opacity:.5;cursor:wait}
 .xopt .t{display:flex;align-items:center;gap:8px}
 .box{width:20px;height:20px;border:2px solid var(--muted);border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;flex:none}
 .xopt[aria-pressed="true"] .box{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
@@ -1881,11 +1883,11 @@ function openGloss(k){
     <dl>${glossFor(k).sort((a,b)=>a[L][0].localeCompare(b[L][0],L,{sensitivity:'base'})).map(g=>`<div class="gl-item ${g.k===k?'hit':''}" id="gl-${g.k}"><dt>${g[L][0]}</dt><dd>${g[L][1]}</dd><dd class="ex"><b>${T('Ejemplo')}:</b> ${g[L][2]}</dd></div>`).join('')}</dl></div>`;
   document.body.appendChild(ov); syncLock();
   ov.addEventListener('click',e=>{if(e.target===ov)closeGloss()});
-  document.getElementById('glclose').addEventListener('click',closeGloss); document.getElementById('glclose').focus();
+  document.getElementById('glclose').addEventListener('click',closeGloss); document.getElementById('glclose').focus({preventScroll:true});
   const hit=k&&document.getElementById('gl-'+k); hit&&hit.scrollIntoView({block:'center'});
 }
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-gl]');if(b){e.preventDefault();openGloss(b.dataset.gl)}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeGloss();if(VIEW==='teacher'&&(TMODAL||SECM)){TMODAL=null;SECM=null;resetArmed=false;DELARM=null;renderTeacher()}}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeGloss();if(VIEW==='teacher'&&(TMODAL||SECM)&&!DANGERBUSY){TMODAL=null;SECM=null;resetArmed=false;DELARM=null;renderTeacher()}}});
 /* Oferta y demanda de una semana */
 function sdHTML(h){
   if(!h.sent) return '';
@@ -2804,7 +2806,7 @@ function openTinfo(k,sub){
   document.body.appendChild(ov); syncLock();
   ov.addEventListener('click',e=>{if(e.target===ov)closeTinfo()});
   ov.querySelectorAll('[data-tsub]').forEach(b=>b.addEventListener('click',()=>openTinfo('res',b.dataset.tsub)));
-  document.getElementById('tmclose').addEventListener('click',closeTinfo); document.getElementById('tmclose').focus();
+  document.getElementById('tmclose').addEventListener('click',closeTinfo); document.getElementById('tmclose').focus({preventScroll:true});
 }
 function bindTmenu(){
   const b=document.getElementById('tmenuBtn'); if(!b) return;
@@ -3461,6 +3463,8 @@ function bindCourseBar(){app.querySelectorAll('[data-game]').forEach(b=>b.addEve
 function renderTeacher(){
   if(!teacherOK) return renderTLogin();
   if(LANG!=='es') applyLang('es');
+  /* El panel no tiene barra de desplazamiento: si algo lo ha movido, vuelve arriba para que no se corte la cabecera */
+  requestAnimationFrame(()=>{try{if(app.scrollTop&&getComputedStyle(app).overflowY==='hidden')app.scrollTop=0}catch(e){}});
   const tabs=`<div class="tabs ttabs" role="tablist">${ttabs().map(([n,l])=>`<button role="tab" data-ttab="${n}" aria-selected="${TTAB===n}"><span class="step-n">${n}</span>${l}</button>`).join('')}</div>`;
   let body='';
   if(TTAB===1) body=tCrear();
@@ -3578,7 +3582,7 @@ function bindCursos(){
   bindAddCourse(1);
   if(!G) return;
   loadClaves();
-  app.querySelectorAll('[data-cedit]').forEach(b=>b.addEventListener('click',()=>{CLAVEEDIT=b.dataset.cedit;renderTeacher();const i=app.querySelector('[data-cform] input');i&&i.focus()}));
+  app.querySelectorAll('[data-cedit]').forEach(b=>b.addEventListener('click',()=>{CLAVEEDIT=b.dataset.cedit;renderTeacher();const i=app.querySelector('[data-cform] input');i&&i.focus({preventScroll:true})}));
   app.querySelectorAll('[data-ccancel]').forEach(b=>b.addEventListener('click',()=>{CLAVEEDIT=null;renderTeacher()}));
   app.querySelectorAll('[data-cform]').forEach(f=>f.addEventListener('submit',async e=>{e.preventDefault();
     const id=f.dataset.cform, c=normPass(f.querySelector('input').value), t=TEAMS.find(x=>x.id===id);
@@ -3601,14 +3605,23 @@ function bindCursos(){
   migrateImgs().catch(()=>{});
   const pj=document.getElementById('projBtn'); pj&&pj.addEventListener('click',()=>{VIEW='proj';render();try{const r=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();r&&r.catch&&r.catch(()=>{})}catch(e){}});
 }
+/* Botones de «¿Seguro? Pulsa otra vez»: cada aviso tiene su marca, así un aviso viejo no desarma uno nuevo */
+let ARMTOK=0, DANGERBUSY='';
+function armLater(ms,undo){const k=++ARMTOK;setTimeout(()=>{if(k===ARMTOK&&!DANGERBUSY){undo();if(VIEW==='teacher')renderTeacher()}},ms)}
 function bindReset(){
   const b=document.getElementById('reset'); if(!b) return;
   b.addEventListener('click',async()=>{
-    if(!resetArmed){resetArmed=true;renderTeacher();setTimeout(()=>{if(resetArmed){resetArmed=false;if(VIEW==='teacher')renderTeacher()}},5000);return}
-    resetArmed=false;
-    await Promise.all(TEAMS.map(t=>Store.delTeam(CODE,t.id)));
-    await Store.setGame({code:CODE,week:1,openedAt:Date.now(),createdAt:Date.now(),curso:G.curso||'',rules:G.rules||null,owner:G.owner,pass:G.pass});
-    TEAMS=[]; if(!Store.db)Store.localPush(CODE); await loadGames(); renderTeacher();
+    if(DANGERBUSY) return;
+    if(!resetArmed){resetArmed=true;DELARM=null;renderTeacher();armLater(6000,()=>{resetArmed=false});return}
+    resetArmed=false; ARMTOK++; DANGERBUSY='Reiniciando el curso…'; renderTeacher();
+    const name=G.curso||G.code;
+    try{
+      await Promise.all(TEAMS.map(t=>Store.delTeam(CODE,t.id)));
+      await Store.setGame({code:CODE,week:1,openedAt:Date.now(),createdAt:Date.now(),curso:G.curso||'',rules:G.rules||null,owner:G.owner,pass:G.pass});
+      TEAMS=[]; if(!Store.db)Store.localPush(CODE); await loadGames();
+      DANGERBUSY=''; TMODAL=null; TFLASH=`Curso ${name} reiniciado: vuelve a la semana 1 y sin empresas.`;
+    }catch(e){console.error(e);DANGERBUSY='';TFLASH='No se pudo reiniciar el curso. Inténtalo otra vez.'}
+    renderTeacher();
   });
 }
 
@@ -3710,17 +3723,17 @@ function tCursos2(){
         <div class="btns"><button class="go small" type="submit">Guardar</button></div><p class="hint" id="emsg"></p></form>`:`
       <p class="hint">Antes de reiniciar o borrar, descarga una copia de seguridad: podrás restaurar el curso si te equivocas.</p>
       <div class="btns"><button class="ghost" id="bakbtn2">Descargar copia de seguridad</button></div>
-      <div class="btns"><button class="ghost danger" id="reset">${resetArmed?'¿Seguro? Se borrarán todas las empresas de este curso. Pulsa otra vez':'Reiniciar este curso'}</button>
-      <button class="ghost danger delg" data-delg="${esc(G.code)}" ${DELBUSY?'disabled':''}>${DELARM===G.code?'¿Seguro? Se borrará el curso entero. Pulsa otra vez':'Borrar este curso'}</button></div><p class="hint" id="delmsg"></p>`)+`</div></div>`:'');
+      <div class="btns"><button class="ghost danger ${resetArmed?'armed':''}" id="reset" ${DANGERBUSY?'disabled':''}>${resetArmed?'¿Seguro? Se borrarán todas las empresas de este curso. Pulsa otra vez':'Reiniciar este curso'}</button>
+      <button class="ghost danger delg ${DELARM===G.code?'armed':''}" data-delg="${esc(G.code)}" ${DANGERBUSY?'disabled':''}>${DELARM===G.code?'¿Seguro? Se borrará el curso entero. Pulsa otra vez':'Borrar este curso'}</button></div><p class="hint" id="delmsg" role="status">${DANGERBUSY?`<b>${esc(DANGERBUSY)}</b> No cierres esta ventana.`:''}</p>`)+`</div></div>`:'');
 }
 let TMODAL=null;
 function bindCursos2(){
   if(!G) return;
   bindCursos(); bindReset(); bindDelete(); bindRulesFields('e',G);
-  const om=(m)=>()=>{TMODAL=m;renderTeacher();const f=document.querySelector('#tmodal input,#tmodal select,#tmodal button');f&&f.focus()};
+  const om=(m)=>()=>{TMODAL=m;renderTeacher();const f=document.querySelector('#tmodal input,#tmodal select,#tmodal button');f&&f.focus({preventScroll:true})};
   const orl=document.getElementById('openRules'); orl&&orl.addEventListener('click',om('rules'));
   const odg=document.getElementById('openDanger'); odg&&odg.addEventListener('click',om('danger'));
-  const cm=()=>{TMODAL=null;resetArmed=false;DELARM=null;renderTeacher()};
+  const cm=()=>{if(DANGERBUSY)return;TMODAL=null;resetArmed=false;DELARM=null;ARMTOK++;renderTeacher()};
   const mx=document.getElementById('tmodalX'); mx&&mx.addEventListener('click',cm);
   const b2=document.getElementById('bakbtn2'); b2&&b2.addEventListener('click',()=>backupCourse(b2,'delmsg'));
   const mo=document.getElementById('tmodal'); mo&&mo.addEventListener('click',e=>{if(e.target===mo)cm()});
@@ -4365,12 +4378,12 @@ async function deleteCourse(code){
 }
 function bindDelete(){
   app.querySelectorAll('[data-delg]').forEach(b=>b.addEventListener('click',async()=>{
-    const code=b.dataset.delg;
-    if(DELARM!==code){DELARM=code;renderTeacher();setTimeout(()=>{if(DELARM===code){DELARM=null;if(VIEW==='teacher')renderTeacher()}},6000);return}
-    DELARM=null;DELBUSY=true;const name=(GAMES.find(g=>g.code===code)||{}).curso||code;renderTeacher();
-    const m=document.getElementById('delmsg');if(m)m.textContent='Borrando…';
-    try{await deleteCourse(code);DELBUSY=false;TMODAL=null;renderTeacher();const m2=document.getElementById('delmsg');if(m2)m2.textContent=`Curso ${name} borrado.`}
-    catch(e){console.error(e);DELBUSY=false;renderTeacher();const m2=document.getElementById('delmsg');if(m2)m2.textContent='No se pudo borrar el curso. Inténtalo otra vez.'}
+    const code=b.dataset.delg; if(DANGERBUSY) return;
+    if(DELARM!==code){DELARM=code;resetArmed=false;renderTeacher();armLater(6000,()=>{DELARM=null});return}
+    DELARM=null;ARMTOK++;DELBUSY=true;DANGERBUSY='Borrando el curso…';const name=(GAMES.find(g=>g.code===code)||{}).curso||code;renderTeacher();
+    try{await deleteCourse(code);TMODAL=null;TFLASH=`Curso ${name} borrado.`}
+    catch(e){console.error(e);TFLASH='No se pudo borrar el curso. Inténtalo otra vez.'}
+    DELBUSY=false;DANGERBUSY='';renderTeacher();
   }));
 }
 /* Crea un curso (partida) o abre uno existente y lo deja seleccionado en Cursos */
