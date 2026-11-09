@@ -321,15 +321,13 @@ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
 .team-logo{height:2.5rem;width:auto;max-width:6rem;object-fit:contain;align-self:center;flex:none}
 .splash{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding-block:24px}
 .splash-logo{max-height:180px;max-width:min(320px,80%);object-fit:contain}
-/* Portada: logo del centro a pantalla completa, translúcido y por detrás del texto y del botón */
-.splash-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;animation:fx-fade 1.4s ease-out both}
-.splash-bg i,.splash-bg b{position:absolute;background-image:var(--logo);background-repeat:no-repeat;background-position:center}
-.splash-bg i{inset:-10%;background-size:cover;filter:blur(48px) saturate(1.4);opacity:.18}
-.splash-bg b{inset:3vmin;background-size:contain;opacity:.13;animation:splash-zoom 28s ease-in-out infinite alternate}
-.splash-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(55% 45% at 50% 52%,color-mix(in srgb,var(--bg) 75%,transparent),transparent 80%)}
-@keyframes splash-zoom{from{transform:scale(1)}to{transform:scale(1.06)}}
-:root[data-theme="dark"] .splash-bg b{opacity:.2}:root[data-theme="dark"] .splash-bg i{opacity:.24}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .splash-bg b{opacity:.2}:root:not([data-theme="light"]) .splash-bg i{opacity:.24}}
+/* Portada: logo del centro a pantalla completa, nítido y suave, por detrás del texto y del botón */
+.splash-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;animation:fx-fade 1.2s ease-out both}
+.splash-bg b{position:absolute;inset:4vmin;background-image:var(--logo);background-repeat:no-repeat;background-position:center;background-size:contain;opacity:.3}
+:root[data-theme="dark"] .splash-bg b{opacity:.22}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .splash-bg b{opacity:.22}}
+.splash.has-logo::before{display:none}
+.splash.has-logo .splash-curso,.splash.has-logo .splash-centro{text-shadow:0 0 2px var(--bg),0 0 14px var(--bg),0 0 28px var(--bg)}
 .splash-curso{font-family:var(--f-data);font-weight:600;font-size:1.1rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0}
 .splash-centro{font-size:clamp(2rem,6vw,3.4rem);font-weight:800;max-width:18ch}
 .splash-go{width:auto;min-width:220px;padding:18px 36px;font-size:1.3rem;margin-top:8px}
@@ -2403,8 +2401,8 @@ const courseCode=curso=>codeOf(curso.replace('Bachillerato','BACH'));
 let splashNext='home', codeTyped=false, joinLogo=null, joinName='', joinPick='B', joinClave='';
 function renderSplash(){
   const empty=!logoOK()&&!VS().centro&&!VS().curso;
-  app.innerHTML=`${logoOK()?`<div class="splash-bg" style="--logo:url('${esc(VS().logo)}')" role="img" aria-label="${T('Logo del centro')}"><i></i><b></b></div>`:''}<div class="schoolbar"><span class="sp"></span>${langSel()}${profBtn()}</div>
-  <div class="splash">
+  app.innerHTML=`${logoOK()?`<div class="splash-bg" style="--logo:url('${esc(VS().logo)}')" role="img" aria-label="${T('Logo del centro')}"><b></b></div>`:''}<div class="schoolbar"><span class="sp"></span>${langSel()}${profBtn()}</div>
+  <div class="splash${logoOK()?' has-logo':''}">
     ${VS().curso?`<p class="splash-curso">${esc(VS().curso)}</p>`:''}
     ${VS().centro?`<h1 class="splash-centro">${esc(VS().centro)}</h1>`:''}
     ${empty?`<p class="hint">${T('El profesor o la profesora puede añadir el logo, el curso y el nombre del centro desde «Código de profesor».')}</p>`:''}
