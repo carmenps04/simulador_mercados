@@ -6,7 +6,7 @@ Enlace: https://carmenps04.github.io/simulador_mercados/
 
 ## Uso
 
-- **Alumnado:** abre el enlace, escribe los nombres del grupo, elige su curso y crea su empresa (un dispositivo por grupo). Antes de enviar las decisiones, el grupo escribe cuántos móviles cree que venderá.
+- **Alumnado:** abre el enlace, escribe los nombres del grupo, elige su curso y crea su empresa (un dispositivo por grupo). Al pulsar el nombre de su empresa se abre un menú con sus resultados (por semanas, globales y en comparación con las demás empresas), las decisiones anteriores, los integrantes y el código de la empresa, cómo los ven los clientes, cómo los ven sus trabajadores (si hay plantilla) y las recomendaciones del profesor/a.
 - **Profesorado:** «Código de profesor» en la pantalla de inicio. Se entra con Google o con correo y contraseña. Solo entran la administradora y los correos que ella añada en **Profesorado con acceso**.
 
 ## Profesorado y perfiles

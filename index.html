@@ -51,8 +51,30 @@ button:focus-visible,[role=tab]:focus-visible,a:focus-visible,summary:focus-visi
 
 /* Cabecera */
 .top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding-block:4px 16px;border-bottom:2px solid var(--ink)}
-.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;min-width:0}
-.brand h1{font-size:1.9rem;font-weight:800;letter-spacing:-.01em;overflow-wrap:anywhere;min-width:0}
+.brand{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;min-width:0}
+.brand h1{font-size:1.9rem;font-weight:800;letter-spacing:-.01em;overflow-wrap:anywhere;min-width:0;line-height:1.15;margin:0}
+/* Nombre de la empresa con su menú */
+.tmenu{position:relative;min-width:0}
+.tmenu-btn{font:inherit;color:inherit;letter-spacing:inherit;background:none;border:0;padding:2px 6px;margin:0 -6px;border-radius:8px;cursor:pointer;text-align:start;display:inline-flex;align-items:center;gap:8px;overflow-wrap:anywhere}
+.tmenu-btn:hover,.tmenu-btn[aria-expanded="true"]{background:var(--accent-soft);color:var(--accent)}
+.tmenu-btn .caret{font-size:.55em;color:var(--accent)}
+.tmenu-list{position:absolute;top:calc(100% + 6px);inset-inline-start:0;z-index:40;min-width:260px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(10,15,25,.18);padding:6px;display:flex;flex-direction:column;gap:2px}
+.tmenu-list button{font:inherit;font-weight:600;font-size:.95rem;color:var(--ink);background:none;border:0;border-radius:8px;padding:9px 12px;text-align:start;cursor:pointer}
+.tmenu-list button:hover,.tmenu-list button:focus-visible{background:var(--accent-soft);color:var(--accent)}
+.tm-box{max-width:760px;display:flex;flex-direction:column;gap:12px}
+.tm-box h2{margin:0}.tm-box h3{margin:6px 0 0;font-size:1rem}
+.tm-sub{align-self:flex-start}
+.tm-tbl{width:100%;border-collapse:collapse;font-size:.9rem}
+.tm-tbl th.rt{text-align:right}
+.tm-tbl tr.me td{background:var(--accent-soft);font-weight:700}
+.tm-tbl tr.avg td{color:var(--muted);font-style:italic}
+.tm-rows{display:flex;flex-direction:column}
+.tm-rows .r{padding:6px 0}.tm-rows .r+.r{border-top:1px solid var(--line)}
+.tm-rows .r b.tm-wrap{white-space:normal;text-align:end;min-width:0}
+.tm-bars{width:100%;height:auto;display:block}
+.tm-rows .r b{font-family:var(--f-body)}
+.tm-fb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.tm-fb li{border:1px solid var(--line);border-radius:10px;padding:10px 12px}.tm-fb p{margin:4px 0 0}
 .brand .team{color:var(--muted);font-weight:700}
 .kpis{display:flex;gap:20px;flex-wrap:wrap;align-items:center}
 .kpi{display:flex;flex-direction:column}
@@ -294,7 +316,7 @@ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
 @media (max-width:520px){.grid4,.grid5{grid-template-columns:minmax(0,1fr)}}
 .small-drop{width:120px;height:120px}
 .note{background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:.9rem;margin:0}
-.team-logo{height:40px;width:auto;max-width:90px;object-fit:contain;align-self:center}
+.team-logo{height:40px;width:auto;max-width:90px;object-fit:contain;align-self:center;flex:none}
 .splash{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding-block:24px}
 .splash-logo{max-height:180px;max-width:min(320px,80%);object-fit:contain}
 .splash-curso{font-family:var(--f-data);font-weight:600;font-size:1.1rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0}
@@ -1306,6 +1328,59 @@ const GLOSS=[
 const LANGS={es:'Español',en:'English',ar:'العربية'};
 /* Textos nuevos: «¿Por qué?» */
 TR.push(
+["Ver información de la empresa", "See company information", "عرض معلومات الشركة"],
+["Resultados", "Results", "النتائج"],
+["Decisiones anteriores", "Previous decisions", "القرارات السابقة"],
+["Integrantes", "Members", "الأعضاء"],
+["Cómo os ven los clientes", "How customers see you", "كيف يراكم الزبائن"],
+["Cómo os ven vuestros trabajadores", "How your workers see you", "كيف يراكم عمّالكم"],
+["Recomendaciones del profesor/a", "Teacher's recommendations", "توصيات الأستاذ/ة"],
+["Todavía no hay resultados: aparecerán cuando se publique la semana 1.", "No results yet: they will appear when week 1 is published.", "لا توجد نتائج بعد: ستظهر عند نشر الأسبوع 1."],
+["Buena", "Good", "جيدة"],
+["Normal@lvl", "Average", "متوسطة"],
+["Mala", "Poor", "سيئة"],
+["Beneficio de cada semana", "Profit each week", "الربح في كل أسبوع"],
+["Por semanas", "By week", "حسب الأسبوع"],
+["Globales", "Overall", "الإجمالي"],
+["Comparación", "Comparison", "المقارنة"],
+["No enviasteis decisiones", "You did not send decisions", "لم ترسلوا قرارات"],
+["Vendidos: móviles vendidos de los que fabricasteis.", "Sold: phones sold out of those you made.", "المبيعات: الهواتف المباعة مما صنعتم."],
+["Semanas con decisiones", "Weeks with decisions", "أسابيع بقرارات"],
+["de {0} fabricados", "of {0} made", "من {0} مصنوعة"],
+["Ingresos totales", "Total income", "إجمالي المداخيل"],
+["Gastos totales", "Total expenses", "إجمالي المصاريف"],
+["Beneficio total", "Total profit", "إجمالي الربح"],
+["Mejor semana", "Best week", "أفضل أسبوع"],
+["Peor semana", "Worst week", "أسوأ أسبوع"],
+["Presupuesto actual", "Current budget", "الميزانية الحالية"],
+["Os faltan {0} de beneficio para alcanzar a {1}.", "You need {0} more profit to catch {1}.", "ينقصكم {0} من الربح لتلحقوا بـ {1}."],
+["Vais primeros: sacáis {0} de beneficio a {1}.", "You are first: {0} more profit than {1}.", "أنتم في المركز الأول: بفارق {0} من الربح عن {1}."],
+["Vais en el puesto {0} de {1}.", "You are in position {0} of {1}.", "أنتم في المركز {0} من {1}."],
+["Puesto", "Position", "المركز"],
+["Empresa", "Company", "الشركة"],
+["Media del resto", "Average of the others", "متوسط الباقين"],
+["Comparad qué cambiasteis cada semana y qué pasó con el beneficio.", "Compare what you changed each week and what happened to the profit.", "قارنوا ما غيّرتموه كل أسبوع وما حدث للربح."],
+["Sin integrantes registrados", "No members registered", "لا يوجد أعضاء مسجّلون"],
+["Código de la empresa", "Company code", "رمز الشركة"],
+["Partida", "Game", "اللعبة"],
+["Con este código entráis en vuestra empresa. Si el profesor/a lo cambia, os dará el nuevo.", "You enter your company with this code. If your teacher changes it, they will give you the new one.", "بهذا الرمز تدخلون إلى شركتكم. إذا غيّره الأستاذ/ة فسيعطيكم الرمز الجديد."],
+["Cambio de la reputación cada semana:", "Change in reputation each week:", "تغيّر السمعة كل أسبوع:"],
+["Lo que más valoran vuestros clientes ({0})", "What your customers value most ({0})", "ما يقدّره زبائنكم أكثر ({0})"],
+["El vuestro: {0}", "Yours: {0}", "الخاص بكم: {0}"],
+["Lo que mejora vuestra imagen", "What improves your image", "ما يحسّن صورتكم"],
+["La semana {0}, {1} personas querían vuestro móvil y vendisteis {2}.", "In week {0}, {1} people wanted your phone and you sold {2}.", "في الأسبوع {0} أراد {1} شخصًا هاتفكم وبعتم {2}."],
+["Todavía no hay datos de la plantilla: aparecerán cuando se publiquen los resultados de una semana con plantilla.", "No staff data yet: it will appear when the results of a week with staff are published.", "لا توجد بيانات عن العمّال بعد: ستظهر عند نشر نتائج أسبوع فيه عمّال."],
+["Satisfacción de la plantilla", "Staff satisfaction", "رضا العمّال"],
+["Personas en plantilla", "People on staff", "عدد العمّال"],
+["{0} puestos con IA", "{0} AI positions", "{0} مناصب بالذكاء الاصطناعي"],
+["Sueldo", "Salary", "الراتب"],
+["{0} al mes", "{0} a month", "{0} في الشهر"],
+["Salario mínimo (SMI)", "Minimum wage (SMI)", "الحد الأدنى للأجور"],
+["Huelgas", "Strikes", "الإضرابات"],
+["Satisfacción cada semana:", "Satisfaction each week:", "الرضا كل أسبوع:"],
+["La plantilla está contenta y trabaja mejor.", "The staff are happy and work better.", "العمّال راضون ويعملون بشكل أفضل."],
+["La plantilla está descontenta: hay riesgo de huelga. Un sueldo mejor o no despedir a nadie ayuda.", "The staff are unhappy: there is a risk of a strike. A better salary or not firing anyone helps.", "العمّال غير راضين: هناك خطر إضراب. يساعد راتب أفضل أو عدم فصل أحد."],
+["La plantilla está bien, pero un sueldo más alto la animaría.", "The staff are fine, but a higher salary would motivate them.", "العمّال بخير، لكن راتبًا أعلى سيحفّزهم."],
 ["a la semana","per week","في الأسبوع"],
 ["¿Por qué?","Why?","لماذا؟"],
 ["Mismo precio que la semana anterior ({0}).","Same price as the week before ({0}).","السعر نفسه كالأسبوع السابق ({0})."],
@@ -1526,11 +1601,11 @@ const CLAVE_OK=c=>/^[A-Z0-9Ñ]{4,12}$/.test(c);
 async function enterWithCode(id,clave){
   if(!Store.db){ACCESS=id;return true}
   try{await Store.db.doc('partidas/'+CODE+'/claves/'+id).set({clave})}catch(e){} // empresa sin código: este pasa a ser el suyo
-  try{await Store.db.doc('accesos/'+myUid()).set({uid:myUid(),curso:CODE,team:id,clave,at:Date.now()});ACCESS=id;return true}
+  try{await Store.db.doc('accesos/'+myUid()).set({uid:myUid(),curso:CODE,team:id,clave,at:Date.now()});ACCESS=id;ACCESS_CLAVE=clave;return true}
   catch(e){if(/permission/.test((e&&e.code)||''))return false;throw e}
 }
 /* Al abrir la app o salir de la empresa se borra el acceso: el siguiente grupo tendrá que poner su código */
-function dropAccess(){ACCESS=null;if(Store.db&&myUid())Store.db.doc('accesos/'+myUid()).delete().catch(()=>{})}
+function dropAccess(){ACCESS=null;ACCESS_CLAVE=null;if(Store.db&&myUid())Store.db.doc('accesos/'+myUid()).delete().catch(()=>{})}
 function leaveTeam(){dropAccess();ME=null;sess({code:CODE});VIEW='company';lastSig='';render();window.scrollTo({top:0})}
 const okTeam=id=>{const t=TEAMS.find(x=>x.id===id);return !!t&&canUse(t)};
 let TEAMS=[];        // empresas de la partida
@@ -1771,7 +1846,7 @@ function openGloss(k){
   closeGloss(); const L=LANG;
   const ov=document.createElement('div'); ov.id='gloss'; ov.className='gloss-ov'; ov.dir=L==='ar'?'rtl':'ltr';
   ov.innerHTML=`<div class="gloss-box" role="dialog" aria-modal="true" aria-label="${T('Glosario')}"><div class="gloss-head"><h2>${T('Glosario')}</h2><button class="mini" id="glclose">${T('Cerrar')}</button></div>
-    <dl>${GLOSS.map(g=>`<div class="gl-item ${g.k===k?'hit':''}" id="gl-${g.k}"><dt>${g[L][0]}</dt><dd>${g[L][1]}</dd><dd class="ex"><b>${T('Ejemplo')}:</b> ${g[L][2]}</dd></div>`).join('')}</dl></div>`;
+    <dl>${[...GLOSS].sort((a,b)=>a[L][0].localeCompare(b[L][0],L,{sensitivity:'base'})).map(g=>`<div class="gl-item ${g.k===k?'hit':''}" id="gl-${g.k}"><dt>${g[L][0]}</dt><dd>${g[L][1]}</dd><dd class="ex"><b>${T('Ejemplo')}:</b> ${g[L][2]}</dd></div>`).join('')}</dl></div>`;
   document.body.appendChild(ov); syncLock();
   ov.addEventListener('click',e=>{if(e.target===ov)closeGloss()});
   document.getElementById('glclose').addEventListener('click',closeGloss); document.getElementById('glclose').focus();
@@ -2490,7 +2565,7 @@ function openTeam(id){
 function headerHTML(){
   const t=myTeam(); const wk=Math.min(G.week,WEEKS);
   const lg=teamLogo(t);
-  return `<div class="brand">${lg?`<img class="team-logo" src="${esc(lg)}" alt="">`:''}<h1>${esc(t.name)}</h1><span class="team">${MODELS[t.model].n} · ${T('partida {0}',esc(G.code))}</span></div>
+  return `<div class="brand">${lg?`<img class="team-logo" src="${esc(lg)}" alt="">`:''}<div class="tmenu"><h1><button type="button" class="tmenu-btn" id="tmenuBtn" aria-haspopup="menu" aria-expanded="${TMENU}" title="${T('Ver información de la empresa')}">${esc(t.name)}<span class="caret" aria-hidden="true">▾</span></button></h1>${TMENU?tmenuHTML(t):''}</div><span class="team">${MODELS[t.model].n} · ${T('partida {0}',esc(G.code))}</span></div>
   <div class="kpis">
     <div class="kpi"><span class="label">${T('Semana')}</span><b id="kpiWeek">${G.week>WEEKS?T('Fin'):wk+' / '+WEEKS}</b></div>
     <div class="kpi"><span class="label">${T('Presupuesto')}</span><b id="kpiCash" class="${t.cash<0?'neg':''}" data-n="${t.cash}" data-f="eur">${eur(t.cash)}</b></div>
@@ -2586,7 +2661,128 @@ function paintHeader(){const h=document.getElementById('hdr');if(h){h.innerHTML=
 function bindHeader(){
   const sw=document.getElementById('switch'); sw&&sw.addEventListener('click',()=>{ME=null;VIEW='company';sess({code:CODE});render()});
   const lv=document.getElementById('leave'); lv&&lv.addEventListener('click',leaveTeam);
+  bindTmenu();
 }
+/* ================= Menú de la empresa: se abre al pulsar su nombre ================= */
+let TMENU=false, TINFO=null, ACCESS_CLAVE=null;
+const histOf=t=>(t.history||[]).slice().sort((a,b)=>a.week-b.week);
+const staffOn=t=>feat('staff',t)||histOf(t).some(h=>h.adv&&h.adv.workers>0);
+const fbOf=t=>(t.feedback||[]).filter(f=>f.week<=G.week&&f.text).sort((a,b)=>a.week-b.week);
+function tmItems(t){
+  return [['res','Resultados'],['dec','Decisiones anteriores'],['team','Integrantes'],['cli','Cómo os ven los clientes'],
+    ...(staffOn(t)?[['work','Cómo os ven vuestros trabajadores']]:[]),
+    ...(fbOf(t).length?[['fb','Recomendaciones del profesor/a']]:[])];
+}
+function tmenuHTML(t){
+  return `<div class="tmenu-list" role="menu">${tmItems(t).map(([k,l])=>`<button type="button" role="menuitem" data-tinfo="${k}">${T(l)}</button>`).join('')}</div>`;
+}
+const noRes=()=>`<p class="hint">${T('Todavía no hay resultados: aparecerán cuando se publique la semana 1.')}</p>`;
+const lvlTxt=v=>T(v>=70?'Buena':v>=40?'Normal@lvl':'Mala');
+const lvlCls=v=>v>=70?'good':v>=40?'event':'bad';
+const barHTML=v=>`<span class="prog sat"><i style="width:${clamp(v,0,100)}%;background:var(--${lvlCls(v)})"></i></span>`;
+const stat=(l,v,s,c='')=>`<div class="stat"><span class="label">${l}</span><b class="${c}">${v}</b>${s?`<small>${s}</small>`:''}</div>`;
+/* Beneficio de cada semana en barras (verde si se ganó, rojo si se perdió) */
+function weekBars(H){
+  const W=600, Ht=170, B=22, TP=16, mx=Math.max(1,...H.map(h=>Math.abs(h.profit))), neg=H.some(h=>h.profit<0);
+  const zero=neg?TP+(Ht-TP-B)/2:Ht-B, sc=(neg?(Ht-TP-B)/2-14:Ht-TP-B)/mx, slot=W/H.length, bw=Math.min(36,slot*.6);
+  const bars=H.map((h,i)=>{const cx=slot*i+slot/2, hh=Math.max(2,Math.abs(h.profit)*sc), y=h.profit>=0?zero-hh:zero;
+    return `<rect x="${(cx-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${hh.toFixed(1)}" rx="3" fill="var(--${h.profit>=0?'good':'bad'})"><title>${T('S{0}',h.week)}: ${eur(h.profit)}</title></rect>
+      <text x="${cx}" y="${(h.profit>=0?y-5:y+hh+13).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)" font-family="IBM Plex Mono, monospace">${compact(h.profit)}</text>
+      <text x="${cx}" y="${Ht-6}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${T('S{0}',h.week)}</text>`}).join('');
+  return `<svg class="tm-bars" viewBox="0 0 ${W} ${Ht}" role="img" aria-label="${T('Beneficio de cada semana')}"><line x1="0" x2="${W}" y1="${zero}" y2="${zero}" stroke="var(--line)" stroke-width="1.5"></line>${bars}</svg>`;
+}
+function tmResults(t,sub){
+  const H=histOf(t);
+  const tabs=`<div class="toggle tm-sub" role="group">${[['sem','Por semanas'],['glob','Globales'],['comp','Comparación']].map(([k,l])=>`<button type="button" data-tsub="${k}" aria-pressed="${sub===k}">${T(l)}</button>`).join('')}</div>`;
+  if(!H.length) return tabs+noRes();
+  if(sub==='sem') return tabs+`<div class="tbl-wrap"><table class="tm-tbl"><thead><tr><th>${T('Semana')}</th><th class="rt">${T('Vendidos')}</th><th class="rt">${T('Precio')}</th><th class="rt">${T('Ingresos')}</th><th class="rt">${T('Gastos')}</th><th class="rt">${T('Beneficio')}</th><th class="rt">${T('Presupuesto')}</th></tr></thead>
+    <tbody>${H.map(h=>`<tr><td>${T('Semana {0}',h.week)}</td>${h.sent?`<td class="num">${int(h.sold)} / ${int(h.prod)}</td><td class="num">${eur(h.price)}</td>`:`<td colspan="2" class="hint">${T('No enviasteis decisiones')}</td>`}<td class="num">${eur(h.revenue)}</td><td class="num">${eur(h.costs)}</td><td class="num ${h.profit<0?'neg':'pos'}">${eur(h.profit)}</td><td class="num ${h.cash<0?'neg':''}">${eur(h.cash)}</td></tr>`).join('')}</tbody></table></div>
+    <p class="hint">${T('Vendidos: móviles vendidos de los que fabricasteis.')}</p>`;
+  if(sub==='glob'){
+    const sum=k=>H.reduce((a,h)=>a+(h[k]||0),0), best=[...H].sort((a,b)=>b.profit-a.profit)[0], worst=[...H].sort((a,b)=>a.profit-b.profit)[0], prof=sum('profit');
+    return tabs+`<div class="sgrid">${stat(T('Semanas con decisiones'),`${H.filter(h=>h.sent).length} / ${H.length}`)}${stat(T('Móviles vendidos'),int(sum('sold')),T('de {0} fabricados',int(sum('prod'))))}
+      ${stat(T('Ingresos totales'),eur(sum('revenue')))}${stat(T('Gastos totales'),eur(sum('costs')))}
+      ${stat(T('Beneficio total'),eur(prof),'',prof<0?'neg':'pos')}${stat(T('Mejor semana'),T('Semana {0}',best.week),eur(best.profit))}
+      ${stat(T('Peor semana'),T('Semana {0}',worst.week),eur(worst.profit))}${stat(T('Presupuesto actual'),eur(t.cash),'',t.cash<0?'neg':'')}</div>
+      <h3>${T('Beneficio de cada semana')}</h3><div class="chart">${weekBars(H)}</div>`;
+  }
+  const rows=TEAMS.map(x=>{const h=histOf(x);return {t:x,profit:h.reduce((a,y)=>a+y.profit,0),sold:h.reduce((a,y)=>a+(y.sold||0),0),rep:Math.round(x.rep||0)}}).sort((a,b)=>b.profit-a.profit);
+  const pos=rows.findIndex(r=>r.t.id===t.id)+1, me=rows[pos-1], others=rows.filter(r=>r.t.id!==t.id), avg=k=>others.length?others.reduce((a,r)=>a+r[k],0)/others.length:0;
+  const gap=pos>1?T('Os faltan {0} de beneficio para alcanzar a {1}.',eur(rows[pos-2].profit-me.profit),esc(rows[pos-2].t.name)):rows.length>1?T('Vais primeros: sacáis {0} de beneficio a {1}.',eur(me.profit-rows[1].profit),esc(rows[1].t.name)):'';
+  return tabs+`<p><b>${T('Vais en el puesto {0} de {1}.',pos,rows.length)}</b> ${gap}</p>
+    <div class="tbl-wrap"><table class="tm-tbl"><thead><tr><th>${T('Puesto')}</th><th>${T('Empresa')}</th><th class="rt">${T('Beneficio total')}</th><th class="rt">${T('Vendidos')}</th><th class="rt">${T('Reputación')}</th></tr></thead>
+    <tbody>${rows.map((r,i)=>`<tr class="${r.t.id===t.id?'me':''}"><td>${i+1}º</td><td><b>${esc(r.t.name)}</b></td><td class="num ${r.profit<0?'neg':''}">${eur(r.profit)}</td><td class="num">${int(r.sold)}</td><td class="num">${r.rep}/100</td></tr>`).join('')}
+    ${others.length?`<tr class="avg"><td></td><td>${T('Media del resto')}</td><td class="num">${eur(avg('profit'))}</td><td class="num">${int(avg('sold'))}</td><td class="num">${Math.round(avg('rep'))}/100</td></tr>`:''}</tbody></table></div>`;
+}
+function tmDecisions(t){
+  const H=histOf(t); if(!H.length) return noRes();
+  const nm=(o,k)=>o&&o[k]?o[k].n:'—';
+  return `<div class="tbl-wrap"><table class="tm-tbl"><thead><tr><th>${T('Semana')}</th><th>${T('Continente')}</th><th>${T('Nicho')}</th><th>${T('Transporte')}</th><th class="rt">${T('Precio')}</th><th class="rt">${T('Fabricados')}</th><th class="rt">${T('Publicidad')}</th><th class="rt">${T('Beneficio')}</th></tr></thead>
+    <tbody>${H.map(h=>h.sent?`<tr><td>${T('Semana {0}',h.week)}</td><td>${nm(CONTS,h.cont)}</td><td>${nm(NICHES,h.niche)}</td><td>${nm(MODES,h.mode)}</td><td class="num">${eur(h.price)}</td><td class="num">${int(h.prod)}</td><td class="num">${eur(h.adv&&h.adv.fixed?h.adv.fixed.media||0:h.ad)}</td><td class="num ${h.profit<0?'neg':'pos'}">${eur(h.profit)}</td></tr>`
+      :`<tr><td>${T('Semana {0}',h.week)}</td><td colspan="6" class="hint">${T('No enviasteis decisiones')}</td><td class="num ${h.profit<0?'neg':''}">${eur(h.profit)}</td></tr>`).join('')}</tbody></table></div>
+    <p class="hint">${T('Comparad qué cambiasteis cada semana y qué pasó con el beneficio.')}</p>`;
+}
+function tmTeam(t){
+  const M=t.members||[], code=ACCESS_CLAVE&&ACCESS===t.id?ACCESS_CLAVE:(teacherOK||PREVIEW)?CLAVES[t.id]:null;
+  return `<div class="tm-rows">
+    <div class="r"><span>${T('Integrantes')}</span><b class="tm-wrap">${M.length?M.map(esc).join(', '):T('Sin integrantes registrados')}</b></div>
+    <div class="r"><span>${T('Código de la empresa')}</span><b>${code?`<span class="passchip">${esc(code)}</span>`:'—'}</b></div>
+    <div class="r"><span>${T('Móvil')}</span><b>${MODELS[t.model].n}</b></div>
+    <div class="r"><span>${T('Partida')}</span><b>${esc(G.curso||G.code)}</b></div></div>
+    <p class="hint">${T('Con este código entráis en vuestra empresa. Si el profesor/a lo cambia, os dará el nuevo.')}</p>`;
+}
+function tmClients(t){
+  const H=histOf(t), last=H[H.length-1], d=t.dec||defaultDec(t.model), N=NICHES[d.niche], rep=Math.round(t.rep||0);
+  const top=N?Object.entries(N.w).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k])=>k):[];
+  const eco=ecoOf(d), ecoOn=Object.keys(ECO).filter(k=>eco[k]).map(k=>T(ECO[k].n));
+  return `<div class="tm-rows"><div class="r"><span>${T('Reputación')} ${glBtn('reputacion')}</span><b class="${lvlCls(rep)==='good'?'pos':lvlCls(rep)==='bad'?'neg':''}">${rep}/100 · ${lvlTxt(rep)}</b></div></div>${barHTML(rep)}
+    ${H.length?`<p class="hint">${T('Cambio de la reputación cada semana:')} ${H.map(h=>`${T('S{0}',h.week)} <b class="${(h.repDelta||0)<0?'neg':(h.repDelta||0)>0?'pos':''}">${(h.repDelta||0)>0?'+':''}${h.repDelta||0}</b>`).join(' · ')}</p>`:noRes()}
+    ${N?`<h3>${T('Lo que más valoran vuestros clientes ({0})',N.n.toLowerCase())}</h3>
+    <div class="tm-rows">${top.map(k=>`<div class="r"><span>${ATTR[k]}</span><b>${T('El vuestro: {0}',d.comps&&d.comps[k]?oName(k,d.comps[k]):'—')}</b></div>`).join('')}</div>`:''}
+    <h3>${T('Lo que mejora vuestra imagen')}</h3>
+    <div class="tm-rows"><div class="r"><span>${T('Medidas sostenibles')}</span><b class="tm-wrap">${ecoOn.length?ecoOn.join(', '):T('Ninguna')}</b></div>
+    ${EXTRAS.garantia?`<div class="r"><span>${EXTRAS.garantia.n}</span><b>${d.extras&&d.extras.garantia?T('Sí'):T('No')}</b></div>`:''}</div>
+    ${last&&last.sent?`<p class="hint">${T('La semana {0}, {1} personas querían vuestro móvil y vendisteis {2}.',last.week,int(last.demand),int(last.sold))}</p>`:''}`;
+}
+function tmWorkers(t){
+  const H=histOf(t).filter(h=>h.adv&&(h.adv.workers||h.adv.robots)), last=H[H.length-1];
+  if(!last) return `<p class="hint">${T('Todavía no hay datos de la plantilla: aparecerán cuando se publiquen los resultados de una semana con plantilla.')}</p>`;
+  const A=last.adv, strikes=H.filter(h=>h.adv.strike).length;
+  return `<div class="tm-rows"><div class="r"><span>${T('Satisfacción de la plantilla')}</span><b class="${lvlCls(A.sat)==='good'?'pos':lvlCls(A.sat)==='bad'?'neg':''}">${A.sat}/100 · ${lvlTxt(A.sat)}</b></div></div>${barHTML(A.sat)}
+    <div class="tm-rows">
+    <div class="r"><span>${T('Personas en plantilla')}</span><b>${int(A.workers)}${A.robots?' · '+T('{0} puestos con IA',int(A.robots)):''}</b></div>
+    <div class="r"><span>${T('Sueldo')}</span><b class="${A.salary<SMI?'neg':''}">${T('{0} al mes',eur(A.salary))}</b></div>
+    <div class="r"><span>${T('Salario mínimo (SMI)')} ${glBtn('smi')}</span><b>${T('{0} al mes',eur(SMI))}</b></div>
+    <div class="r"><span>${T('Huelgas')}</span><b class="${strikes?'neg':''}">${strikes}</b></div></div>
+    <p class="hint">${T('Satisfacción cada semana:')} ${H.map(h=>`${T('S{0}',h.week)} <b>${h.adv.sat}</b>`).join(' · ')}</p>
+    <p class="hint">${T(A.sat>=70?'La plantilla está contenta y trabaja mejor.':A.sat<40?'La plantilla está descontenta: hay riesgo de huelga. Un sueldo mejor o no despedir a nadie ayuda.':'La plantilla está bien, pero un sueldo más alto la animaría.')}</p>`;
+}
+function tmFeedback(t){
+  return `<ul class="tm-fb">${fbOf(t).reverse().map(f=>`<li><span class="label">${T('Semana {0}',f.week)}</span><p>${esc(f.text)}</p></li>`).join('')}</ul>`;
+}
+function closeTinfo(){TINFO=null;const o=document.getElementById('tinfo');if(o)o.remove();syncLock()}
+function openTinfo(k,sub){
+  const t=myTeam(); if(!t) return;
+  TMENU=false; paintHeader();
+  const prev=document.getElementById('tinfo'); if(prev) prev.remove();
+  TINFO={k,sub:sub||(TINFO&&TINFO.k===k?TINFO.sub:'sem')};
+  const item=tmItems(t).find(x=>x[0]===k)||['res','Resultados'];
+  const body=k==='res'?tmResults(t,TINFO.sub):k==='dec'?tmDecisions(t):k==='team'?tmTeam(t):k==='cli'?tmClients(t):k==='work'?tmWorkers(t):tmFeedback(t);
+  const ov=document.createElement('div'); ov.id='tinfo'; ov.className='gloss-ov'; ov.dir=LANG==='ar'?'rtl':'ltr';
+  ov.innerHTML=`<div class="gloss-box tm-box" role="dialog" aria-modal="true" aria-label="${T(item[1])}"><div class="gloss-head"><div><span class="label">${esc(t.name)}</span><h2>${T(item[1])}</h2></div><button class="mini" id="tmclose">${T('Cerrar')}</button></div>${body}</div>`;
+  document.body.appendChild(ov); syncLock();
+  ov.addEventListener('click',e=>{if(e.target===ov)closeTinfo()});
+  ov.querySelectorAll('[data-tsub]').forEach(b=>b.addEventListener('click',()=>openTinfo('res',b.dataset.tsub)));
+  document.getElementById('tmclose').addEventListener('click',closeTinfo); document.getElementById('tmclose').focus();
+}
+function bindTmenu(){
+  const b=document.getElementById('tmenuBtn'); if(!b) return;
+  b.addEventListener('click',e=>{e.stopPropagation();TMENU=!TMENU;paintHeader();if(TMENU){const f=document.querySelector('.tmenu-list button');f&&f.focus()}});
+  document.querySelectorAll('[data-tinfo]').forEach(x=>x.addEventListener('click',()=>openTinfo(x.dataset.tinfo)));
+}
+document.addEventListener('click',e=>{if(TMENU&&!(e.target.closest&&e.target.closest('.tmenu'))){TMENU=false;paintHeader()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(TINFO)closeTinfo();if(TMENU){TMENU=false;paintHeader()}}});
+
 
 /* ¿Por qué ha cambiado el beneficio? Reparte la diferencia con la semana anterior entre sus causas */
 function whyParts(t,h){
