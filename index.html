@@ -222,6 +222,18 @@ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
 .llist{display:flex;flex-direction:column;gap:6px}
 .lrow{display:grid;grid-template-columns:24px 200px minmax(0,1fr) 120px;gap:12px;align-items:center;padding:8px 12px}
 .lrow .meta{text-align:right}
+/* En pantalla ancha, cada columna de la lista toma el ancho que necesita su texto (alineada entre filas) */
+@media (min-width:901px){
+  .llist:has(>.lrow){display:grid;grid-template-columns:max-content fit-content(min(24rem,32%)) minmax(0,1fr) max-content;column-gap:14px;row-gap:6px}
+  .llist>.lrow{grid-column:1/-1;grid-template-columns:subgrid}
+  .lrow .meta{white-space:nowrap}
+  /* Campos numéricos en columnas: más aire y una línea fina entre ellas */
+  .grid2:has(>.numf),.grid3:has(>.numf){column-gap:0}
+  .grid2>.numf,.grid3>.numf{padding-inline:clamp(14px,1.6vw,28px)}
+  .grid2>.numf:first-child,.grid3>.numf:first-child{padding-inline-start:0}
+  .grid2>.numf:last-child,.grid3>.numf:last-child{padding-inline-end:0}
+  .grid2>.numf+.numf,.grid3>.numf+.numf{border-inline-start:1px solid var(--line)}
+}
 .medrow{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 12px}
 .medrow .s{font-size:.82rem;line-height:1.3}
 .medrow .mtx{display:flex;flex-direction:column;gap:2px;min-width:0}
