@@ -52,7 +52,7 @@ button:focus-visible,[role=tab]:focus-visible,a:focus-visible,summary:focus-visi
 /* Cabecera */
 .top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding-block:4px 16px;border-bottom:2px solid var(--ink)}
 .brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;min-width:0}
-.brand h1{font-size:1.9rem;font-weight:800;letter-spacing:-.01em}
+.brand h1{font-size:1.9rem;font-weight:800;letter-spacing:-.01em;overflow-wrap:anywhere;min-width:0}
 .brand .team{color:var(--muted);font-weight:700}
 .kpis{display:flex;gap:20px;flex-wrap:wrap;align-items:center}
 .kpi{display:flex;flex-direction:column}
@@ -2490,7 +2490,7 @@ function openTeam(id){
 function headerHTML(){
   const t=myTeam(); const wk=Math.min(G.week,WEEKS);
   const lg=teamLogo(t);
-  return `<div class="brand">${lg?`<img class="team-logo" src="${esc(lg)}" alt="">`:''}<h1>Mercado Móvil</h1><span class="team">${esc(t.name)} · ${MODELS[t.model].n} · ${T('partida {0}',esc(G.code))}</span></div>
+  return `<div class="brand">${lg?`<img class="team-logo" src="${esc(lg)}" alt="">`:''}<h1>${esc(t.name)}</h1><span class="team">${MODELS[t.model].n} · ${T('partida {0}',esc(G.code))}</span></div>
   <div class="kpis">
     <div class="kpi"><span class="label">${T('Semana')}</span><b id="kpiWeek">${G.week>WEEKS?T('Fin'):wk+' / '+WEEKS}</b></div>
     <div class="kpi"><span class="label">${T('Presupuesto')}</span><b id="kpiCash" class="${t.cash<0?'neg':''}" data-n="${t.cash}" data-f="eur">${eur(t.cash)}</b></div>
