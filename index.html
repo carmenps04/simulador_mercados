@@ -119,6 +119,20 @@ button:focus-visible,[role=tab]:focus-visible,a:focus-visible,summary:focus-visi
 .msgs li{padding:10px 12px;border-radius:8px;background:var(--bg);border-left:4px solid var(--muted)}
 .msgs li.good{border-left-color:var(--good);background:var(--good-soft)}
 .msgs li.bad{border-left-color:var(--bad);background:var(--bad-soft)}
+/* Desplegables del panel (lo que ha funcionado / a mejorar) */
+.fold{border:1px solid var(--line);border-radius:10px;align-self:start}
+.fold>summary{cursor:pointer;list-style:none;padding:10px 12px;font-weight:700;display:flex;align-items:center;gap:8px}
+.fold>summary::-webkit-details-marker{display:none}
+.fold-n{margin-inline-start:auto;font-family:var(--f-data);font-size:.8rem;padding:1px 8px;border-radius:99px;background:var(--bg)}
+.fold.good .fold-n{background:var(--good-soft);color:var(--good)}.fold.bad .fold-n{background:var(--bad-soft);color:var(--bad)}
+.fold>ul{padding:0 12px 12px}
+/* Inyección de capital */
+.inj-opts{display:flex;gap:6px;flex-wrap:wrap}
+.actcol .linkbtn{display:block;white-space:nowrap}
+.recom-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.inj-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.inj-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.card.inj{border-color:var(--good);background:var(--good-soft)}.card.inj .label{color:var(--good)}
 
 /* Decisiones */
 .grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start}
@@ -765,7 +779,9 @@ details.fold[open]{gap:12px}
 #summary .rows .r+.r{border-top:1px solid var(--line);border-top-color:color-mix(in srgb,var(--line) 55%,transparent)}
 #summary .rows .label.sub{margin:12px 0 2px;padding:6px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
 #summary .rows>.label.sub:first-child{margin-top:2px}
-#summary .rows .r.total{border-top:2px solid var(--line);margin-top:6px;padding-top:7px}
+#summary .rows .r.total{border-top:0;margin-top:10px;padding:6px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-weight:700}
+#summary .rows .r.total b{color:var(--accent)}
+#summary .rows .r.total+.r{border-top:0}
 #summary .card>.rows{padding-bottom:10px;border-bottom:1px solid var(--line)}
 .card.pl .rows .r b{white-space:normal;text-align:end;min-width:0;overflow-wrap:break-word}
 
@@ -1351,6 +1367,12 @@ const GLOSS=[
 const LANGS={es:'Español',en:'English',ar:'العربية'};
 /* Textos nuevos: «¿Por qué?» */
 TR.push(
+["Inyección de capital", "Capital injection", "ضخّ رأس المال"],
+["Habéis recibido {0}", "You have received {0}", "لقد تلقّيتم {0}"],
+["Vuestro profesor/a ha metido este dinero en la empresa. Ya está en vuestro presupuesto.", "Your teacher has put this money into the company. It is already in your budget.", "وضع الأستاذ/ة هذا المال في الشركة. وهو موجود الآن في ميزانيتكم."],
+["Motivo:", "Reason:", "السبب:"],
+["Esta semana habéis recibido {0} de vuestro profesor/a.", "This week you received {0} from your teacher.", "تلقّيتم هذا الأسبوع {0} من أستاذكم/أستاذتكم."],
+["Está sumado en vuestro presupuesto, pero no cuenta como beneficio: no lo habéis ganado vendiendo.", "It is added to your budget, but it does not count as profit: you did not earn it by selling.", "أُضيف إلى ميزانيتكم، لكنه لا يُحسب ربحًا: لم تكسبوه من البيع."],
 ["Interés al año", "Interest per year", "الفائدة السنوية"],
 ["El cliente paga intereses a la financiera. Atrae algo menos, la financiera asume los impagos y os cobra un 2 % de comisión.", "The customer pays interest to the finance company. It attracts a little less, the company takes the bad-debt risk and charges you 2 %.", "يدفع الزبون فوائد لشركة التمويل. يجذب أقل قليلًا، وتتحمّل الشركة خطر عدم السداد وتأخذ منكم عمولة 2 %."],
 ["Ver información de la empresa", "See company information", "عرض معلومات الشركة"],
@@ -1887,7 +1909,7 @@ function openGloss(k){
   const hit=k&&document.getElementById('gl-'+k); hit&&hit.scrollIntoView({block:'center'});
 }
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-gl]');if(b){e.preventDefault();openGloss(b.dataset.gl)}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeGloss();if(VIEW==='teacher'&&(TMODAL||SECM)&&!DANGERBUSY){TMODAL=null;SECM=null;resetArmed=false;DELARM=null;renderTeacher()}}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeGloss();if(VIEW==='teacher'&&(TMODAL||SECM||INJM)&&!DANGERBUSY){INJM=null;TMODAL=null;SECM=null;resetArmed=false;DELARM=null;renderTeacher()}}});
 /* Oferta y demanda de una semana */
 function sdHTML(h){
   if(!h.sent) return '';
@@ -1959,6 +1981,7 @@ async function closeWeek(){
         revenue:Math.round(r.revenue+r.outlet),costs:Math.round(r.K.invest+(r.A?r.X.tax.tax:FIXED)),profit:Math.round(r.profit),cash:Math.round(cash),repDelta:Math.round(r.repDelta),msgs,msgsI18n:MA.msgsI18n};
       if(r.A) h.adv=advRecord(r);
       h.fin={...r.FIN.state,taken:r.FIN.taken,interest:Math.round(r.FIN.interest),principal:Math.round(r.FIN.principal),over:Math.round(r.FIN.over),plazos:r.PZ.k,pzLoss:Math.round(r.pzLoss||0)};
+      {const ij=injOf(t,w);if(ij.length){h.inj=ij.reduce((a,x)=>a+(+x.amount||0),0);h.injNotes=ij.map(x=>x.note).filter(Boolean);msgs.push({c:'',t:`Recibisteis una inyección de capital de ${eur(h.inj)} (no cuenta como beneficio).`})}}
       h.eco=r.EC.on; h.inv=iv?{ok:!!iv.ok,tries:iv.tries||0}:null; if(cash<BANKRUPT) h.bankrupt=true;
       if(sent){h.dec={comps:dec.comps,extras:dec.extras,look:(t.design&&t.design.look)||null,logo:logoSet(t),level:levelOf(t),fin:dec.fin||null}}
       jobs.push(Store.patchTeam(CODE,t.id,{cash:Math.round(cash),rep,history:[...(t.history||[]),h]}));
@@ -2671,6 +2694,7 @@ function resultsScreen(t,ended){
       <div class="stat key"><span class="label">${T('Presupuesto siguiente')} ${glBtn('presupuesto')}</span><b class="${h.cash<0?'neg':''}" data-n="${h.cash}" data-f="eur">${eur(h.cash)}</b><small>${T('acumulado: {0}',eur(total))}</small></div>
     </div>
     ${sdHTML(h)}
+    ${h.inj?`<div class="card inj"><span class="label">${T('Inyección de capital')}</span><p><b>${T('Esta semana habéis recibido {0} de vuestro profesor/a.',eur(h.inj))}</b> ${T('Está sumado en vuestro presupuesto, pero no cuenta como beneficio: no lo habéis ganado vendiendo.')}${(h.injNotes||[]).map(n=>` <b>${T('Motivo:')}</b> ${esc(n)}`).join('')}</p></div>`:''}
     ${latestFb(t)?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(latestFb(t).text)}</p></div>`:''}
     ${keysHTML(h)}
     <details class="allmsg"><summary>${T('Ver todo lo que ha pasado ({0})',msgsOf(h).length)}</summary><ul class="msgs">${msgsOf(h).map(m=>`<li class="${m.c}">${esc(m.t)}</li>`).join('')}</ul></details>`
@@ -3004,7 +3028,8 @@ function newsHTML(t){
   const w=G.week, ev=teamEvent(t,w), next=(period(w)+1)*2+1, nextEv=w+1<=WEEKS&&w+1>=EV_FROM;
   const tr=Object.keys(MODELS).map(m=>`<li class="${m===draft.model?'me':''}"><span>${MODELS[m].n} (${MODELS[m].g.toLowerCase()})</span><b>${ATTR[trend(m,w)]}</b></li>`).join('');
   const fb=latestFb(t);
-  return `<h2>${T('Noticias de la semana {0}',w)}</h2>${unlockNotice(t)}${isAdv()?advAlerts(t):''}${fb?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(fb.text)}</p></div>`:''}<div class="grid2">
+  const ij=injOf(t,w);
+  return `<h2>${T('Noticias de la semana {0}',w)}</h2>${unlockNotice(t)}${ij.length?`<div class="card inj"><span class="label">${T('Inyección de capital')}</span><h3>${T('Habéis recibido {0}',eur(injSum(t,w)))}</h3><p>${T('Vuestro profesor/a ha metido este dinero en la empresa. Ya está en vuestro presupuesto.')}${ij.filter(x=>x.note).map(x=>` <b>${T('Motivo:')}</b> ${esc(x.note)}`).join('')}</p></div>`:''}${isAdv()?advAlerts(t):''}${fb?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(fb.text)}</p></div>`:''}<div class="grid2">
     ${ev?`<div class="card event"><span class="label">${T('Evento inesperado · semana {0}',w)}</span><h3>${ev.title}</h3><p>${ev.text}</p></div>`
       :`<div class="card"><span class="label">${T('Evento inesperado')}</span><p class="muted">${T('Semana tranquila.')} ${T(nextEv?'Atentos: la semana que viene puede pasar algo.':'No hay eventos especiales.')}</p></div>`}
     <div class="card"><span class="label">${T('Lo que más buscan los clientes de cada móvil')}</span><ul class="trend-list">${tr}</ul>
@@ -3476,9 +3501,10 @@ function renderTeacher(){
   if(TTAB===7&&ROLE&&ROLE.admin&&!VIEWAS) body=tStaff();
   app.innerHTML=`<div class="app"><header class="top"><div class="brand"><h1>Panel del profesor/a</h1><span class="team">${ROLE?esc((PROF&&PROF.nombre)||actEmail())+(ROLE.admin&&!VIEWAS?' · administradora':'')+' · ':''}${GAMES.length} ${GAMES.length===1?'curso':'cursos'}</span></div>
     <div class="btns"><button class="mini" id="logout">Salir del modo profesor</button><button class="mini" id="homeBtn">Inicio</button></div></header>
-    <div class="main">${VIEWAS?`<div class="viewas" role="status"><span>Estás viendo el panel de <b>${esc((PROF&&PROF.nombre)||VIEWAS)}</b> (${esc(VIEWAS)}). Lo que cambies aquí se guarda en sus cursos.</span><button class="go small" id="viewBack">Volver a mi panel</button></div>`:''}${RULES_OLD?`<p class="warn" role="status">No se pudieron guardar las imágenes aparte (${esc(String(RULES_OLD))}). ${RULES_OLD==='permission-denied'?'Firebase no lo permite. '+esc(authInfo()):'Revisa la conexión.'} <button class="mini" id="imgRetry">Reintentar</button></p>`:''}<section class="panel tabpanel">${tabs}<div class="tabbody fitbox tfit" data-minz=".5"><div class="fit">${body}</div></div></section></div></div>${secModalHTML()}${restoreModalHTML()}`;
+    <div class="main">${VIEWAS?`<div class="viewas" role="status"><span>Estás viendo el panel de <b>${esc((PROF&&PROF.nombre)||VIEWAS)}</b> (${esc(VIEWAS)}). Lo que cambies aquí se guarda en sus cursos.</span><button class="go small" id="viewBack">Volver a mi panel</button></div>`:''}${RULES_OLD?`<p class="warn" role="status">No se pudieron guardar las imágenes aparte (${esc(String(RULES_OLD))}). ${RULES_OLD==='permission-denied'?'Firebase no lo permite. '+esc(authInfo()):'Revisa la conexión.'} <button class="mini" id="imgRetry">Reintentar</button></p>`:''}<section class="panel tabpanel">${tabs}<div class="tabbody fitbox tfit" data-minz=".5"><div class="fit">${body}</div></div></section></div></div>${secModalHTML()}${restoreModalHTML()}${injModalHTML()}`;
   {const m=document.getElementById('tmodal'); if(m) app.appendChild(m);} // la ventana emergente no se reduce con el ajuste
-  bindTop(); bindSecModal(); bindRestore();
+  {const m=document.getElementById('injmodal'); if(m) app.appendChild(m);}
+  bindTop(); bindSecModal(); bindRestore(); bindInj();
   {const r=document.getElementById('imgRetry'); r&&r.addEventListener('click',async()=>{r.disabled=true;r.textContent='Comprobando…';RULES_OLD=false;MIGRATED.clear();await migrateImgs().catch(()=>{});renderTeacher()})}
   app.querySelectorAll('[data-ttab]').forEach(b=>b.addEventListener('click',()=>{TTAB=+b.dataset.ttab;if(TTAB===7){STAFFP=null;STAFFG=null}resetArmed=false;ADVARM=false;FBMSG='';TFLASH='';TMODAL=null;SECM=null;renderTeacher()}));
   document.getElementById('logout').addEventListener('click',goBack);
@@ -3548,7 +3574,7 @@ function tCursos(){
     <td>${ended?'—':t.decWeek===G.week?'<span class="pos">Enviado</span>':'<span class="neg">Pendiente</span>'}</td>
     <td>${ended?'—':esc((teamEvent(t,G.week)||{}).title||'Ninguno')}</td>
     <td class="num">${int((t.history||[]).reduce((a,h)=>a+h.sold,0))}</td><td class="num ${profitOf(t)<0?'neg':''}">${eur(profitOf(t))}</td><td class="num ${t.cash<0?'neg':''}">${eur(t.cash)}${t.cash<BANKRUPT?' <span class="chip neg">quiebra</span>':''}</td>
-    <td><button class="linkbtn" data-see="${esc(t.id)}">Ver pantalla</button></td></tr>`).join('');
+    <td class="actcol"><button class="linkbtn" data-see="${esc(t.id)}">Ver pantalla</button>${injBtn(t)}</td></tr>`).join('');
   const pct=TEAMS.length?Math.round(sentN/TEAMS.length*100):0;
   const due=dueAt(G)===Infinity?'Los resultados solo se publican cuando tú pulses el botón.':`Si no publicas antes, se publican solos el ${fmtDate(dueAt(G))}.`;
   return `${courseSelect()}
@@ -3851,6 +3877,60 @@ const readUnlock=prefix=>{const o={};document.querySelectorAll(`select[data-unl=
 document.addEventListener('change',e=>{const c=e.target;if(c&&c.matches&&c.matches('input[data-sec]')){const r=c.closest('.secrow'),sl=r&&r.querySelector('select[data-unl]');if(sl)sl.disabled=!c.checked}});
 const readOff=(prefix,level)=>{const on=[...document.querySelectorAll(`input[data-sec="${prefix}"]`)].filter(x=>x.checked).map(x=>x.value);return secsOfLevel(level).map(([k])=>k).filter(k=>!FIXED_SECS.includes(k)&&!on.includes(k))};
 const secCount=(level,off)=>{const S=secsOfLevel(level);return `${S.filter(([k])=>FIXED_SECS.includes(k)||!off.includes(k)).length} de ${S.length}`};
+
+/* ================= Inyección de capital (profesor/a) =================
+   El dinero entra al momento en el presupuesto del grupo y queda apuntado en la semana en curso:
+   el grupo lo ve en Noticias y, al publicarse esa semana, en sus resultados. */
+let INJM=null, INJMSG='';
+const injOf=(t,w)=>(t.injections||[]).filter(x=>w==null||x.week===w);
+const injSum=(t,w)=>injOf(t,w).reduce((a,x)=>a+(+x.amount||0),0);
+const injBtn=t=>G&&G.week<=WEEKS?`<button class="linkbtn" data-inj="${esc(t.id)}">Inyección de capital</button>`:'';
+function injModalHTML(){
+  if(!INJM) return '';
+  const t=TEAMS.find(x=>x.id===INJM); if(!t) return '';
+  const cur=injOf(t,G.week), old=(t.injections||[]).filter(x=>x.week!==G.week);
+  return `<div class="gloss-ov tmodal" id="injmodal"><div class="gloss-box" role="dialog" aria-modal="true" aria-label="Inyección de capital">
+    <div class="gloss-head"><div><span class="label">${esc(t.name)} · presupuesto ${eur(t.cash)}</span><h2>Inyección de capital</h2></div><button class="mini" id="injX">Cerrar</button></div>
+    <p class="hint">El dinero entra ahora mismo en el presupuesto del grupo. Lo verán en «Noticias» y, cuando publiques la semana ${G.week}, en sus resultados.</p>
+    <form class="form" id="finj">
+      <div class="inj-opts">${[5000,10000,25000,50000].map(v=>`<button type="button" class="ghost" data-injv="${v}">${eur(v)}</button>`).join('')}</div>
+      <label class="numf" for="injamt"><b>Cantidad</b><span class="inwrap"><input type="number" id="injamt" min="1" max="1000000" step="1" inputmode="numeric" placeholder="Ej.: 20000"><span>€</span></span></label>
+      <label for="injnote"><b>Motivo (lo verá el grupo, opcional)</b><input id="injnote" maxlength="140" placeholder="Ej.: Ayuda para superar la huelga"></label>
+      <div class="btns"><button class="go small" type="submit">Inyectar</button></div><p class="hint" id="injmsg" role="status">${esc(INJMSG)}</p>
+    </form>
+    ${cur.length?`<h3>Esta semana (${G.week})</h3><ul class="inj-list">${cur.map(x=>`<li><span><b class="pos">+${eur(x.amount)}</b>${x.note?' · '+esc(x.note):''}</span><button class="linkbtn" data-injdel="${esc(String(x.at))}">Quitar</button></li>`).join('')}</ul>`:''}
+    ${old.length?`<h3>Semanas anteriores</h3><ul class="inj-list">${old.map(x=>`<li><span>Semana ${x.week}: <b class="pos">+${eur(x.amount)}</b>${x.note?' · '+esc(x.note):''}</span></li>`).join('')}</ul>`:''}
+  </div></div>`;
+}
+async function saveInj(t,list,cash){
+  await Store.patchTeam(CODE,t.id,{injections:list,cash});
+  t.injections=list; t.cash=cash;
+}
+function bindInj(){
+  app.querySelectorAll('[data-inj]').forEach(b=>b.addEventListener('click',()=>{INJM=b.dataset.inj;INJMSG='';renderTeacher();const i=document.getElementById('injamt');i&&i.focus({preventScroll:true})}));
+  const m=document.getElementById('injmodal'); if(!m) return;
+  const close=()=>{INJM=null;INJMSG='';renderTeacher()};
+  document.getElementById('injX').addEventListener('click',close);
+  m.addEventListener('click',e=>{if(e.target===m)close()});
+  const amt=document.getElementById('injamt');
+  m.querySelectorAll('[data-injv]').forEach(b=>b.addEventListener('click',()=>{amt.value=b.dataset.injv;amt.focus({preventScroll:true})}));
+  const t=TEAMS.find(x=>x.id===INJM);
+  document.getElementById('finj').addEventListener('submit',async e=>{
+    e.preventDefault(); const v=Math.round(+amt.value), note=document.getElementById('injnote').value.trim();
+    const msg=document.getElementById('injmsg');
+    if(!(v>0&&v<=1000000)){msg.textContent='Escribe una cantidad entre 1 y 1.000.000 €.';return}
+    const btn=e.submitter; if(btn) btn.disabled=true; msg.textContent='Guardando…';
+    try{const list=[...(t.injections||[]),{week:G.week,amount:v,note,at:Date.now()}];await saveInj(t,list,t.cash+v);
+      INJMSG=`${t.name} ha recibido ${eur(v)}. Presupuesto: ${eur(t.cash)}.`;renderTeacher()}
+    catch(err){console.error(err);if(btn)btn.disabled=false;msg.textContent='No se pudo guardar. Inténtalo otra vez.'}
+  });
+  m.querySelectorAll('[data-injdel]').forEach(b=>b.addEventListener('click',async()=>{
+    const x=(t.injections||[]).find(y=>String(y.at)===b.dataset.injdel&&y.week===G.week); if(!x) return;
+    b.disabled=true;
+    try{await saveInj(t,(t.injections||[]).filter(y=>y!==x),t.cash-x.amount);INJMSG=`Inyección de ${eur(x.amount)} quitada.`;renderTeacher()}
+    catch(err){b.disabled=false;document.getElementById('injmsg').textContent='No se pudo quitar. Inténtalo otra vez.'}
+  }));
+}
 function secModalHTML(){
   if(!SECM) return '';
   const t=SECM.scope==='team'?TEAMS.find(x=>x.id===SECM.id):null;
@@ -4176,8 +4256,8 @@ function summaryOf(t){
       ${item(`Semana ${h.week}`,`${eur(h.profit)} · ${trendTxt}`)}${item('Vendidos',`${int(h.sold)} de ${int(h.prod)} fabricados`)}${item('Decisión',h.sent?`${CONTS[h.cont].n} · ${h.niche&&NICHES[h.niche]?NICHES[h.niche].n.toLowerCase():''} · ${eur(h.price)}`:'No envió decisiones')}
     </div>
     <div class="grid2">
-      <div><h3>Lo que ha funcionado</h3><ul class="msgs one">${good.map(m=>`<li class="good">${esc(m.t)}</li>`).join('')||'<li>Nada destacable.</li>'}</ul></div>
-      <div><h3>A mejorar</h3><ul class="msgs one">${bad.map(m=>`<li class="bad">${esc(m.t)}</li>`).join('')||'<li>Sin problemas importantes.</li>'}</ul></div>
+      <details class="fold good"><summary>Lo que ha funcionado <span class="fold-n">${good.length}</span></summary><ul class="msgs one">${good.map(m=>`<li class="good">${esc(m.t)}</li>`).join('')||'<li>Nada destacable.</li>'}</ul></details>
+      <details class="fold bad"><summary>A mejorar <span class="fold-n">${bad.length}</span></summary><ul class="msgs one">${bad.map(m=>`<li class="bad">${esc(m.t)}</li>`).join('')||'<li>Sin problemas importantes.</li>'}</ul></details>
     </div>${reflHTML(t)}`;
 }
 /* Propuestas de recomendación a partir de la última semana del grupo (el profesor/a las edita) */
@@ -4204,7 +4284,7 @@ function tRecom(){
   return `<div class="recom-tab">${courseBar()}
     <div class="coursebar"><span class="label">Empresa</span>${TEAMS.map(x=>`<button class="opt pick" data-fbt="${esc(x.id)}" aria-pressed="${x.id===FBTEAM}"><b>${esc(x.name)}</b><span class="hint">${(x.feedback||[]).some(f=>f.week===G.week)?'✓ Hecha':'Sin recomendación'}</span></button>`).join('')}<span class="hint">${done} de ${TEAMS.length} hechas esta semana</span></div>
     <div class="recom-grid">
-      <div class="fit-col"><h2>Resumen de ${esc(t.name)}</h2>${summaryOf(t)}</div>
+      <div class="fit-col"><div class="recom-h"><h2>Resumen de ${esc(t.name)}</h2>${injBtn(t)}</div>${summaryOf(t)}</div>
       <form class="form fbform" id="ffb"><label for="fbtext"><h2>Recomendación para la semana ${Math.min(G.week,WEEKS)}</h2></label>
         ${sug.length?`<div class="sugs"><span class="label">Ideas según sus resultados</span>${sug.map((x,i)=>`<button type="button" class="sug" data-sug="${i}">${esc(x)}</button>`).join('')}</div>`:''}
         <textarea id="fbtext" rows="6" maxlength="800" placeholder="Ej.: Habéis fabricado de más. Revisad la cantidad y probad a bajar un poco el precio.">${esc(cur?cur.text:'')}</textarea>

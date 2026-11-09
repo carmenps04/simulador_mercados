@@ -87,7 +87,7 @@ service cloud.firestore {
         allow update: if canGame(game()) || (signedIn() && (
           // Decisiones, diseño, logo, factura…: solo quien ha entrado con el código de la empresa
           (hasAccess(team)
-            && !changed().hasAny(['feedback', 'level', 'history', 'cash', 'rep', 'id', 'name', 'model', 'members']))
+            && !changed().hasAny(['feedback', 'level', 'history', 'cash', 'rep', 'injections', 'id', 'name', 'model', 'members']))
           // Cierre de semana: añadir exactamente un resultado, solo pasada la hora de cierre
           || (changed().hasOnly(['history', 'cash', 'rep'])
               && request.resource.data.history.size() == resource.data.history.size() + 1

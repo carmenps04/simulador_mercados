@@ -43,6 +43,7 @@ La app no tiene servidor: la ronda se cierra cuando alguien tiene la app abierta
 
 ### Exportar
 En **Cursos**:
+- **Inyección de capital** (en **Cursos**, junto a «Ver pantalla», y en **Recomendaciones**): el profesor/a mete dinero en el presupuesto de un grupo, con un motivo opcional. El grupo lo ve en «Noticias» y, al publicarse la semana, en sus resultados. No cuenta como beneficio. Las inyecciones de la semana en curso se pueden quitar.
 - **Exportar resultados en PDF**: informe del curso.
 - **Decisiones en Excel**: una fila por empresa y semana con todas las decisiones y los resultados, y una hoja de resumen. Las semanas jugadas antes de noviembre de 2026 no tienen componentes ni extras.
 
