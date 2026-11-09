@@ -32,7 +32,9 @@
   --c1:#7D9BFF; --c2:#FB923C; --c3:#4ADE80; --c4:#C084FC; --c5:#22D3EE; --c6:#FACC15; --c7:#F472B6; --c8:#CBD5E1; color-scheme:dark}
 
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.5}
+/* Pantallas anchas: todo crece un poco para aprovechar el espacio (el texto usa rem) */
+@media (min-width:1500px){html{font-size:clamp(16px,calc(16px + (100vw - 1500px) * .006),20px)}}
 .wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:20px}
 h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
 h2{font-size:1.35rem;font-weight:800}
@@ -188,7 +190,7 @@ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
 .kpi b{font-size:1rem}
 .app{display:flex;flex-direction:column;gap:10px;min-height:0}
 .main{display:flex;flex-direction:column;min-height:0}
-.work{display:grid;grid-template-columns:minmax(0,1fr) clamp(220px,24vw,290px);gap:14px;min-height:0}
+.work{display:grid;grid-template-columns:minmax(0,1fr) clamp(220px,21vw,24rem);gap:clamp(14px,1vw,22px);min-height:0}
 .tabpanel{display:flex;flex-direction:column;gap:12px;min-height:0;padding:16px}
 .tabbody{gap:12px}
 .tabbody h2{font-size:1.2rem}
@@ -207,7 +209,7 @@ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
 .chart svg{max-height:52vh}
 .coderow{display:flex;gap:8px}
 .coderow input{flex:1;min-width:0}
-.homecols .small-drop{width:80px;height:80px}
+.homecols .small-drop{width:80px;height:80px;aspect-ratio:auto}
 .homecols .note{font-size:.82rem;padding:8px 10px}
 .setup.wide .hero h1{font-size:1.6rem}
 .setup.wide .logo-big{height:56px}
@@ -297,7 +299,7 @@ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
 .podium li{display:flex;justify-content:space-between;gap:8px;font-size:.92rem}
 @media (min-width:901px){
   html,body{height:100%}
-  #app.wrap{height:100%;padding-block:10px;gap:10px;max-width:1320px;overflow:hidden}
+  #app.wrap{height:100%;padding-block:10px;gap:10px;max-width:none;padding-inline:clamp(16px,1.6vw,40px);overflow:hidden}
   .app{flex:1}
   .main{flex:1}
   .work{flex:1}
@@ -314,9 +316,9 @@ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
   .work{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:520px){.grid4,.grid5{grid-template-columns:minmax(0,1fr)}}
-.small-drop{width:120px;height:120px}
+.small-drop{width:clamp(120px,9vw,12rem);height:auto;aspect-ratio:1}
 .note{background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:.9rem;margin:0}
-.team-logo{height:40px;width:auto;max-width:90px;object-fit:contain;align-self:center;flex:none}
+.team-logo{height:2.5rem;width:auto;max-width:6rem;object-fit:contain;align-self:center;flex:none}
 .splash{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding-block:24px}
 .splash-logo{max-height:180px;max-width:min(320px,80%);object-fit:contain}
 /* Portada: logo del centro a pantalla completa, translúcido y por detrás del texto y del botón */
@@ -368,7 +370,7 @@ th.rt{text-align:right}
 .xopt[aria-pressed="true"] .box{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .opt:disabled{opacity:.5;cursor:not-allowed}
 .design-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
-.drop{flex:none;width:150px;height:190px;border:2px dashed var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;cursor:pointer;background:var(--bg);overflow:hidden;font-weight:400}
+.drop{flex:none;width:clamp(150px,13vw,18rem);aspect-ratio:15/19;height:auto;border:2px dashed var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;cursor:pointer;background:var(--bg);overflow:hidden;font-weight:400}
 .drop:hover{border-color:var(--accent)}
 .drop img{width:100%;height:100%;object-fit:contain}
 .sr{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
