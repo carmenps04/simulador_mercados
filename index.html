@@ -2932,8 +2932,8 @@ function bindDesign(){
     rd.onload=()=>{const im=new Image();im.onload=()=>{
       const s=Math.min(1,320/Math.max(im.width,im.height)), cv=document.createElement('canvas');
       cv.width=Math.round(im.width*s); cv.height=Math.round(im.height*s);
-      const cx=cv.getContext('2d'); cx.fillStyle='#ffffff'; cx.fillRect(0,0,cv.width,cv.height); cx.drawImage(im,0,0,cv.width,cv.height);
-      saveDesign({img:cv.toDataURL('image/jpeg',0.75)}).catch(()=>{err.textContent=T('No se pudo guardar la imagen. Probad con otra más pequeña.')});
+      cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+      saveDesign({img:smallURL(removeBg(cv))}).catch(()=>{err.textContent=T('No se pudo guardar la imagen. Probad con otra más pequeña.')});
     };im.onerror=()=>{err.textContent=T('No se pudo abrir la imagen.')};im.src=rd.result};
     rd.readAsDataURL(f);
   });
@@ -2987,11 +2987,12 @@ async function storeImg(code,id,k,v){
 function shrinkData(v,max){
   return new Promise(ok=>{const im=new Image();im.onload=()=>{
     let w=im.width,h=im.height,out=v,q=.8;
+    const alpha=!/^data:image\/jpe?g/.test(v); // las imágenes sin fondo se reducen sin perder la transparencia
     for(let i=0;i<8&&out.length>max;i++){
       const s=Math.min(1,480/Math.max(w,h))*Math.pow(.8,i), cv=document.createElement('canvas');
       cv.width=Math.max(1,Math.round(w*s)); cv.height=Math.max(1,Math.round(h*s));
-      const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height); cx.drawImage(im,0,0,cv.width,cv.height);
-      out=cv.toDataURL('image/jpeg',q); q=Math.max(.5,q-.05);
+      const cx=cv.getContext('2d'); if(!alpha){cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height)} cx.drawImage(im,0,0,cv.width,cv.height);
+      out=alpha?smallURL(cv):cv.toDataURL('image/jpeg',q); q=Math.max(.5,q-.05);
     }
     ok(out)};im.onerror=()=>ok(v);im.src=v});
 }
@@ -3006,6 +3007,54 @@ async function migrateImgs(){
     if(Object.keys(p).length){try{await Store.patchTeam(CODE,t.id,p)}catch(e){return}}
   }
 }
+/* Quita el fondo de una imagen: toma el color de los bordes y borra la zona conectada de ese color
+   (admite fondos con sombras o degradados suaves, como un folio fotografiado). Si el fondo no es
+   uniforme, deja la imagen como está. Devuelve un lienzo nuevo recortado al contenido. */
+function removeBg(src,opt){
+  opt=opt||{};
+  const W=src.width,H=src.height; if(W<8||H<8) return src;
+  const cx=src.getContext('2d',{willReadFrequently:true}), id=cx.getImageData(0,0,W,H), p=id.data, N=W*H;
+  const border=[];for(let x=0;x<W;x++){border.push(x,(H-1)*W+x)}for(let y=1;y<H-1;y++){border.push(y*W,y*W+W-1)}
+  /* Si los bordes ya son transparentes, la imagen ya viene sin fondo */
+  if(border.filter(i=>p[i*4+3]<40).length>border.length*.5) return src;
+  const med=k=>{const a=border.map(i=>p[i*4+k]).sort((x,y)=>x-y);return a[a.length>>1]}, bg=[med(0),med(1),med(2)];
+  const dist=(i,c)=>{const r=p[i*4]-c[0],g=p[i*4+1]-c[1],b=p[i*4+2]-c[2];return Math.sqrt(r*r+g*g+b*b)};
+  const near=border.filter(i=>dist(i,bg)<60);
+  if(near.length<border.length*.55) return src; // fondo con muchos colores: mejor no tocar
+  const sd=Math.sqrt(near.reduce((a,i)=>a+dist(i,bg)**2,0)/near.length), T=Math.max(28,Math.min(70,sd*2.5+18));
+  const isBg=new Uint8Array(N), q=new Int32Array(N); let h=0,t=0;
+  for(const i of border) if(!isBg[i]&&dist(i,bg)<T){isBg[i]=1;q[t++]=i}
+  while(h<t){const i=q[h++], x=i%W, y=(i/W)|0;
+    for(const j of [x>0?i-1:-1,x<W-1?i+1:-1,y>0?i-W:-1,y<H-1?i+W:-1]){
+      if(j<0||isBg[j]) continue;
+      const db=dist(j,bg);
+      if(db<T||(db<T*2.2&&dist(j,[p[i*4],p[i*4+1],p[i*4+2]])<14)){isBg[j]=1;q[t++]=j}
+    }}
+  /* Huecos cerrados del mismo color que el fondo (el interior de una «O» en un logo) */
+  if(opt.holes){const seen=new Uint8Array(N), min=Math.max(12,N*.002);
+    for(let s=0;s<N;s++){if(isBg[s]||seen[s]||dist(s,bg)>=T*.6) continue;
+      const comp=[s];seen[s]=1;for(let k=0;k<comp.length;k++){const i=comp[k],x=i%W,y=(i/W)|0;
+        for(const j of [x>0?i-1:-1,x<W-1?i+1:-1,y>0?i-W:-1,y<H-1?i+W:-1]) if(j>=0&&!seen[j]&&!isBg[j]&&dist(j,bg)<T*.6){seen[j]=1;comp.push(j)}}
+      if(comp.length>=min) for(const i of comp) isBg[i]=1}}
+  let nb=0;for(let i=0;i<N;i++) nb+=isBg[i];
+  if(nb<N*.02||nb>N*.97) return src; // casi nada que quitar, o se iría todo el dibujo
+  /* Borde suave: los píxeles del contorno que se parecen al fondo quedan semitransparentes */
+  let x0=W,y0=H,x1=-1,y1=-1;
+  for(let i=0;i<N;i++){
+    if(isBg[i]){p[i*4+3]=0;continue}
+    const x=i%W,y=(i/W)|0;
+    if((x>0&&isBg[i-1])||(x<W-1&&isBg[i+1])||(y>0&&isBg[i-W])||(y<H-1&&isBg[i+W])){
+      const a=Math.max(0,Math.min(1,(dist(i,bg)-T*.5)/(T*1.5)));p[i*4+3]=Math.round(p[i*4+3]*a);
+      if(a>.05&&a<1) for(let k=0;k<3;k++) p[i*4+k]=Math.max(0,Math.min(255,Math.round((p[i*4+k]-bg[k]*(1-a))/a)))}
+    if(p[i*4+3]>8){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  }
+  if(x1<0) return src;
+  cx.putImageData(id,0,0);
+  const pad=2; x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(W-1,x1+pad);y1=Math.min(H-1,y1+pad);
+  const out=document.createElement('canvas'); out.width=x1-x0+1; out.height=y1-y0+1;
+  out.getContext('2d').drawImage(src,x0,y0,out.width,out.height,0,0,out.width,out.height);
+  return out;
+}
 /* Imagen con transparencia en el formato más ligero disponible */
 function smallURL(cv){let u='';try{u=cv.toDataURL('image/webp',0.85)}catch(e){}const p=cv.toDataURL('image/png');return u.startsWith('data:image/webp')&&u.length<p.length?u:p}
 function readLogo(inp,max,ok,fail){
@@ -3013,7 +3062,7 @@ function readLogo(inp,max,ok,fail){
   const rd=new FileReader(); rd.onload=()=>{const im=new Image();im.onload=()=>{
     const sc=Math.min(1,max/Math.max(im.width,im.height)), cv=document.createElement('canvas');
     cv.width=Math.round(im.width*sc); cv.height=Math.round(im.height*sc); cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
-    ok(smallURL(cv));
+    ok(smallURL(removeBg(cv,{holes:true})));
   };im.onerror=fail;im.src=rd.result}; rd.onerror=fail; rd.readAsDataURL(f);
 }
 /* Portada según el curso. Cada docente tiene la suya: la portada general de la administradora
@@ -4011,7 +4060,7 @@ function bindLogo(){
       const sc=Math.min(1,240/Math.max(im.width,im.height)), cv=document.createElement('canvas');
       cv.width=Math.round(im.width*sc); cv.height=Math.round(im.height*sc);
       cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
-      saveTlc({logo:smallURL(cv),titulo:document.getElementById('titulo').value.trim()},'Logo guardado.');
+      saveTlc({logo:smallURL(removeBg(cv,{holes:true})),titulo:document.getElementById('titulo').value.trim()},'Logo guardado.');
     };im.onerror=()=>{msg.textContent='No se pudo abrir la imagen.'};im.src=rd.result}; rd.readAsDataURL(f);
   });
 }

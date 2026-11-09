@@ -80,6 +80,7 @@ La app es un único `index.html` sin paso de compilación. Los datos se guardan 
 - `partidas/{curso}`: reglas y semana actual del curso.
 - `partidas/{curso}/equipos/{empresa}`: decisiones, historial y resultados de cada empresa.
 - `partidas/{curso}/imagenes/{empresa}`: logo y diseño de cada empresa.
+  Al subir una imagen (logo de la empresa, imagen del móvil o logo del centro) se quita el fondo automáticamente si es de un color liso o casi liso (por ejemplo, un folio). Si el fondo tiene muchos colores, la imagen se guarda tal cual.
 - `ajustes/centro`: pantalla de inicio (logo y nombre del centro).
 - `ajustes/profesorado`: administradora y lista de correos con acceso.
 - `perfiles/{correo}`: perfil de cada docente.
