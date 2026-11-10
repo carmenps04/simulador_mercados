@@ -7,7 +7,11 @@ Enlace: https://carmenps04.github.io/simulador_mercados/
 ## Uso
 
 - **Alumnado:** abre el enlace, escribe los nombres del grupo, elige su curso y crea su empresa (un dispositivo por grupo). Al pulsar el nombre de su empresa se abre un menú con sus resultados (por semanas, globales y en comparación con las demás empresas), las decisiones anteriores, los integrantes y el código de la empresa, cómo los ven los clientes, cómo los ven sus trabajadores (si hay plantilla) y las recomendaciones del profesor/a.
-- **Profesorado:** «Código de profesor» en la pantalla de inicio. Se entra con Google o con correo y contraseña. Solo entran la administradora y los correos que ella añada en **Profesorado con acceso**.
+- **Decisiones de cada semana:** las pestañas van por bloques (Mercado, Producto, Precio y publicidad, Finanzas). Nada está marcado hasta que el grupo lo elige, y cada pestaña se cierra con **Confirmar y seguir**: el ✓ significa «decidido», no «visto». La primera semana todo empieza sin elegir; desde la segunda se parte de lo de la semana anterior, pero el precio, los móviles a fabricar y la publicidad se escriben cada semana. Lo decidido se guarda solo (también si cambian de dispositivo).
+- **Factura obligatoria:** no se puede enviar hasta que la factura está bien. Se entrega con las decisiones.
+- **Después de enviar:** el grupo escribe la justificación de sus decisiones y puede imprimir la **hoja de decisiones** (decisiones, factura y justificación, o líneas en blanco para escribirla a mano).
+- **Competencia:** las empresas que eligen el mismo nicho en el mismo continente se reparten los clientes según lo atractiva que sea su oferta.
+- **Profesorado:** «Código de profesor» en la pantalla de inicio. Dentro de una empresa no aparece: hay que pulsar «Salir de la empresa» y entrar desde el inicio. Se entra con Google o con correo y contraseña. Solo entran la administradora y los correos que ella añada en **Profesorado con acceso**.
 
 ## Profesorado y perfiles
 
@@ -46,7 +50,7 @@ En **Cursos**:
 - **Icono de la app**: `favicon.svg` y la carpeta `icons/` (pestaña del navegador, marcadores, acceso directo en móvil o tablet con `manifest.webmanifest`).
 - **Inyección de capital** (en **Cursos**, junto a «Ver pantalla», y en **Recomendaciones**): el profesor/a mete dinero en el presupuesto de un grupo, con un motivo opcional. El grupo lo ve en «Noticias» y, al publicarse la semana, en sus resultados. No cuenta como beneficio. Las inyecciones de la semana en curso se pueden quitar.
 - **Exportar resultados en PDF**: informe del curso.
-- **Decisiones en Excel**: una fila por empresa y semana con todas las decisiones y los resultados, y una hoja de resumen. Las semanas jugadas antes de noviembre de 2026 no tienen componentes ni extras.
+- **Decisiones en Excel**: una fila por empresa y semana con todas las decisiones y los resultados (también competidores, factura y justificación), y una hoja de resumen. Las semanas jugadas antes de noviembre de 2026 no tienen componentes ni extras.
 
 ### Copias de seguridad
 - **Descargar copia de seguridad** (en **Cursos** y en la ventana de reiniciar o borrar) guarda el curso entero en un archivo `.json`, con imágenes. Guárdalo en el ordenador o en Drive.
