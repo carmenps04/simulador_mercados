@@ -4124,22 +4124,43 @@ function readPhoto(file){return new Promise((ok,ko)=>{
   if(!/^image\//.test(file.type)) return ko();
   const r=new FileReader(); r.onerror=ko; r.onload=()=>loadImg(r.result).then(im=>loadImg(shrinkTo(im,1600,.92))).then(ok,ko); r.readAsDataURL(file)})}
 function cropPhoto(im,init){return new Promise(done=>{
-  const V=300, minS=V/Math.min(im.width,im.height); let sc=minS, ox=(V-im.width*sc)/2, oy=(V-im.height*sc)/2;
-  if(init&&init.z){sc=minS*Math.max(1,Math.min(4,init.z));ox=V/2-init.cx*im.width*sc;oy=V/2-init.cy*im.height*sc}
+  /* Escala 1 = la foto cubre el círculo. Se puede alejar hasta verla entera y moverla libremente
+     (por ejemplo, si la cara está en el borde de arriba); los huecos se rellenan con la misma foto desenfocada. */
+  const V=300, minS=V/Math.min(im.width,im.height), lowZ=Math.min(1,+(Math.min(im.width,im.height)/Math.max(im.width,im.height)*.8).toFixed(3));
+  let sc=minS, ox=(V-im.width*sc)/2, oy=(V-im.height*sc)/2;
+  if(init&&init.z){sc=minS*Math.max(lowZ,Math.min(4,init.z));ox=V/2-init.cx*im.width*sc;oy=V/2-init.cy*im.height*sc}
   const ov=document.createElement('div'); ov.className='gloss-ov'; ov.id='cropov';
   ov.innerHTML=`<div class="gloss-box crop-box" role="dialog" aria-modal="true" aria-label="Ajustar la foto">
     <div class="gloss-head"><h2>Ajusta tu foto</h2></div>
     <p class="hint">Arrastra la foto para colocarla y usa el deslizador (o la rueda del ratón) para acercarla o alejarla. Se guardará lo que se ve dentro del círculo.</p>
     <div class="crop-stage"><canvas id="cropcv"></canvas><span class="crop-mask" aria-hidden="true"></span></div>
-    <label class="crop-zoom"><span>−</span><input type="range" id="cropz" min="1" max="4" step="0.01" value="${sc/minS}" aria-label="Acercar o alejar"><span>+</span></label>
+    <label class="crop-zoom"><span>−</span><input type="range" id="cropz" min="${lowZ}" max="4" step="any" value="${sc/minS}" aria-label="Acercar o alejar"><span>+</span></label>
     <div class="btns"><button class="go small" id="cropok">Usar esta foto</button><button class="ghost" id="cropno">Cancelar</button></div></div>`;
   document.body.appendChild(ov); syncLock();
   const cv=ov.querySelector('#cropcv'), cx=cv.getContext('2d'), z=ov.querySelector('#cropz');
   /* El lienzo se dibuja a la resolución real de la pantalla para que la vista previa se vea nítida */
   const D=Math.max(2,Math.ceil(window.devicePixelRatio||1)); cv.width=cv.height=V*D;
-  const clampO=()=>{const w=im.width*sc,h=im.height*sc;ox=Math.min(0,Math.max(V-w,ox));oy=Math.min(0,Math.max(V-h,oy))};
-  const draw=()=>{clampO();cx.setTransform(D,0,0,D,0,0);cx.imageSmoothingQuality='high';cx.fillStyle='#fff';cx.fillRect(0,0,V,V);cx.drawImage(im,ox,oy,im.width*sc,im.height*sc)};
-  const zoomTo=(ns,px=V/2,py=V/2)=>{ns=Math.max(minS,Math.min(minS*4,ns));ox=px-(px-ox)*ns/sc;oy=py-(py-oy)*ns/sc;sc=ns;z.value=String(sc/minS);draw()};
+  /* La foto puede moverse mientras siga tocando el centro del círculo */
+  const clampO=()=>{const w=im.width*sc,h=im.height*sc;ox=Math.min(V/2,Math.max(V/2-w,ox));oy=Math.min(V/2,Math.max(V/2-h,oy))};
+  /* Si queda hueco alrededor, se rellena prolongando los bordes de la propia foto (pared, cielo…) */
+  const edge=(()=>{try{const c=document.createElement('canvas');c.width=c.height=8;const g=c.getContext('2d');g.drawImage(im,0,0,8,8);
+    const d=g.getImageData(0,0,8,8).data;let r=0,gg=0,bb=0,n=0;for(let i=0;i<64;i++){const x=i%8,y=(i/8)|0;if(x&&y&&x<7&&y<7)continue;r+=d[i*4];gg+=d[i*4+1];bb+=d[i*4+2];n++}
+    return `rgb(${r/n|0},${gg/n|0},${bb/n|0})`}catch(e){return '#e9edf3'}})();
+  const paint=(g,k)=>{g.imageSmoothingQuality='high';g.fillStyle=edge;g.fillRect(0,0,V*k,V*k);
+    const w=im.width*sc,h=im.height*sc,X=ox*k,Y=oy*k,Wk=w*k,Hk=h*k,E=Math.max(1,Math.round(2/sc));
+    if(oy>0) g.drawImage(im,0,0,im.width,E,X,0,Wk,Y+1);
+    if(oy+h<V) g.drawImage(im,0,im.height-E,im.width,E,X,Y+Hk-1,Wk,V*k-(Y+Hk)+1);
+    if(ox>0) g.drawImage(im,0,0,E,im.height,0,Y,X+1,Hk);
+    if(ox+w<V) g.drawImage(im,im.width-E,0,E,im.height,X+Wk-1,Y,V*k-(X+Wk)+1,Hk);
+    /* Las franjas prolongadas se funden poco a poco con el color de los bordes */
+    const fade=(x0,y0,x1,y1,rx,ry,rw,rh)=>{const gr=g.createLinearGradient(x0,y0,x1,y1);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,edge);g.save();g.globalAlpha=.85;g.fillStyle=gr;g.fillRect(rx,ry,rw,rh);g.restore()};
+    if(oy>0) fade(0,Y,0,0,0,0,V*k,Y);
+    if(oy+h<V) fade(0,Y+Hk,0,V*k,0,Y+Hk,V*k,V*k-(Y+Hk));
+    if(ox>0) fade(X,0,0,0,0,0,X,V*k);
+    if(ox+w<V) fade(X+Wk,0,V*k,0,X+Wk,0,V*k-(X+Wk),V*k);
+    g.drawImage(im,X,Y,Wk,Hk)};
+  const draw=()=>{clampO();cx.setTransform(1,0,0,1,0,0);paint(cx,D)};
+  const zoomTo=(ns,px=V/2,py=V/2)=>{ns=Math.max(minS*lowZ,Math.min(minS*4,ns));ox=px-(px-ox)*ns/sc;oy=py-(py-oy)*ns/sc;sc=ns;z.value=String(sc/minS);draw()};
   draw();
   z.addEventListener('input',()=>zoomTo(minS*+z.value));
   let drag=null;
@@ -4151,8 +4172,7 @@ function cropPhoto(im,init){return new Promise(done=>{
   ov.querySelector('#cropno').addEventListener('click',()=>close(null));
   ov.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();close(null)}});
   ov.querySelector('#cropok').addEventListener('click',()=>{
-    const S=512, o=document.createElement('canvas'); o.width=o.height=S; const k=S/V, g=o.getContext('2d'); g.imageSmoothingQuality='high';
-    g.fillStyle='#fff'; g.fillRect(0,0,S,S); g.drawImage(im,ox*k,oy*k,im.width*sc*k,im.height*sc*k);
+    const S=512, o=document.createElement('canvas'); o.width=o.height=S; paint(o.getContext('2d'),S/V);
     let u=o.toDataURL('image/webp',.92); if(!u.startsWith('data:image/webp')) u=o.toDataURL('image/jpeg',.92);
     close({url:u,crop:{z:+(sc/minS).toFixed(4),cx:+((V/2-ox)/(im.width*sc)).toFixed(4),cy:+((V/2-oy)/(im.height*sc)).toFixed(4)}})});
   ov.querySelector('#cropok').focus({preventScroll:true});
