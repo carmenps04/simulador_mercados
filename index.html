@@ -941,9 +941,10 @@ td .eye{margin-inline-start:6px;vertical-align:middle}
 .codeline{margin:4px 0 0;font-weight:600}
 .passcode{font-family:var(--f-data);font-size:1.35rem;letter-spacing:.12em;color:var(--accent)}
 .mtabs{margin-bottom:6px}
-.secrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:nowrap;padding:3px 0;border-bottom:1px dashed var(--line)}
+.secrow{display:flex;justify-content:space-between;align-items:center;gap:4px 10px;flex-wrap:wrap;padding:3px 0;border-bottom:1px dashed var(--line)}
 .secrow:last-child{border-bottom:0}
-.secrow label.check{flex:1;min-width:0}
+.secrow label.check{flex:1 1 0;min-width:min-content}
+.secrow .unl{margin-left:auto}
 .unl{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted);font-weight:600;white-space:nowrap;flex:none}
 .unl select{font:inherit;padding:3px 6px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 .unl select:disabled{opacity:.4}
