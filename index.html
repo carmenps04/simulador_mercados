@@ -851,8 +851,13 @@ details.fold[open]{gap:12px}
 .pf-foto.big{width:96px;height:96px;font-size:2rem}.pf-foto.sm{width:34px;height:34px;font-size:.95rem}
 .pf-foto.nofoto{border:2px dashed var(--line)}
 .pf-foto-row{display:flex;align-items:center;gap:16px}.pf-foto-row p{margin:2px 0 8px}
-.filebtn{display:inline-flex;cursor:pointer;font-weight:700;padding:8px 14px;border-radius:8px;border:1px solid var(--line)}
+.filebtn{display:inline-flex;align-items:center;cursor:pointer}
 .staff-who{display:inline-flex;align-items:center;gap:10px}
+.crop-box{max-width:420px;display:flex;flex-direction:column;gap:12px}
+.crop-stage{position:relative;width:min(300px,70vw);aspect-ratio:1;margin:0 auto;border-radius:12px;overflow:hidden;touch-action:none}
+.crop-stage canvas{width:100%;height:100%;display:block;cursor:grab}.crop-stage canvas:active{cursor:grabbing}
+.crop-mask{position:absolute;inset:0;pointer-events:none;border-radius:50%;box-shadow:0 0 0 999px rgba(15,20,30,.55);outline:2px solid #fff;outline-offset:-2px}
+.crop-zoom{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--muted)}.crop-zoom input{flex:1}
 .perfil-fields{display:flex;flex-direction:column;gap:14px}
 .perfil-fields select,.perfil-fields input{font:inherit;width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 .perfil-fields input:disabled{opacity:.6}
@@ -4109,12 +4114,47 @@ const GRUPOS=NIVELES.flatMap(n=>LETRAS.map(l=>n+' '+l));
 let PDRAFT=null;
 let PEDIT=false;
 /* Foto del perfil: recorte cuadrado de 160 px (sin quitar el fondo, es una foto de una persona) */
+/* Foto del perfil: se sube y se ajusta (arrastrar para colocarla, deslizador o rueda para acercar).
+   Se guarda un recorte cuadrado de 160 px, sin quitar el fondo porque es una foto de una persona. */
+function loadImg(src){return new Promise((ok,ko)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=ko;im.src=src})}
 function readPhoto(file){return new Promise((ok,ko)=>{
   if(!/^image\//.test(file.type)) return ko();
-  const r=new FileReader(); r.onerror=ko; r.onload=()=>{const im=new Image(); im.onerror=ko; im.onload=()=>{
-    const S=160, c=document.createElement('canvas'); c.width=c.height=S; const m=Math.min(im.width,im.height);
-    c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,S,S);
-    let u=c.toDataURL('image/webp',.82); if(!u.startsWith('data:image/webp')) u=c.toDataURL('image/jpeg',.82); ok(u)}; im.src=r.result}; r.readAsDataURL(file)})}
+  const r=new FileReader(); r.onerror=ko; r.onload=()=>loadImg(r.result).then(im=>{
+    /* Copia de trabajo de 1200 px como máximo, para que el ajuste vaya fluido */
+    const k=Math.min(1,1200/Math.max(im.width,im.height)), c=document.createElement('canvas');
+    c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    return loadImg(c.toDataURL('image/jpeg',.9));
+  }).then(ok,ko); r.readAsDataURL(file)})}
+function cropPhoto(im){return new Promise(done=>{
+  const V=300, minS=V/Math.min(im.width,im.height); let sc=minS, ox=(V-im.width*sc)/2, oy=(V-im.height*sc)/2;
+  const ov=document.createElement('div'); ov.className='gloss-ov'; ov.id='cropov';
+  ov.innerHTML=`<div class="gloss-box crop-box" role="dialog" aria-modal="true" aria-label="Ajustar la foto">
+    <div class="gloss-head"><h2>Ajusta tu foto</h2></div>
+    <p class="hint">Arrastra la foto para colocarla y usa el deslizador (o la rueda del ratón) para acercarla o alejarla. Se guardará lo que se ve dentro del círculo.</p>
+    <div class="crop-stage"><canvas width="${V*2}" height="${V*2}" id="cropcv"></canvas><span class="crop-mask" aria-hidden="true"></span></div>
+    <label class="crop-zoom"><span>−</span><input type="range" id="cropz" min="1" max="4" step="0.01" value="1" aria-label="Acercar o alejar"><span>+</span></label>
+    <div class="btns"><button class="go small" id="cropok">Usar esta foto</button><button class="ghost" id="cropno">Cancelar</button></div></div>`;
+  document.body.appendChild(ov); syncLock();
+  const cv=ov.querySelector('#cropcv'), cx=cv.getContext('2d'), z=ov.querySelector('#cropz');
+  const clampO=()=>{const w=im.width*sc,h=im.height*sc;ox=Math.min(0,Math.max(V-w,ox));oy=Math.min(0,Math.max(V-h,oy))};
+  const draw=()=>{clampO();cx.setTransform(2,0,0,2,0,0);cx.fillStyle='#fff';cx.fillRect(0,0,V,V);cx.drawImage(im,ox,oy,im.width*sc,im.height*sc)};
+  const zoomTo=(ns,px=V/2,py=V/2)=>{ns=Math.max(minS,Math.min(minS*4,ns));ox=px-(px-ox)*ns/sc;oy=py-(py-oy)*ns/sc;sc=ns;z.value=String(sc/minS);draw()};
+  draw();
+  z.addEventListener('input',()=>zoomTo(minS*+z.value));
+  let drag=null;
+  cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,ox,oy}});
+  cv.addEventListener('pointermove',e=>{if(!drag)return;const k=V/cv.getBoundingClientRect().width;ox=drag.ox+(e.clientX-drag.x)*k;oy=drag.oy+(e.clientY-drag.y)*k;draw()});
+  const up=()=>{drag=null}; cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
+  cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect(),k=V/r.width;zoomTo(sc*(e.deltaY<0?1.08:1/1.08),(e.clientX-r.left)*k,(e.clientY-r.top)*k)},{passive:false});
+  const close=v=>{ov.remove();syncLock();done(v)};
+  ov.querySelector('#cropno').addEventListener('click',()=>close(null));
+  ov.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();close(null)}});
+  ov.querySelector('#cropok').addEventListener('click',()=>{
+    const S=160, o=document.createElement('canvas'); o.width=o.height=S; const k=S/V, g=o.getContext('2d');
+    g.fillStyle='#fff'; g.fillRect(0,0,S,S); g.drawImage(im,ox*k,oy*k,im.width*sc*k,im.height*sc*k);
+    let u=o.toDataURL('image/webp',.85); if(!u.startsWith('data:image/webp')) u=o.toDataURL('image/jpeg',.85); close(u)});
+  ov.querySelector('#cropok').focus({preventScroll:true});
+})}
 function tPerfil(){
   if(PROF&&PROF.nombre&&!PEDIT){
     const P=PROF, row=(l,v)=>`<div class="r"><span>${l}</span><b>${v}</b></div>`;
@@ -4131,7 +4171,7 @@ function tPerfil(){
     <div class="perfil-fields">
       <div class="pf-foto-row"><span class="pf-foto-box">${P.foto?`<img class="pf-foto big" src="${esc(P.foto)}" alt="Tu foto">`:'<span class="pf-foto big nofoto" aria-hidden="true">?</span>'}</span>
         <div><b>Foto (obligatoria)</b><p class="hint">La verá la administradora junto a tu correo.</p>
-        <label class="ghost filebtn"><input type="file" id="pf-file" accept="image/*" hidden>${P.foto?'Cambiar foto':'Subir foto'}</label></div></div>
+        <span class="btns"><label class="ghost filebtn"><input type="file" id="pf-file" accept="image/*" hidden>${P.foto?'Cambiar foto':'Subir foto'}</label>${P.foto?'<button type="button" class="ghost" id="pf-adj">Ajustar foto</button>':''}</span></div></div>
       <label for="pf-nombre"><b>Nombre</b><input id="pf-nombre" maxlength="60" value="${esc(P.nombre||'')}" placeholder="Ej.: Carmen Pérez"></label>
       <label><b>Correo</b><input value="${esc(actEmail())}" disabled></label>
       <label for="pf-esp"><b>Profesor/a de</b><select id="pf-esp"><option value="">Elige…</option>${ESPEC.map(e=>`<option ${P.especialidad===e?'selected':''}>${e}</option>`).join('')}<option value="__otra" ${other?'selected':''}>Otra (escríbela)</option></select></label>
@@ -4149,7 +4189,8 @@ function bindPerfil(){
   const cc=document.getElementById('pf-cancel'); cc&&cc.addEventListener('click',()=>{PEDIT=false;PDRAFT=null;TFLASH='';renderTeacher()});
   const P=PDRAFT, $=id=>document.getElementById(id);
   const fi=$('pf-file'); fi&&fi.addEventListener('change',()=>{const f=fi.files&&fi.files[0];if(!f)return;keep();
-    readPhoto(f).then(u=>{P.foto=u;TFLASH='';renderTeacher()}).catch(()=>{$('pf-msg').textContent='No se pudo leer la imagen. Prueba con otra.'})});
+    readPhoto(f).then(im=>{P.fotoSrc=im;return cropPhoto(im)}).then(u=>{fi.value='';if(u){P.foto=u;TFLASH='';renderTeacher()}}).catch(()=>{$('pf-msg').textContent='No se pudo leer la imagen. Prueba con otra.'})});
+  const adj=$('pf-adj'); adj&&adj.addEventListener('click',async()=>{keep();const im=P.fotoSrc||await loadImg(P.foto).catch(()=>null);if(!im)return;const u=await cropPhoto(im);if(u){P.foto=u;renderTeacher()}});
   const keep=()=>{P.nombre=$('pf-nombre').value.trim();const e=$('pf-esp').value;P.especialidad=e==='__otra'?$('pf-otra').value.trim():e;P.tutora=$('pf-tut').value==='si';P.tutoraDe=P.tutora?$('pf-tutde').value:''};
   $('pf-esp').addEventListener('change',()=>{const o=$('pf-esp').value==='__otra';$('pf-otra-l').hidden=!o;if(o)$('pf-otra').focus()});
   $('pf-tut').addEventListener('change',()=>{$('pf-tutde-l').hidden=$('pf-tut').value!=='si'});
