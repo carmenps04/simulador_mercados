@@ -811,10 +811,13 @@ details.fold[open]{gap:12px}
 .passchip{font-family:var(--f-data);letter-spacing:.1em;background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:6px}
 
 /* Panel del profesor/a: todo cabe en pantalla, sin barra de desplazamiento */
-.nc-cols{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
-.nc-cols h3{font-size:1.15rem}
+.nc-cols{display:grid;grid-template-columns:minmax(0,1fr);gap:30px;align-items:start}
+.nc-cols h3{font-size:1.2rem;margin:0 0 4px}
+.newcourse .rules-grid{gap:22px 32px}
+.newcourse .rules-grid label{gap:8px}
+.newcourse .nc-col>.rules-grid+*{margin-top:6px}
 .nc-col .pass-row{max-width:640px}
-.nc-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.nc-col{display:flex;flex-direction:column;gap:20px;min-width:0}
 .newcourse{max-width:none}
 @media (min-width:901px){
   table.ctable{table-layout:fixed}
@@ -829,7 +832,8 @@ details.fold[open]{gap:12px}
   .tfit .res-charts{grid-template-columns:repeat(3,minmax(0,1fr))}
   .tfit .res-charts .card .chart svg{max-height:min(34vh,360px)}
 }
-.nc-col+.nc-col,.nc-send{border-top:2px solid var(--line);padding-top:18px}
+.nc-col+.nc-col,.nc-send{border-top:2px solid var(--line);padding-top:28px}
+.newcourse+.btns{margin-top:22px}
 
 
 .tactions{align-items:center}
