@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Reglas de Firestore del proyecto «simulador-maes» (Mercado Móvil). Versión 4 (noviembre 2026).
+// Reglas de Firestore del proyecto «simulador-maes» (Mercado Móvil). Versión 5 (noviembre 2026).
 // Este archivo NO se aplica solo: hay que pegarlo en la consola de Firebase
 // (Firestore Database → Reglas → Publicar). Antes, cambia TU_CORREO@ejemplo.com
 // por tu correo de administradora, EN MINÚSCULAS. En el repositorio se deja sin poner
@@ -91,6 +91,13 @@ service cloud.firestore {
           // Cierre de semana: añadir exactamente un resultado, solo pasada la hora de cierre
           || (changed().hasOnly(['history', 'cash', 'rep'])
               && request.resource.data.history.size() == resource.data.history.size() + 1
+              && game().dueAt != null
+              && request.time.toMillis() >= game().dueAt)
+          // Cierre de la ronda de prueba: se guarda aparte («trial») una sola vez y el presupuesto vuelve al inicial
+          || (changed().hasOnly(['trial', 'cash', 'rep'])
+              && !('trial' in resource.data)
+              && game().get('rules', {}).get('trial', false) == true
+              && game().week == 1
               && game().dueAt != null
               && request.time.toMillis() >= game().dueAt)));
       }

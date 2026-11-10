@@ -1013,6 +1013,11 @@ html.lock,html.lock body{overflow:hidden}
 .msgs li.bad::before{content:"✗";color:var(--bad)}
 .just textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:var(--surface);color:var(--ink);resize:vertical;margin-top:6px}
 .just .btns{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.fitwarn{border-radius:10px;padding:10px 12px;background:var(--bad-soft);border-left:4px solid var(--bad);display:flex;flex-direction:column;gap:4px;margin:2px 0 4px}
+.fitwarn.ok{background:var(--good-soft);border-left-color:var(--good)}
+.fitwarn p{margin:0}
+.trialcard{background:var(--event-soft);border-color:var(--event)}
+.tchip{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--event-soft);color:var(--event);border-radius:999px;padding:1px 7px;vertical-align:middle}
 .sent-more{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:14px;margin-top:14px;align-items:start}
 .sent-more>.card{margin:0}
 .sent-more>.just:only-child{grid-column:1/-1}
@@ -1635,6 +1640,8 @@ for(const r of [
 ["El código de vuestra empresa ha cambiado. Escribid el nuevo para seguir.","Your company code has changed. Write the new one to continue.","تغيّر رمز شركتكم. اكتبوا الرمز الجديد للمتابعة."]]) if(!TR.some(x=>x[0]===r[0])) TR.push(r);
 for(const r of [["Cuentas","Accounts","الحسابات"],["Ingresos","Income","المداخيل"],["Precio","Price","السعر"],["Préstamo","Loan","القرض"]]) if(!TR.some(x=>x[0]===r[0])) TR.push(r);
 for(const r of [["Mercado", "Market", "السوق"], ["Producto", "Product", "المنتج"], ["Precio y publicidad", "Price and advertising", "السعر والإعلان"], ["Finanzas", "Finance", "المالية"], ["Mucho", "A lot", "كثيرًا"], ["Poco@price", "Little", "قليلًا"], ["Lo normal", "Normally", "بشكل عادي"], ["Poco: pagan por calidad", "Little: they pay for quality", "قليلًا: يدفعون مقابل الجودة"], ["Clientes", "Customers", "الزبائن"], ["Miran el precio", "Price matters", "يهتمّون بالسعر"], ["Pulsad la opción que elijáis. Lo que no está marcado todavía no lo habéis elegido.", "Tap the option you choose. Anything not marked has not been chosen yet.", "اضغطوا على الخيار الذي تختارونه. ما ليس محدّدًا لم تختاروه بعد."], ["Elegid primero el continente: lo que aparece aquí depende de él.", "Choose the continent first: what appears here depends on it.", "اختاروا القارة أولًا: ما يظهر هنا يعتمد عليها."], ["Cada extra sube el coste de cada móvil. Podéis no incluir nada.", "Each extra raises the cost of each phone. You can include nothing.", "كل إضافة ترفع تكلفة كل هاتف. يمكنكم ألا تضيفوا شيئًا."], ["Cuestan algo más, pero muchos clientes las valoran y mejoran vuestra reputación. Podéis no elegir ninguna.", "They cost a bit more, but many customers value them and they improve your reputation. You can choose none.", "تكلّف أكثر قليلًا، لكن كثيرًا من الزبائن يقدّرونها وتحسّن سمعتكم. يمكنكم ألا تختاروا أيًّا منها."], ["¿A qué nicho se lo vendéis?", "Which niche do you sell to?", "لأيّ شريحة تبيعون؟"], ["Si otras empresas de la clase eligen el mismo nicho en el mismo continente, os repartiréis los clientes.", "If other companies in the class choose the same niche on the same continent, you will share the customers.", "إذا اختارت شركات أخرى في القسم نفس الشريحة في نفس القارة، فستتقاسمون الزبائن."], ["¿Cómo llegan los móviles a vuestros clientes?", "How do the phones reach your customers?", "كيف تصل الهواتف إلى زبائنكم؟"], ["Escribid la cifra exacta. Cada semana hay que escribirla de nuevo.", "Write the exact figure. You have to write it again every week.", "اكتبوا الرقم بالضبط. يجب كتابته من جديد كل أسبوع."], ["Precio de cada móvil (sin IVA)", "Price of each phone (without VAT)", "سعر كل هاتف (بدون الضريبة)"], ["Precio de venta (en Europa, con IVA incluido)", "Selling price (in Europe, VAT included)", "سعر البيع (في أوروبا، يشمل الضريبة)"], ["Ej.: {0}", "E.g. {0}", "مثال: {0}"], ["Precio habitual de un {0} en Europa: {1}. Cambia según el continente.", "Usual price of a {0} in Europe: {1}. It changes with the continent.", "السعر المعتاد لهاتف {0} في أوروبا: {1}. يتغيّر حسب القارة."], ["Semana pasada: {0}", "Last week: {0}", "الأسبوع الماضي: {0}"], ["Semana pasada: fabricasteis {0} y vendisteis {1}.", "Last week: you made {0} and sold {1}.", "الأسبوع الماضي: صنعتم {0} وبعتم {1}."], ["En el juego ponéis el precio sin IVA: el IVA lo paga el cliente aparte y se entrega a Hacienda, no es dinero de la empresa.", "In the game you set the price without VAT: the customer pays VAT on top and it goes to the tax office; it is not the company's money.", "في اللعبة تضعون السعر بدون الضريبة: يدفعها الزبون إضافةً وتُسلَّم لمصلحة الضرائب، وليست مال الشركة."], ["Ir a enviar →", "Go to send →", "انتقلوا إلى الإرسال ←"], ["Confirmar y seguir →", "Confirm and continue →", "أكّدوا وتابعوا ←"], ["Confirmar", "Confirm", "أكّدوا"], ["Sección confirmada. Si cambiáis algo, se guarda solo.", "Section confirmed. If you change something, it is saved automatically.", "تم تأكيد القسم. إذا غيّرتم شيئًا فسيُحفظ تلقائيًا."], ["Elegid cómo es por fuera vuestro móvil.", "Choose what your phone looks like on the outside.", "اختاروا شكل هاتفكم من الخارج."], ["Elegid una opción en cada componente.", "Choose an option for each component.", "اختاروا خيارًا لكل مكوّن."], ["Elegid un continente.", "Choose a continent.", "اختاروا قارة."], ["Elegid un nicho de clientes.", "Choose a customer niche.", "اختاروا شريحة من الزبائن."], ["Elegid un transporte.", "Choose a transport.", "اختاروا وسيلة نقل."], ["Escribid el precio y cuántos móviles vais a fabricar.", "Write the price and how many phones you will make.", "اكتبوا السعر وعدد الهواتف التي ستصنعونها."], ["Escribid cuánto invertís en publicidad (0 si no queréis hacer).", "Write how much you spend on advertising (0 if you do not want any).", "اكتبوا كم تنفقون على الإعلان (0 إن لم تريدوا)."], ["Elegid si pedís un préstamo y si ofrecéis pago a plazos.", "Choose whether you take a loan and whether you offer instalments.", "اختاروا إن كنتم ستأخذون قرضًا وإن كنتم ستعرضون الدفع بالتقسيط."], ["Completad la factura y pulsad «Comprobar factura».", "Complete the invoice and press “Check invoice”.", "أكملوا الفاتورة واضغطوا «تحقّق من الفاتورة»."], ["Elegid la provincia de la fábrica.", "Choose the province of the factory.", "اختاروا مقاطعة المصنع."], ["Elegid la maquinaria y el mantenimiento.", "Choose the machinery and the maintenance.", "اختاروا الآلات والصيانة."], ["Elegid una opción.", "Choose an option.", "اختاروا خيارًا."], ["Elegid qué hacéis ante la huelga.", "Choose what you do about the strike.", "اختاروا ما ستفعلونه أمام الإضراب."], ["Falta confirmar:", "Still to confirm:", "لم يُؤكَّد بعد:"], ["Todas las secciones están confirmadas.", "All sections are confirmed.", "تم تأكيد كل الأقسام."], ["Una vez enviadas, las decisiones no se pueden cambiar.", "Once sent, the decisions cannot be changed.", "بعد الإرسال لا يمكن تغيير القرارات."], ["de", "in", "في"], ["Fabricar y publicidad", "Making and advertising", "التصنيع والإعلان"], ["Gastos fijos de la semana", "Fixed costs this week", "المصاريف الثابتة لهذا الأسبوع"], ["Presupuesto tras esta semana", "Budget after this week", "الميزانية بعد هذا الأسبوع"], ["Sin contar lo que vendáis.", "Not counting what you sell.", "دون احتساب ما ستبيعونه."], ["Punto muerto", "Break-even point", "نقطة التعادل"], ["Aunque vendáis los {0} móviles, perderéis dinero.", "Even if you sell all {0} phones, you will lose money.", "حتى لو بعتم الهواتف الـ{0} كلها، ستخسرون مالًا."], ["Tenéis que vender {0} de {1} móviles para no perder dinero.", "You have to sell {0} of {1} phones not to lose money.", "عليكم بيع {0} من {1} هاتفًا كي لا تخسروا."], ["Si no vendéis nada, terminaréis la semana en negativo.", "If you sell nothing, you will end the week in the red.", "إذا لم تبيعوا شيئًا فستنهون الأسبوع برصيد سالب."], ["Presupuesto tras la semana", "Budget after the week", "الميزانية بعد الأسبوع"], ["Revisar y enviar ↓", "Review and send ↓", "راجعوا وأرسلوا ↓"], ["Revisar ↓", "Review ↓", "راجعوا ↓"], ["Faltan {0} secciones", "{0} sections left", "بقيت {0} أقسام"], ["Justificación de vuestras decisiones", "Justification of your decisions", "تبرير قراراتكم"], ["Explicad por qué habéis decidido así: precio, cuántos fabricáis, a quién vendéis… Podéis escribirla aquí mientras esperáis los resultados.", "Explain why you decided this way: price, how many you make, who you sell to… You can write it here while you wait for the results.", "اشرحوا لماذا قرّرتم هكذا: السعر، عدد ما تصنعونه، لمن تبيعون… يمكنكم كتابته هنا أثناء انتظار النتائج."], ["Hemos elegido… porque…", "We chose… because…", "اخترنا… لأن…"], ["Guardada.", "Saved.", "تم الحفظ."], ["Guardando…", "Saving…", "جارٍ الحفظ…"], ["Imprimir hoja de decisiones", "Print decision sheet", "اطبعوا ورقة القرارات"], ["La hoja incluye vuestras decisiones, la factura y la justificación. Si la imprimís sin justificación, deja líneas para escribirla a mano.", "The sheet includes your decisions, the invoice and the justification. If you print it without a justification, it leaves lines to write it by hand.", "تتضمّن الورقة قراراتكم والفاتورة والتبرير. إذا طبعتموها دون تبرير، تترك أسطرًا لكتابته باليد."], ["Factura entregada", "Invoice handed in", "الفاتورة المسلَّمة"], ["{0} móviles {1} a {2} para {3}.", "{0} {1} phones at {2} for {3}.", "{0} هاتف {1} بسعر {2} لـ{3}."], ["Hoja de decisiones", "Decision sheet", "ورقة القرارات"], ["Decisiones", "Decisions", "القرارات"], ["Justificación de nuestras decisiones", "Justification of our decisions", "تبرير قراراتنا"], ["No se pudo guardar. Inténtalo otra vez.", "It could not be saved. Try again.", "تعذّر الحفظ. حاولوا مرة أخرى."], ["céntimos", "cents", "سنت"], ["Fabricar", "Making", "التصنيع"], ["Gastos fijos", "Fixed costs", "المصاريف الثابتة"], ["Intereses", "Interest", "الفوائد"], ["Fabricar {0} móviles.", "Making {0} phones.", "تصنيع {0} هاتف."], ["Llevar los móviles a {0} en {1}.", "Taking the phones to {0} by {1}.", "نقل الهواتف إلى {0} بواسطة {1}."], ["Lo que invertisteis en anuncios.", "What you spent on ads.", "ما أنفقتموه على الإعلانات."], ["Sueldos y alquiler: se pagan aunque no vendáis nada.", "Wages and rent: paid even if you sell nothing.", "الأجور والإيجار: تُدفع حتى لو لم تبيعوا شيئًا."], ["Intereses del préstamo o del descubierto.", "Interest on the loan or the overdraft.", "فوائد القرض أو السحب على المكشوف."], ["Esta semana {0}; la anterior, {1}.", "This week {0}; the previous one, {1}.", "هذا الأسبوع {0}؛ الأسبوع السابق {1}."], ["Competencia: {0} también vendió a {1} de {2}. Os repartisteis los clientes: tuvisteis el {3} de los que habríais tenido sin competencia.", "Competition: {0} also sold to {1} in {2}. You shared the customers: you got {3} of what you would have had without competition.", "المنافسة: باعت {0} أيضًا لـ{1} في {2}. تقاسمتم الزبائن: حصلتم على {3} ممّا كان سيكون لكم دون منافسة."], ["Vuestro precio ({0}) estaba muy por encima de lo habitual en {1} ({2}). A un precio normal lo habrían querido unas {3} personas más.", "Your price ({0}) was well above the usual price in {1} ({2}). At a normal price about {3} more people would have wanted it.", "كان سعركم ({0}) أعلى بكثير من المعتاد في {1} ({2}). بسعر عادي كان سيرغب فيه نحو {3} شخصًا إضافيًا."], ["Vuestro precio ({0}) estaba muy por encima de lo habitual en {1} ({2}). Vendisteis casi todo porque fabricasteis pocos móviles, pero a un precio normal lo habrían querido unas {3} personas más.", "Your price ({0}) was well above the usual price in {1} ({2}). You sold almost everything because you made few phones, but at a normal price about {3} more people would have wanted it.", "كان سعركم ({0}) أعلى بكثير من المعتاد في {1} ({2}). بعتم كل شيء تقريبًا لأنكم صنعتم هواتف قليلة، لكن بسعر عادي كان سيرغب فيه نحو {3} شخصًا إضافيًا."]]) if(!TR.some(x=>x[0]===r[0])) TR.push(r);
+for(const r of [["Resultados de la semana de prueba", "Results of the practice week", "نتائج أسبوع التجربة"], ["Habríais ganado {0}", "You would have earned {0}", "كنتم ستربحون {0}"], ["Habríais perdido {0}", "You would have lost {0}", "كنتم ستخسرون {0}"], ["se reinicia: era de prueba", "it resets: it was a practice", "تُعاد: كان أسبوع تجربة"], ["Semana de prueba", "Practice week", "أسبوع التجربة"], ["prueba", "practice", "تجربة"], ["Esta semana no cuenta.", "This week does not count.", "هذا الأسبوع لا يُحتسب."], ["Empezáis la semana 2 otra vez con {0} y reputación 50, sin préstamos. Aprovechad lo que habéis aprendido: lo que habéis decidido aparecerá ya elegido.", "You start week 2 again with {0} and reputation 50, with no loans. Use what you have learned: what you decided will already be selected.", "تبدؤون الأسبوع 2 من جديد بـ{0} وسمعة 50 ودون قروض. استفيدوا ممّا تعلّمتم: ما قرّرتموه سيظهر مختارًا."], ["Esta semana es de prueba: no cuenta", "This week is a practice: it does not count", "هذا الأسبوع للتجربة: لا يُحتسب"], ["Decidid y enviad como siempre. Veréis los resultados, pero la semana 2 todos empezaréis otra vez con {0}. Sirve para entender cuánto cuesta cada móvil y a qué precio se vende.", "Decide and send as usual. You will see the results, but in week 2 everyone starts again with {0}. It helps you understand how much each phone costs and at what price it sells.", "قرّروا وأرسلوا كالعادة. سترون النتائج، لكن في الأسبوع 2 سيبدأ الجميع من جديد بـ{0}. يفيد لفهم تكلفة كل هاتف وبأيّ سعر يُباع."], ["Cada móvil os cuesta {0} y un cliente de {1} suele pagar unos {2}. Con estos componentes casi no ganaréis nada o perderéis dinero con cada móvil: un {1} es un móvil de {3}.", "Each phone costs you {0} and a {1} customer usually pays about {2}. With these components you will earn almost nothing or lose money on each phone: a {1} is a {3} phone.", "كل هاتف يكلّفكم {0} وزبون {1} يدفع عادةً نحو {2}. بهذه المكوّنات لن تربحوا شيئًا تقريبًا أو ستخسرون مع كل هاتف: {1} هاتف من {3}."], ["Los clientes de un {0} esperan componentes mejores: con estos, mucha gente no lo comprará.", "{0} customers expect better components: with these, many people will not buy it.", "زبائن {0} يتوقّعون مكوّنات أفضل: بهذه لن يشتريه كثيرون."], ["Aviso de las primeras semanas", "Warning for the first weeks", "تنبيه الأسابيع الأولى"], ["Los componentes encajan con un {0} de {1}: el coste por móvil ({2}) queda por debajo de lo que suele pagar su cliente ({3}).", "The components fit a {1} {0}: the cost per phone ({2}) is below what its customer usually pays ({3}).", "المكوّنات تناسب {0} من {1}: تكلفة الهاتف ({2}) أقل ممّا يدفعه زبونه عادةً ({3})."], ["Este aviso solo aparece las tres primeras semanas.", "This warning only appears in the first three weeks.", "يظهر هذا التنبيه في الأسابيع الثلاثة الأولى فقط."]]) if(!TR.some(x=>x[0]===r[0])) TR.push(r);
+for(const r of [["Habríais ganado {0} y vendido {1} móviles.", "You would have earned {0} and sold {1} phones.", "كنتم ستربحون {0} وتبيعون {1} هاتفًا."]]) if(!TR.some(x=>x[0]===r[0])) TR.push(r);
 const I18N={en:{},ar:{}}; TR.forEach(([es,en,ar])=>{I18N.en[es]=en;I18N.ar[es]=ar});
 let LANG=(()=>{try{const l=localStorage.getItem('mm-lang');return LANGS[l]?l:'es'}catch(e){return 'es'}})();
 function T(s,...a){const d=LANG!=='es'&&I18N[LANG];const r=(d&&d[s])||String(s).replace(/@\w+$/,'');return r.replace(/\{(\d)\}/g,(_,i)=>a[i]??'')}
@@ -1742,6 +1749,10 @@ const LOOKFX={
   oceania:{minimal:[1,'Ni ayuda ni perjudica.'],robusto:[1.12,'Vida al aire libre: playa, montaña y deporte.'],llamativo:[1,'Ni ayuda ni perjudica.'],lujo:[.97,'Un móvil delicado no encaja con la vida al aire libre.']}
 };
 const FIXED=5000, START_CASH=100000, EV_FROM=2;
+/* Ronda 1 de prueba (si el profesor/a la activa): se juega y se ven los resultados, pero se guardan aparte (campo «trial»)
+   y no cuentan: al cerrarla, cada empresa vuelve a 100.000 € y reputación 50, sin préstamos ni historial. */
+const trialOn=g=>!!(g&&g.rules&&g.rules.trial);
+const isTrialWeek=()=>trialOn(G)&&G.week===1;
 /* Reglas de cada curso: número de rondas (semanas del juego) y duración real de cada ronda (0 = manual) */
 const RULE_DEF={rounds:5,roundMs:7*864e5};
 let WEEKS=RULE_DEF.rounds, WEEK_MS=RULE_DEF.roundMs;
@@ -2150,9 +2161,9 @@ async function closeWeek(){
       const sent=t.decWeek===w, ev=teamEvent(t,w), dec=fixDec(JSON.parse(JSON.stringify(sent?t.dec:{...t.dec,prod:0,ad:0,adv:{...((t.dec&&t.dec.adv)||{}),media:[],mach:1,measure:'nada'}})),ev,t);
       return {t,sent,ev,dec,r0:simulate(dec,w,t)};
     });
-    const COMP=compShares(base);
+    const COMP=compShares(base), trialW=trialOn(fresh)&&w===1;
     for(const B of base){
-      const t=B.t; if((t.history||[]).some(h=>h.week===w)) continue;
+      const t=B.t; if((t.history||[]).some(h=>h.week===w)||(trialW&&t.trial)) continue;
       const sent=B.sent, ev=B.ev, dec=B.dec, cp=COMP[t.id];
       const r=simulate(dec,w,t,cp?cp.cm:1); r.off=offAt(t,w); r.comp=cp||null;
       const iv=invOf(t,w), io=iv?invOrder(t,w):null, bonus=iv&&iv.ok?(iv.tries<=1?2:1):0;
@@ -2169,6 +2180,7 @@ async function closeWeek(){
       if(!r.A) h.costD={fab:Math.round(dec.prod*r.K.unit),ship:Math.round(dec.prod*r.K.ship),ad:Math.round(dec.ad||0),fixed:FIXED,fin:Math.round((r.FIN.interest||0)+(r.FIN.over||0)),out:Math.round(r.outlet),tariff:Math.round(r.tariffPaid+(r.pzLoss||0))};
       if(sent) h.pfx=Math.round((r.pf||1)*1000)/1000;
       if(sent){h.dec={comps:dec.comps,extras:dec.extras,look:(t.design&&t.design.look)||null,logo:logoSet(t),level:levelOf(t),fin:dec.fin||null}}
+      if(trialW){h.trial=true;jobs.push(Store.patchTeam(CODE,t.id,{cash:START_CASH+(h.inj||0),rep:50,trial:h}));continue}
       jobs.push(Store.patchTeam(CODE,t.id,{cash:Math.round(cash),rep,history:[...(t.history||[]),h]}));
     }
     await Promise.all(jobs);
@@ -2403,7 +2415,7 @@ function ensureDraft(t){
   let src=(t.wip&&t.wip.week===G.week&&t.wip.dec)?t.wip:null;
   try{const l=JSON.parse(localStorage.getItem(wipKey(t)));if(l&&l.dec&&l.week===G.week&&(!src||(l.at||0)>=(src.at||0)))src=l}catch(e){}
   if(src){draft=JSON.parse(JSON.stringify(src.dec));WIP={id,touched:[...(src.touched||[])],done:[...(src.done||[])],at:src.at||0};wipLast='';return}
-  if(!(t.history||[]).some(h=>h.sent)&&t.decWeek!==G.week){
+  if(!(t.history||[]).some(h=>h.sent)&&!(t.trial&&t.trial.sent)&&t.decWeek!==G.week){
     draft=defaultDec(t.model); Object.keys(draft.extras).forEach(k=>{draft.extras[k]=false}); draft.eco={}; draft.adv.media=[]; draft.ad=0;
     WIP={id,touched:[],done:[],at:0};
   }else{
@@ -2885,7 +2897,7 @@ function headerHTML(){
   const lg=teamLogo(t);
   return `<div class="brand">${lg?`<img class="team-logo" src="${esc(lg)}" alt="">`:''}<div class="tmenu"><h1><button type="button" class="tmenu-btn" id="tmenuBtn" aria-haspopup="menu" aria-expanded="${TMENU}" title="${T('Ver información de la empresa')}">${esc(t.name)}<span class="caret" aria-hidden="true">▾</span></button></h1>${TMENU?tmenuHTML(t):''}</div><span class="team">${MODELS[t.model].n} · ${esc(G.curso||G.code)}</span></div>
   <div class="kpis">
-    <div class="kpi"><span class="label">${T('Semana')}</span><b id="kpiWeek">${G.week>WEEKS?T('Fin'):wk+' / '+WEEKS}</b></div>
+    <div class="kpi"><span class="label">${T('Semana')}</span><b id="kpiWeek">${G.week>WEEKS?T('Fin'):wk+' / '+WEEKS}${isTrialWeek()?` <span class="tchip">${T('prueba')}</span>`:''}</b></div>
     <div class="kpi"><span class="label">${T('Presupuesto')}</span><b id="kpiCash" class="${t.cash<0?'neg':''}" data-n="${t.cash}" data-f="eur">${eur(t.cash)}</b></div>
     <div class="kpi"><span class="label">${T('Reputación')} ${glBtn('reputacion')}</span><b>${Math.round(t.rep)} / 100</b></div>
     <div class="btns"><button class="mini" data-gl="">${T('Glosario')}</button>${langSel()}${teacherOK&&!PREVIEW?`<button class="mini" id="switch">${T('Cambiar de empresa')}</button>`:''}${!teacherOK&&!PREVIEW?`<button class="mini" id="leave">${T('Salir de la empresa')}</button>`:''}${teacherOK&&!PREVIEW?`<button class="mini" id="homeBtn">${T('Inicio')}</button>${profBtn()}`:''}</div>
@@ -2895,13 +2907,13 @@ function renderTeam(){
   const t=myTeam(); const ended=G.week>WEEKS;
   ensureDraft(t);
   const sent=t.decWeek===G.week&&!editing;
-  const H=t.history||[], last=H[H.length-1], showRes=last&&(ended||(last.week===G.week-1&&(t.seenWeek||0)<last.week));
+  const H=t.history||[], last=H[H.length-1], trialRes=!last&&!!t.trial&&G.week===2&&(t.seenWeek||0)<1, showRes=trialRes||(last&&(ended||(last.week===G.week-1&&(t.seenWeek||0)<last.week)));
   app.innerHTML=`<div class="app"><header class="top" id="hdr">${headerHTML()}</header>
     ${PREVIEW?`<div class="tbar preview"><b>Vista del profesor/a</b><span class="hint">Estás viendo la pantalla de ${esc(t.name)}. Nada de lo que toques se guarda.</span><button class="go small" id="toPanel">← Volver al panel</button></div>`
     :teacherOK&&!ended?`<div class="tbar"><b>Modo profesor/a</b><span class="hint">${TEAMS.filter(x=>x.decWeek===G.week).length} de ${TEAMS.length} empresas han enviado decisiones</span>
       ${advBtn()}</div>`:''}
     <div class="main fitbox ${sent&&!showRes?'noshrink':''}"><div class="fit">${ended?`<section class="panel sent-screen"><div class="sent-msg"><h2>${T('La partida ha terminado')}</h2><p>${T('Todavía no hay resultados.')}</p></div></section>`:sent?sentHTML(t):decideHTML(t)}</div></div></div>`;
-  if(showRes){document.querySelector('.main .fit').innerHTML=resultsScreen(t,ended)}
+  if(showRes){document.querySelector('.main .fit').innerHTML=resultsScreen(trialRes?{...t,history:[t.trial]}:t,ended)}
   bindHeader(); bindTop();
   bindAdv(advance);
   const tp=document.getElementById('toPanel'); tp&&tp.addEventListener('click',exitPreview);
@@ -2935,26 +2947,28 @@ function keysHTML(h){
   else if(left>0.15*h.prod&&h.prod>0){bad=T('Sobraron {0} móviles y se malvendieron.',int(left));tip=T('Fabricad menos o bajad un poco el precio.')}
   else if(h.profit<0){bad=T('Perdisteis {0} esta semana.',eur(-h.profit));tip=T('Comparad lo que cuesta cada móvil con el precio de venta.')}
   else {const b=M.find(m=>m.c==='bad');bad=b?b.t:null;tip=T('Repetid lo que ha funcionado y cambiad solo una cosa cada vez.')}
-  const g=h.profit>0?T('Habéis ganado {0} y vendido {1} móviles.',eur(h.profit),int(h.sold)):good?good.t:null;
+  const g=h.profit>0?T(h.trial?'Habríais ganado {0} y vendido {1} móviles.':'Habéis ganado {0} y vendido {1} móviles.',eur(h.profit),int(h.sold)):good?good.t:null;
   return `<div class="card keys" id="keys"><div class="keys-head"><span class="label">${T('Las 3 claves de la semana')}</span>${sayBtn('#keys')}</div>
     <ul class="keyl">${g?`<li class="good"><b>${T('Lo mejor')}</b><span>${esc(g)}</span></li>`:''}${bad?`<li class="bad"><b>${T('A mejorar')}</b><span>${esc(bad)}</span></li>`:''}<li class="tip"><b>${T('Para la próxima semana')}</b><span>${esc(tip)}</span></li></ul></div>`;
 }
 function latestFb(t){const f=(t.feedback||[]).filter(x=>x.week<=G.week&&x.text).sort((a,b)=>a.week-b.week);return f[f.length-1]||null}
 function resultsScreen(t,ended){
-  const H=t.history, h=H[H.length-1], total=H.reduce((a,x)=>a+x.profit,0);
+  const H=t.history, h=H[H.length-1], tr=!!h.trial, total=tr?0:H.reduce((a,x)=>a+x.profit,0);
   if(ended&&!finalShown){RTAB='final';finalShown=true}
+  if(tr&&RTAB==='general') RTAB='empresa';
   if(!ended&&RTAB==='final') RTAB='empresa';
-  const tabs=`<div class="tabs" role="tablist">${ended?`<button role="tab" data-rtab="final" aria-selected="${RTAB==='final'}">${T('Resumen final')}</button>`:''}<button role="tab" data-rtab="empresa" aria-selected="${RTAB==='empresa'}">${ended?T('Semana {0}',h.week):esc(t.name)}</button>${h.adv?`<button role="tab" data-rtab="pl" aria-selected="${RTAB==='pl'}">${T('Cuentas')}</button>`:''}<button role="tab" data-rtab="why" aria-selected="${RTAB==='why'}">${T('¿Por qué?')}</button><button role="tab" data-rtab="general" aria-selected="${RTAB==='general'}">${T('General')}</button></div>`;
-  const body=RTAB==='final'?finalHTML(t):RTAB==='empresa'?`<div class="res-head" data-fx="res" data-fx-key="${esc(t.id)}-${h.week}"><div><span class="label">${T('Resultados de la semana {0}',h.week)}</span>
-      <h2>${T(h.profit>=0?'Habéis ganado {0} esta semana':'Habéis perdido {0} esta semana',`<span class="fx-amt" data-n="${Math.abs(h.profit)}" data-f="eur">${eur(Math.abs(h.profit))}</span>`)}</h2></div>
+  const tabs=`<div class="tabs" role="tablist">${ended?`<button role="tab" data-rtab="final" aria-selected="${RTAB==='final'}">${T('Resumen final')}</button>`:''}<button role="tab" data-rtab="empresa" aria-selected="${RTAB==='empresa'}">${ended?T('Semana {0}',h.week):esc(t.name)}</button>${h.adv?`<button role="tab" data-rtab="pl" aria-selected="${RTAB==='pl'}">${T('Cuentas')}</button>`:''}<button role="tab" data-rtab="why" aria-selected="${RTAB==='why'}">${T('¿Por qué?')}</button>${tr?'':`<button role="tab" data-rtab="general" aria-selected="${RTAB==='general'}">${T('General')}</button>`}</div>`;
+  const body=RTAB==='final'?finalHTML(t):RTAB==='empresa'?`<div class="res-head" data-fx="res" data-fx-key="${esc(t.id)}-${h.week}"><div><span class="label">${tr?T('Resultados de la semana de prueba'):T('Resultados de la semana {0}',h.week)}</span>
+      <h2>${T(tr?(h.profit>=0?'Habríais ganado {0}':'Habríais perdido {0}'):h.profit>=0?'Habéis ganado {0} esta semana':'Habéis perdido {0} esta semana',`<span class="fx-amt" data-n="${Math.abs(h.profit)}" data-f="eur">${eur(Math.abs(h.profit))}</span>`)}</h2></div>
       <span class="hint">${h.sent?`${CONTS[h.cont].n} · ${h.niche&&NICHES[h.niche]?NICHES[h.niche].n.toLowerCase()+' · ':''}${h.mode?MODES[h.mode].n.toLowerCase()+' · ':''}${eur(h.price)}`:T('Sin decisiones enviadas')}</span></div>
     <div class="stats5">
       <div class="stat"><span class="label">${T('Unidades vendidas')}</span><b data-n="${h.sold}" data-f="int">${int(h.sold)}</b><small>${T('de {0} fabricadas',int(h.prod))}</small></div>
       <div class="stat"><span class="label">${T('Efecto publicidad')}</span><b data-n="${h.adClients}" data-f="plus">+${int(h.adClients)}</b><small>${T('clientes con {0}',eur(h.ad))}</small></div>
       <div class="stat"><span class="label">${T('Beneficio')} ${glBtn('beneficio')}</span><b class="${h.profit<0?'neg':'pos'}" data-n="${h.profit}" data-f="eur">${eur(h.profit)}</b><small>${T('ingresos − gastos')}</small></div>
       <div class="stat"><span class="label">${T('Ingresos')} ${glBtn('ingresos')}</span><b data-n="${h.revenue}" data-f="eur">${eur(h.revenue)}</b><small>${T('gastos: {0}',eur(h.costs))}</small></div>
-      <div class="stat key"><span class="label">${T('Presupuesto siguiente')} ${glBtn('presupuesto')}</span><b class="${h.cash<0?'neg':''}" data-n="${h.cash}" data-f="eur">${eur(h.cash)}</b><small>${T('acumulado: {0}',eur(total))}</small></div>
+      <div class="stat key"><span class="label">${T('Presupuesto siguiente')} ${glBtn('presupuesto')}</span>${tr?`<b>${eur(START_CASH+(h.inj||0))}</b><small>${T('se reinicia: era de prueba')}</small>`:`<b class="${h.cash<0?'neg':''}" data-n="${h.cash}" data-f="eur">${eur(h.cash)}</b><small>${T('acumulado: {0}',eur(total))}</small>`}</div>
     </div>
+    ${tr?`<div class="card trialcard"><span class="label">${T('Semana de prueba')}</span><p><b>${T('Esta semana no cuenta.')}</b> ${T('Empezáis la semana 2 otra vez con {0} y reputación 50, sin préstamos. Aprovechad lo que habéis aprendido: lo que habéis decidido aparecerá ya elegido.',eur(START_CASH))}</p></div>`:''}
     ${sdHTML(h)}
     ${h.inj?`<div class="card inj"><span class="label">${T('Inyección de capital')}</span><p><b>${T('Esta semana habéis recibido {0} de vuestro profesor/a.',eur(h.inj))}</b> ${T('Está sumado en vuestro presupuesto, pero no cuenta como beneficio: no lo habéis ganado vendiendo.')}${(h.injNotes||[]).map(n=>` <b>${T('Motivo:')}</b> ${esc(n)}`).join('')}</p></div>`:''}
     ${latestFb(t)?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(latestFb(t).text)}</p></div>`:''}
@@ -3249,10 +3263,10 @@ function decideHTML(t){
   let body='';
   if(KEY==='news') body=newsHTML(t);
   if(KEY==='design') body=designHTML(t);
-  if(KEY==='comps') body=`<h2>${T('Componentes de vuestro {0}',m.n)}</h2>${pick}
+  if(KEY==='comps') body=`<h2>${T('Componentes de vuestro {0}',m.n)}</h2>${pick}<div id="fitwarn">${fitWarnHTML(t)}</div>
       <ol class="clist">${Object.keys(COMPS).map(k=>`<li class="crow"><b>${COMPS[k].n}</b>
       <div class="seg" style="grid-template-columns:repeat(3,1fr)">${COMPS[k].o.map(([L,c],i)=>`<button data-comp="${k}" data-lv="${i+1}" aria-pressed="${on('c:'+k)&&d.comps[k]===i+1}"><span>${T(L)}</span><small>+${c} €</small></button>`).join('')}</div></li>`).join('')}</ol>`;
-  if(KEY==='box') body=`<h2>${T('¿Qué incluís en la caja?')}</h2><p class="hint">${T('Cada extra sube el coste de cada móvil. Podéis no incluir nada.')}</p>
+  if(KEY==='box') body=`<h2>${T('¿Qué incluís en la caja?')}</h2><p class="hint">${T('Cada extra sube el coste de cada móvil. Podéis no incluir nada.')}</p><div id="fitwarn">${fitWarnHTML(t)}</div>
       <div class="llist">${Object.entries(EXTRAS).map(([k,x])=>{const on=!!d.extras[k];
       return `<button class="opt xopt lrow" data-extra="${k}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="t">${x.n}</span>
         <span class="s">${x.why}</span><span class="meta">${T('+{0} € por móvil',x.c)}</span></button>`}).join('')}</div>`;
@@ -3307,6 +3321,15 @@ function decideHTML(t){
   return `<div class="work"><section class="panel tabpanel">${tabs}<div class="tabbody fitbox" id="design"><div class="fit">${body}</div></div>${nav}</section>
     <aside class="side fitbox" id="summary">${summaryHTML(t)}</aside></div>`;
 }
+/* Aviso de las tres primeras semanas: componentes que no encajan con la gama del móvil */
+function fitWarnHTML(t){
+  if(G.week>3||!draft||!Object.keys(COMPS).every(c=>on('c:'+c))) return '';
+  const d=draft, w=G.week, K=costs(d,w,t), m=MODELS[d.model], hab=habitual(d.model,on('cont')?d.cont:'europa'), F=fitOf(d,w,t), out=[];
+  if(K.per>=hab*.85) out.push(T('Cada móvil os cuesta {0} y un cliente de {1} suele pagar unos {2}. Con estos componentes casi no ganaréis nada o perderéis dinero con cada móvil: un {1} es un móvil de {3}.',eur(K.per),m.n,eur(hab),m.g.toLowerCase()));
+  if(F.sat<.75) out.push(T('Los clientes de un {0} esperan componentes mejores: con estos, mucha gente no lo comprará.',m.n));
+  return `<div class="fitwarn ${out.length?'':'ok'}"><span class="label">${T('Aviso de las primeras semanas')}</span>${out.length?out.map(x=>`<p>${x}</p>`).join(''):`<p>${T('Los componentes encajan con un {0} de {1}: el coste por móvil ({2}) queda por debajo de lo que suele pagar su cliente ({3}).',m.n,m.g.toLowerCase(),eur(K.per),eur(hab))}</p>`}
+    <p class="hint">${T('Este aviso solo aparece las tres primeras semanas.')}</p></div>`;
+}
 /* Tamaño del nicho y lo que miran el precio, en barras pequeñas */
 function nicheMeters(N,d,cOn){
   const sz=N.size[d.cont], szN=sz>=1.25?5:sz>=1.05?4:sz>=.9?3:sz>=.75?2:1, el=N.el, elN=el>.2?3:el<-.1?1:2;
@@ -3319,7 +3342,7 @@ function newsHTML(t){
   const tr=Object.keys(MODELS).map(m=>`<li class="${m===draft.model?'me':''}"><span>${MODELS[m].n} (${MODELS[m].g.toLowerCase()})</span><b>${ATTR[trend(m,w)]}</b></li>`).join('');
   const fb=latestFb(t);
   const ij=injOf(t,w);
-  return `<h2>${T('Noticias de la semana {0}',w)}</h2>${unlockNotice(t)}${ij.length?`<div class="card inj"><span class="label">${T('Inyección de capital')}</span><h3>${T('Habéis recibido {0}',eur(injSum(t,w)))}</h3><p>${T('Vuestro profesor/a ha metido este dinero en la empresa. Ya está en vuestro presupuesto.')}${ij.filter(x=>x.note).map(x=>` <b>${T('Motivo:')}</b> ${esc(x.note)}`).join('')}</p></div>`:''}${isAdv()?advAlerts(t):''}${fb?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(fb.text)}</p></div>`:''}<div class="grid2">
+  return `<h2>${T('Noticias de la semana {0}',w)}</h2>${isTrialWeek()?`<div class="card trialcard"><span class="label">${T('Semana de prueba')}</span><h3>${T('Esta semana es de prueba: no cuenta')}</h3><p>${T('Decidid y enviad como siempre. Veréis los resultados, pero la semana 2 todos empezaréis otra vez con {0}. Sirve para entender cuánto cuesta cada móvil y a qué precio se vende.',eur(START_CASH))}</p></div>`:''}${unlockNotice(t)}${ij.length?`<div class="card inj"><span class="label">${T('Inyección de capital')}</span><h3>${T('Habéis recibido {0}',eur(injSum(t,w)))}</h3><p>${T('Vuestro profesor/a ha metido este dinero en la empresa. Ya está en vuestro presupuesto.')}${ij.filter(x=>x.note).map(x=>` <b>${T('Motivo:')}</b> ${esc(x.note)}`).join('')}</p></div>`:''}${isAdv()?advAlerts(t):''}${fb?`<div class="card fbcard"><span class="label">${T('Recomendación de vuestro profesor/a')}</span><p>${esc(fb.text)}</p></div>`:''}<div class="grid2">
     ${ev?`<div class="card event"><span class="label">${T('Evento inesperado · semana {0}',w)}</span><h3>${ev.title}</h3><p>${ev.text}</p></div>`
       :`<div class="card"><span class="label">${T('Evento inesperado')}</span><p class="muted">${T('Semana tranquila.')} ${T(nextEv?'Atentos: la semana que viene puede pasar algo.':'No hay eventos especiales.')}</p></div>`}
     <div class="card"><span class="label">${T('Lo que más buscan los clientes de cada móvil')}</span><ul class="trend-list">${tr}</ul>
@@ -3449,7 +3472,7 @@ function printSheet(t,w,just){
 function rerenderKeep(){saveWip();renderTeam()}
 function bindDecide(){
   const d=draft, t=myTeam();
-  const refresh=()=>{sendArmed=false;saveWip();document.getElementById('summary').innerHTML=summaryHTML(myTeam());bindSend();paintNav()};
+  const refresh=()=>{sendArmed=false;saveWip();document.getElementById('summary').innerHTML=summaryHTML(myTeam());bindSend();paintNav();const fw=document.getElementById('fitwarn');if(fw)fw.innerHTML=fitWarnHTML(myTeam())};
   app.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{TAB=+b.dataset.tab;MENU=false;rerenderKeep();scrollToWork()}));
   app.querySelectorAll('[data-go]:not([data-confirm])').forEach(b=>b.addEventListener('click',()=>{TAB=+b.dataset.go;rerenderKeep();scrollToWork()}));
   app.querySelectorAll('[data-confirm]').forEach(b=>b.addEventListener('click',()=>{if(!secReady(b.dataset.confirm,t))return;markDone(b.dataset.confirm);if(b.dataset.go)TAB=+b.dataset.go;rerenderKeep();if(b.dataset.go)scrollToWork();else toSend()}));
@@ -4025,7 +4048,7 @@ function bindReset(){
 /* ================= Panel del profesor/a (v2): crear curso, cursos y resultados ================= */
 let TFLASH='', RVIEW='general', RMETRIC='profit', ALLT=null, ALLT_BUSY=false;
 const DAY_OPTS=[[1,'1 día'],[2,'2 días'],[3,'3 días'],[7,'1 semana'],[14,'2 semanas']];
-const rulesTxt=r=>{r={...RULE_DEF,...(r||{})};return `${LEVELS[r.level]||'Básico'} · ${r.rounds} rondas · `+(r.roundMs?`cada ${(DAY_OPTS.find(o=>o[0]===Math.round(r.roundMs/864e5))||[0,Math.round(r.roundMs/864e5)+' días'])[1]}${r.endTime?' a las '+r.endTime:''}`:'publicación manual')};
+const rulesTxt=r=>{r={...RULE_DEF,...(r||{})};return `${LEVELS[r.level]||'Básico'} · ${r.rounds} rondas · `+(r.roundMs?`cada ${(DAY_OPTS.find(o=>o[0]===Math.round(r.roundMs/864e5))||[0,Math.round(r.roundMs/864e5)+' días'])[1]}${r.endTime?' a las '+r.endTime:''}`:'publicación manual')+(r.trial?' · ronda 1 de prueba':'')};
 /* Campos de reglas (los usan «Crear curso» y «Cursos») */
 function rulesFields(p,r,minR,lock,bare){
   r={...RULE_DEF,...(r||{})}; const manual=!r.roundMs, days=r.roundMs?Math.round(r.roundMs/864e5):1, tm=r.endTime||'09:00';
@@ -4036,6 +4059,7 @@ function rulesFields(p,r,minR,lock,bare){
     <label for="${p}-time"><b>Hora de cierre y publicación</b><input type="time" id="${p}-time" value="${esc(tm)}" ${manual?'disabled':''}></label>
   </div>
   <label class="check" for="${p}-manual"><input type="checkbox" id="${p}-manual" ${manual?'checked':''}> Publicar los resultados manualmente</label>
+  <label class="check" for="${p}-trial"><input type="checkbox" id="${p}-trial" ${r.trial?'checked':''} ${lock||(p==='e'&&G&&G.week>1)?'disabled':''}> La ronda 1 es de prueba: se ven los resultados, pero no cuenta y todos empiezan la ronda 2 con ${eur(START_CASH)}. Si quieres 5 semanas que cuenten, elige 6 rondas.</label>
   ${bare?'':`<p class="hint" id="${p}-lvhint">${LEVEL_HINT}${lock?' La dificultad ya no se puede cambiar porque hay resultados publicados.':''}</p>
   <p class="hint" id="${p}-prev"></p>`}`;
 }
@@ -4048,6 +4072,7 @@ function readRules(p){
   if(off) r.off=off;
   if(p==='n') r.unlock={...NEWUNLOCK}; else if(document.querySelector(`select[data-unl="${p}"]`)) r.unlock=readUnlock(p);
   if(!manual) r.endTime=document.getElementById(p+'-time').value||'09:00';
+  {const tr=document.getElementById(p+'-trial');if(tr)r.trial=tr.checked}
   return r;
 }
 function bindRulesFields(p,g){
@@ -4115,7 +4140,7 @@ function tCursos2(){
       <form class="form" id="frules2">
         <div class="mtab" data-mtp="1">
           <label for="e-pass" class="pass-l"><b>Código para que entre el alumnado</b><input id="e-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" value="${esc(G.pass||'')}" placeholder="Sin código: cualquiera puede entrar"></label>
-          ${rulesFields('e',r,minR,TEAMS.some(x=>(x.history||[]).length),true)}
+          ${rulesFields('e',r,minR,TEAMS.some(x=>(x.history||[]).length)||G.week>1,true)}
         </div>
         <div class="mtab" data-mtp="2" hidden><div id="e-secs">${secChecklist(r.level||'basico',r.off||[],'e',r.unlock||{},r.rounds)}</div></div>
         <div class="btns"><button class="go small" type="submit">Guardar</button></div><p class="hint" id="emsg"></p></form>`:`
@@ -4143,7 +4168,7 @@ function bindCursos2(){
     const same=lv===((G.rules&&G.rules.level)||'basico');document.getElementById('e-secs').innerHTML=secChecklist(lv,same?(G.rules.off||[]):[],'e',same?{...(G.rules.unlock||{}),...keepU}:{},R)};
   ['e-level','e-rounds'].forEach(id=>{const x=document.getElementById(id);x&&x.addEventListener('change',redo)});
   f.addEventListener('submit',async e=>{
-    e.preventDefault(); const rules=readRules('e'); if(TEAMS.some(x=>(x.history||[]).length)) rules.level=(G.rules&&G.rules.level)||'basico'; const ng={...G,rules};
+    e.preventDefault(); const rules=readRules('e'); if(TEAMS.some(x=>(x.history||[]).length)||G.week>1) rules.level=(G.rules&&G.rules.level)||'basico'; if(G.week>1) rules.trial=!!(G.rules&&G.rules.trial); const ng={...G,rules};
     const pass=normPass(document.getElementById('e-pass').value);
     if(pass&&!PASS_OK(pass)){document.getElementById('emsg').textContent='El código debe tener de 4 a 20 letras o números, sin espacios ni símbolos.';return}
     if(pass) ng.pass=pass; else delete ng.pass;
@@ -4610,6 +4635,7 @@ async function exportXLSX(btn){
     const rows=[head], sum=[['Empresa','Integrantes','Móvil','Semanas enviadas','Móviles vendidos','Beneficio total (€)','Presupuesto actual (€)','Reputación (0-100)']];
     for(const t of [...TEAMS].sort((a,b)=>a.name.localeCompare(b.name,'es'))){
       const H=(t.history||[]).slice().sort((a,b)=>a.week-b.week);
+      if(t.trial) rows.push(decRow(t,1,t.trial,t.trial.dec||null,'Semana de prueba (no cuenta)'));
       for(const h of H) rows.push(decRow(t,h.week,h,h.dec||null,h.sent?'Enviada':'No envió'));
       if(G.week<=WEEKS&&t.decWeek===G.week&&!H.some(h=>h.week===G.week)) rows.push(decRow(t,G.week,null,{...t.dec,look:t.design&&t.design.look,logo:logoSet(t)},'Enviada, sin resultados todavía'));
       sum.push([t.name,(t.members||[]).join(', '),MODELS[t.model].n,H.filter(h=>h.sent).length,H.reduce((a,h)=>a+(h.sold||0),0),profitOf(t),Math.round(t.cash),Math.round(t.rep)]);
