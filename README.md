@@ -36,6 +36,8 @@ Los dispositivos se comparten entre grupos, así que cada empresa tiene un **có
 ### Crear un curso
 Panel → **Crear curso**. Elige curso, letra, código de entrada y reglas. Si marcas «Publicar los resultados manualmente», las rondas solo avanzan cuando pulsas **Publicar resultados** en **Cursos**.
 
+La administradora tiene además el curso **MAES**, que no lleva letra (para demostraciones). El alumnado lo elige en la pantalla de inicio como cualquier otro curso.
+
 ### Semana de prueba
 Al crear el curso, marca «La ronda 1 es de prueba». El alumnado juega la ronda 1 y ve sus resultados, pero no cuentan: todos empiezan la ronda 2 con 100.000 € y reputación 50. La ronda de prueba es una de las rondas elegidas (para 5 semanas que cuenten, elige 6). Sus resultados salen en el Excel como «Semana de prueba». Las tres primeras semanas, en «Componentes» y «Caja» aparece un aviso si los componentes no encajan con la gama del móvil.
 

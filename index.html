@@ -2707,6 +2707,10 @@ async function enterCode(code,keepSess){
   if(G){Store.watch(code,onData);if(!keepSess)sess({...sess(),code})}
 }
 const NIVELES=['4º ESO','1º Bachillerato','2º Bachillerato'], LETRAS=['A','B','C','D'];
+/* Cursos especiales sin letra (p. ej. para demostraciones). Solo la administradora puede crearlos */
+const ESPECIALES=['MAES'];
+const sinLetra=n=>ESPECIALES.includes(n);
+const cursoName=(n,l)=>sinLetra(n)?n:n+' '+l;
 let joinMembers=['','',''], joinNivel='', joinLetra='';
 const courseCode=curso=>codeOf(curso.replace('Bachillerato','BACH'));
 let splashNext='home', codeTyped=false, joinLogo=null, joinName='', joinPick='B', joinClave='';
@@ -2760,7 +2764,7 @@ function renderHome(){
         <p class="hint">${T('Por privacidad, solo se guarda el nombre y la inicial del primer apellido (por ejemplo, Ana L.).')}</p>
         ${joinMembers.length<6?`<button type="button" class="ghost" id="addmem" style="align-self:flex-start">${T('+ Añadir integrante')}</button>`:''}
         <h2>${T('Vuestra clase')}</h2>
-        <div class="coursesel"><label for="nivel">${T('Curso')}${sel('nivel',NIVELES,joinNivel,T('Elegid curso'))}</label><label for="letra">${T('Letra')}${sel('letra',LETRAS,joinLetra,T('Letra'))}</label></div>
+        <div class="coursesel"><label for="nivel">${T('Curso')}${sel('nivel',[...NIVELES,...ESPECIALES],joinNivel,T('Elegid curso'))}</label><label for="letra">${T('Letra')}${sinLetra(joinNivel)?'<select id="letra" disabled><option value="">—</option></select>':sel('letra',LETRAS,joinLetra,T('Letra'))}</label></div>
         ${homeMsg?`<p class="err">${esc(homeMsg)}</p>`:''}
         <button class="go" type="submit">${T('Continuar')}</button>
       </form></div>
@@ -2774,7 +2778,7 @@ function renderHome(){
   bindTop();
   const keep=()=>{app.querySelectorAll('[data-mem]').forEach(el=>{joinMembers[+el.dataset.mem]=el.value});joinNivel=document.getElementById('nivel').value;joinLetra=document.getElementById('letra').value};
   app.querySelectorAll('[data-mem]').forEach(el=>el.addEventListener('input',()=>{joinMembers[+el.dataset.mem]=el.value}));
-  document.getElementById('nivel').addEventListener('change',e=>{joinNivel=e.target.value});
+  document.getElementById('nivel').addEventListener('change',e=>{const was=sinLetra(joinNivel);keep();joinNivel=e.target.value;if(sinLetra(joinNivel))joinLetra='';if(was!==sinLetra(joinNivel))renderHome()});
   document.getElementById('letra').addEventListener('change',e=>{joinLetra=e.target.value});
   const add=document.getElementById('addmem'); add&&add.addEventListener('click',()=>{keep();joinMembers.push('');homeMsg='';renderHome();const n=document.getElementById('mem'+(joinMembers.length-1));n&&n.focus()});
   app.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',()=>{keep();joinMembers.splice(+b.dataset.rm,1);renderHome()}));
@@ -2783,8 +2787,8 @@ function renderHome(){
     const mem=joinMembers.map(m=>m.trim().replace(/\s+/g,' ')).filter(Boolean);
     if(!mem.length){homeMsg=T('Escribid el nombre y los apellidos de al menos un integrante.');return renderHome()}
     if(mem.some(m=>m.split(' ').length<2)){homeMsg=T('Escribid nombre y apellidos de cada integrante (por ejemplo, Ana López).');return renderHome()}
-    if(!joinNivel||!joinLetra){homeMsg=T('Elegid vuestro curso y vuestro grupo (letra).');return renderHome()}
-    const curso=joinNivel+' '+joinLetra, c=courseCode(curso);
+    if(!joinNivel||(!sinLetra(joinNivel)&&!joinLetra)){homeMsg=T('Elegid vuestro curso y vuestro grupo (letra).');return renderHome()}
+    const curso=cursoName(joinNivel,joinLetra), c=courseCode(curso);
     try{
       Store.stop(); G=null; TEAMS=[];
       if(!(await Store.getGame(c))){homeMsg=T('Este curso todavía no está creado. Pedid a vuestro profesor o profesora que lo cree.');return renderHome()}
@@ -4092,7 +4096,7 @@ function tCrear(){
   return `<h2>Crear curso</h2>
     <form class="form newcourse" id="fnew"><div class="nc-cols"><section class="nc-col"><h3>Curso</h3>
       <div class="rules-grid">
-        <label for="n-nivel"><b>Curso</b><select id="n-nivel">${NIVELES.map(n=>`<option>${n}</option>`).join('')}</select></label>
+        <label for="n-nivel"><b>Curso</b><select id="n-nivel">${[...NIVELES,...(ROLE&&ROLE.admin&&!VIEWAS?ESPECIALES:[])].map(n=>`<option>${n}</option>`).join('')}</select></label>
         <label for="n-letra"><b>Letra</b><select id="n-letra">${LETRAS.map(l=>`<option>${l}</option>`).join('')}</select></label>
         <label for="n-pass" style="grid-column:1/-1"><b>Código para que entre el alumnado</b><span class="pass-row"><input id="n-pass" class="code-in" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Ej.: OLIVO24" value="${esc(newPass())}"><button type="button" class="ghost" id="n-gen">Otro</button></span></label>
       </div>
@@ -4109,9 +4113,12 @@ function bindCrear(){
   const lv=document.getElementById('n-level'), openSec=()=>{NEWLV=lv.value;SECM={scope:'new',level:lv.value,off:NEWOFF};app.insertAdjacentHTML('beforeend',secModalHTML());bindSecModal()};
   lv&&lv.addEventListener('change',()=>{NEWOFF=[];NEWUNLOCK={};openSec()});
   const ey=document.getElementById('n-eye'); ey&&ey.addEventListener('click',openSec);
+  const nv=document.getElementById('n-nivel'), nl=document.getElementById('n-letra');
+  nv&&nl&&nv.addEventListener('change',()=>{nl.disabled=sinLetra(nv.value)});
   const f=document.getElementById('fnew'); if(!f) return;
   f.addEventListener('submit',async e=>{
-    e.preventDefault(); const curso=document.getElementById('n-nivel').value+' '+document.getElementById('n-letra').value, c=courseCode(curso), rules=readRules('n');
+    e.preventDefault(); const curso=cursoName(document.getElementById('n-nivel').value,document.getElementById('n-letra').value), c=courseCode(curso), rules=readRules('n');
+    if(sinLetra(document.getElementById('n-nivel').value)&&!(ROLE&&ROLE.admin&&!VIEWAS)){document.getElementById('nmsg').textContent='Solo la administradora puede crear este curso.';return}
     const msg=document.getElementById('nmsg'), pass=normPass(document.getElementById('n-pass').value);
     if(!PASS_OK(pass)){msg.textContent='El código debe tener de 4 a 20 letras o números, sin espacios ni símbolos.';return}
     msg.textContent='Creando…';
